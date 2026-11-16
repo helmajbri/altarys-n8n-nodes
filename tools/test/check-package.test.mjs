@@ -92,6 +92,16 @@ const breakers = [
 	['non-English text (N31)', { node: `${cleanNode}const label = 'Rechnung für';\n` }, /N31/],
 	['a foreign host', { node: `${cleanNode}const api = 'https://api.internal.test/v1';\n` }, /not the package repository/],
 	['the package scope in code', { node: `${cleanNode}const pkg = '@example/n8n-nodes-sample';\n` }, /package name or scope/],
+	['optionalDependencies (N20)', { pkg: (p) => (p.optionalDependencies = { axios: '1.0.0' }) }, /optionalDependencies/],
+	['bundleDependencies (N20)', { pkg: (p) => (p.bundleDependencies = true) }, /bundleDependencies/],
+	['bundledDependencies (N20)', { pkg: (p) => (p.bundledDependencies = ['axios']) }, /bundledDependencies/],
+	['constructor.constructor (N24)', { node: cleanNode + 'const F = ({}).constructor.constructor;\n' }, /constructor/],
+	["['constructor'] (N24)", { node: cleanNode + "const F = ({})['constructor']['constructor'];\n" }, /constructor/],
+	// Before template and regex literals were understood, the quote inside them opened a "string"
+	// that swallowed the code after it, so these three passed the guard.
+	['a timer after a template literal holding a quote', { node: cleanNode + "const t = `it's`; setTimeout(f, 1);\n" }, /timer global/],
+	['a timer after a regex literal holding a quote', { node: cleanNode + "const r = /'/; setTimeout(f, 1);\n" }, /timer global/],
+	['process inside a template expression', { node: cleanNode + 'const t = `${process.env.X}`;\n' }, /process/],
 ];
 
 for (const [label, edit, expected] of breakers) {
@@ -101,8 +111,11 @@ for (const [label, edit, expected] of breakers) {
 	});
 }
 
-test('comments and strings do not trip the code checks', () => {
+test('comments, strings, template text and regex literals do not trip the code checks', () => {
 	assert.doesNotMatch(codeOnly("// process.env\nconst a = 'setTimeout';\n"), /process|setTimeout/);
+	assert.doesNotMatch(codeOnly('const m = `process is ${1 + 1} fine`;\n'), /process/);
+	assert.doesNotMatch(codeOnly('const r = /process|setTimeout/g;\nif (!/eval\\(/.test(x)) y();\n'), /process|setTimeout|eval/);
+	assert.match(codeOnly('const half = total / 2; const r = /x/;\n'), /total \/ 2/);
 });
 
 test('the packages in this repository pass', () => {

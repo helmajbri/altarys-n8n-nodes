@@ -36,6 +36,12 @@ const FORBIDDEN_CODE = [
 	[/\brequire\s*\(/, 'require (N22)'],
 	[/\bimport\s*\(/, 'dynamic import (N22)'],
 	[/\b(readFileSync|writeFileSync|readFile|writeFile|createReadStream|createWriteStream)\b/, 'file access (N19)'],
+	[/\bconstructor\s*\.\s*constructor\b/, 'constructor.constructor, a Function constructor (N24)'],
+];
+
+// Checked on the source itself, because string contents are removed from the code view.
+const FORBIDDEN_SOURCE = [
+	[/\[\s*['"`]constructor['"`]\s*\]/, "['constructor'], a Function constructor (N24)"],
 ];
 
 // The default eslint.config.mjs that strict mode compares against (N82).
@@ -54,34 +60,100 @@ function walk(dir, out = []) {
 	return out;
 }
 
-/** The code of a TypeScript file without its comments and its quoted strings. */
+/**
+ * The code of a TypeScript file without its comments, the text of its strings and template
+ * literals, and its regular-expression literals. The expressions inside `${...}` are kept, so a
+ * forbidden name used there is still found. A `/` starts a regular expression when it follows an
+ * operator, an opening bracket, a comma, a semicolon or a keyword such as `return`.
+ */
 export function codeOnly(source) {
-	let out = '';
 	let i = 0;
-	while (i < source.length) {
-		const c = source[i];
-		const next = source[i + 1];
-		if (c === '/' && next === '/') {
-			while (i < source.length && source[i] !== '\n') i++;
-			continue;
-		}
-		if (c === '/' && next === '*') {
-			i += 2;
-			while (i < source.length && !(source[i] === '*' && source[i + 1] === '/')) i++;
-			i += 2;
-			continue;
-		}
-		if (c === "'" || c === '"') {
-			i++;
-			while (i < source.length && source[i] !== c) i += source[i] === '\\' ? 2 : 1;
-			i++;
-			out += '""';
-			continue;
-		}
-		out += c;
+	const REGEX_BEFORE = /[(,=:[!&|?{};+\-*%<>~^]$|\b(return|typeof|case|in|of|new|delete|void|throw|yield|await)$/;
+
+	function skipString(quote) {
+		i++;
+		while (i < source.length && source[i] !== quote) i += source[i] === '\\' ? 2 : 1;
 		i++;
 	}
-	return out;
+
+	function skipRegex() {
+		i++;
+		let inClass = false;
+		while (i < source.length) {
+			const c = source[i];
+			if (c === '\\') {
+				i += 2;
+				continue;
+			}
+			if (c === '\n') break;
+			if (c === '[') inClass = true;
+			else if (c === ']') inClass = false;
+			else if (c === '/' && !inClass) break;
+			i++;
+		}
+		i++;
+		while (i < source.length && /[a-z]/i.test(source[i])) i++;
+	}
+
+	// Scans code until the end of the source, or until the `}` that closes a `${`.
+	function scan(insideTemplate) {
+		let out = '';
+		let depth = 0;
+		while (i < source.length) {
+			const c = source[i];
+			const next = source[i + 1];
+			if (insideTemplate && c === '}' && depth === 0) {
+				i++;
+				return out;
+			}
+			if (c === '{') depth++;
+			if (c === '}') depth--;
+			if (c === '/' && next === '/') {
+				while (i < source.length && source[i] !== '\n') i++;
+				continue;
+			}
+			if (c === '/' && next === '*') {
+				i += 2;
+				while (i < source.length && !(source[i] === '*' && source[i + 1] === '/')) i++;
+				i += 2;
+				continue;
+			}
+			if (c === "'" || c === '"') {
+				skipString(c);
+				out += '""';
+				continue;
+			}
+			if (c === '`') {
+				i++;
+				out += '`';
+				while (i < source.length && source[i] !== '`') {
+					if (source[i] === '\\') {
+						i += 2;
+						continue;
+					}
+					if (source[i] === '$' && source[i + 1] === '{') {
+						i += 2;
+						out += ` ${scan(true)} `;
+						continue;
+					}
+					i++;
+				}
+				i++;
+				out += '`';
+				continue;
+			}
+			if (c === '/' && REGEX_BEFORE.test(out.trimEnd() || '(')) {
+				skipRegex();
+				out += '/r/';
+				continue;
+			}
+			out += c;
+			i++;
+		}
+		return out;
+	}
+
+	return scan(false);
 }
 
 export function importsOf(source) {
@@ -96,8 +168,16 @@ export function checkPackage(packageDir) {
 	const pkg = JSON.parse(readFileSync(join(packageDir, 'package.json'), 'utf8'));
 
 	// N20, N21
-	if (pkg.dependencies && Object.keys(pkg.dependencies).length > 0) {
-		problems.push(`package.json has runtime dependencies (N20): ${Object.keys(pkg.dependencies).join(', ')}`);
+	for (const field of ['dependencies', 'optionalDependencies']) {
+		if (pkg[field] && Object.keys(pkg[field]).length > 0) {
+			problems.push(`package.json has runtime ${field} (N20): ${Object.keys(pkg[field]).join(', ')}`);
+		}
+	}
+	for (const field of ['bundleDependencies', 'bundledDependencies']) {
+		const value = pkg[field];
+		if (value !== undefined && value !== false && !(Array.isArray(value) && value.length === 0)) {
+			problems.push(`package.json has ${field} (N20): bundled packages are runtime dependencies`);
+		}
 	}
 	const peers = JSON.stringify(pkg.peerDependencies ?? {});
 	if (peers !== JSON.stringify({ 'n8n-workflow': '*' })) {
@@ -168,6 +248,9 @@ export function checkPackage(packageDir) {
 		const code = codeOnly(source);
 		for (const [pattern, label] of FORBIDDEN_CODE) {
 			if (pattern.test(code)) problems.push(`${rel}: uses ${label}`);
+		}
+		for (const [pattern, label] of FORBIDDEN_SOURCE) {
+			if (pattern.test(source)) problems.push(`${rel}: uses ${label}`);
 		}
 	}
 	return problems;
