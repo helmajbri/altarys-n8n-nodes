@@ -1,0 +1,43 @@
+{
+	"about": "The webhook events LetzCloud sends, as its event catalogues list them: GET /api/v1/webhooks/event_types for a provider key and GET /api/v1/l3/webhooks/event_types for a customer key. The LetzCloud Trigger loads the live list from your account; tools/generate-docs.mjs renders this snapshot in docs/trigger.md. Update it when LetzCloud adds, renames or removes an event.",
+	"provider": [
+		{
+			"type": "instance.created",
+			"description": "An instance was created. Not sent for instances that already existed when LetzCloud first read your account."
+		},
+		{
+			"type": "instance.updated",
+			"description": "An instance changed state, or one of the details LetzCloud shows for it changed."
+		},
+		{
+			"type": "instance.deleted",
+			"description": "An instance was deleted."
+		}
+	],
+	"customer": [
+		{
+			"type": "instance.created",
+			"description": "An instance was created. Not sent for instances that already existed when LetzCloud first read your account."
+		},
+		{
+			"type": "instance.updated",
+			"description": "An instance changed state, or one of the details LetzCloud shows for it changed."
+		},
+		{
+			"type": "instance.deleted",
+			"description": "An instance was deleted."
+		},
+		{
+			"type": "usage_alert.triggered",
+			"description": "A usage alert of the customer fired. Sent only for an alert whose notification channels include webhooks."
+		},
+		{
+			"type": "invoice.finalized",
+			"description": "An invoice of the customer was issued (finalized) in LetzBill."
+		},
+		{
+			"type": "invoice.payment_failed",
+			"description": "A payment attempt on an invoice of the customer was refused."
+		}
+	]
+}

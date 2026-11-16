@@ -1,0 +1,181 @@
+{
+  "name": "Alert the team when an instance enters the Error state",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## Alert the team when an instance enters the Error state\n\nLetzCloud sends an event each time an instance changes. This workflow checks each event and emails your team when an instance is in the Error state.\n\n### Set up\n1. Install the community package `@altarys/n8n-nodes-letzcloud`.\n2. Select a **LetzCloud API** credential in **LetzCloud Trigger**. With **Subscribe As** set to **Provider**, the key needs the `infrastructure:admin` permission. For a customer key, set **Subscribe As** to **Customer**.\n3. Select an SMTP credential in **Email the team**.\n4. Change the addresses in **Settings**.\n5. Publish the workflow. Your n8n must be reachable over HTTPS.\n\nIf the email can't be sent, the execution fails, so it shows as failed in the executions list.\n\nGuide: https://github.com/helmajbri/altarys-n8n-nodes/blob/main/packages/letzcloud/docs/examples.md",
+        "height": 580,
+        "width": 440
+      },
+      "id": "c3c4d5e6-0073-4000-8000-000000000074",
+      "name": "Overview",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -460,
+        -140
+      ]
+    },
+    {
+      "parameters": {
+        "subscribeAs": "provider",
+        "events": [
+          "instance.updated"
+        ],
+        "toleranceSeconds": 300
+      },
+      "id": "c3c4d5e6-0075-4000-8000-000000000076",
+      "name": "LetzCloud Trigger",
+      "type": "@altarys/n8n-nodes-letzcloud.letzCloudTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "c3c4d5e6-0077-4000-8000-000000000078",
+              "name": "toEmail",
+              "value": "cloud-team@example.com",
+              "type": "string"
+            },
+            {
+              "id": "c3c4d5e6-0079-4000-8000-00000000007a",
+              "name": "fromEmail",
+              "value": "n8n@example.com",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "c3c4d5e6-007b-4000-8000-00000000007c",
+      "name": "Settings",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        220,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "c3c4d5e6-007d-4000-8000-00000000007e",
+              "leftValue": "={{ $('LetzCloud Trigger').item.json.instance.state }}",
+              "rightValue": "Error",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "c3c4d5e6-007f-4000-8000-000000000080",
+      "name": "Instance in Error state?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        440,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "fromEmail": "={{ $('Settings').first().json.fromEmail }}",
+        "toEmail": "={{ $('Settings').first().json.toEmail }}",
+        "subject": "=Instance {{ $('LetzCloud Trigger').item.json.instance.name }} is in the Error state",
+        "emailFormat": "text",
+        "text": "=LetzCloud reports that the instance {{ $('LetzCloud Trigger').item.json.instance.name }} is in the Error state.\n\nCheck it in the LetzCloud console.",
+        "options": {}
+      },
+      "id": "c3c4d5e6-0081-4000-8000-000000000082",
+      "name": "Email the team",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        680,
+        -80
+      ],
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "errorMessage": "The alert email could not be sent. Check the SMTP credential of the Email the team node."
+      },
+      "id": "c3c4d5e6-0083-4000-8000-000000000084",
+      "name": "Stop: alert not sent",
+      "type": "n8n-nodes-base.stopAndError",
+      "typeVersion": 1,
+      "position": [
+        920,
+        40
+      ]
+    }
+  ],
+  "connections": {
+    "LetzCloud Trigger": {
+      "main": [
+        [
+          {
+            "node": "Settings",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Settings": {
+      "main": [
+        [
+          {
+            "node": "Instance in Error state?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Instance in Error state?": {
+      "main": [
+        [
+          {
+            "node": "Email the team",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Email the team": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Stop: alert not sent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

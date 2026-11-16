@@ -1,0 +1,337 @@
+{
+	"about": "The webhook events LetzBill sends, as its event catalogue (GET /api/v1/webhooks/event_types) lists them. The LetzBill Trigger loads the live list from your account; tools/generate-docs.mjs renders this snapshot in docs/trigger.md. Update it when LetzBill adds, renames or removes an event.",
+	"events": [
+		{
+			"type": "invoice.created",
+			"description": "An invoice was created."
+		},
+		{
+			"type": "invoice.finalized",
+			"description": "An invoice was finalized."
+		},
+		{
+			"type": "invoice.paid",
+			"description": "An invoice became paid."
+		},
+		{
+			"type": "invoice.voided",
+			"description": "An invoice was voided."
+		},
+		{
+			"type": "invoice.overdue",
+			"description": "An invoice is past its due date and unpaid."
+		},
+		{
+			"type": "invoice.payment_failed",
+			"description": "A payment attempt on an invoice was refused."
+		},
+		{
+			"type": "invoice.dispute_lost",
+			"description": "A payment dispute on an invoice was lost."
+		},
+		{
+			"type": "credit_note.refunded",
+			"description": "A credit note was refunded."
+		},
+		{
+			"type": "credit_note.voided",
+			"description": "A credit note was voided."
+		},
+		{
+			"type": "subscription.created",
+			"description": "A subscription was created."
+		},
+		{
+			"type": "subscription.started",
+			"description": "A subscription became active."
+		},
+		{
+			"type": "subscription.terminated",
+			"description": "A subscription was terminated."
+		},
+		{
+			"type": "subscription.plan_changed",
+			"description": "A subscription changed plan."
+		},
+		{
+			"type": "subscription.paused",
+			"description": "A subscription was paused."
+		},
+		{
+			"type": "subscription.resumed",
+			"description": "A paused subscription was resumed."
+		},
+		{
+			"type": "payment.succeeded",
+			"description": "A payment succeeded."
+		},
+		{
+			"type": "payment.unapplied",
+			"description": "A payment was captured but could not be applied to an invoice."
+		},
+		{
+			"type": "payment.unapplied_resolved",
+			"description": "A captured payment that could not be applied was resolved."
+		},
+		{
+			"type": "payment.permanently_failed",
+			"description": "A payment failed after its last retry attempt."
+		},
+		{
+			"type": "mandate.active",
+			"description": "A payment mandate became active."
+		},
+		{
+			"type": "commitment.true_up_generated",
+			"description": "A true-up invoice was generated for a commitment shortfall."
+		},
+		{
+			"type": "commitment.at_risk",
+			"description": "A subscription commitment is at risk of a shortfall."
+		},
+		{
+			"type": "entitlement.updated",
+			"description": "An entitlement value changed for a subscription."
+		},
+		{
+			"type": "entitlement.override_created",
+			"description": "An entitlement override was created for a subscription."
+		},
+		{
+			"type": "connector.sync.completed",
+			"description": "A connector finished processing a document."
+		},
+		{
+			"type": "connector.sync.failed",
+			"description": "A connector failed to process a document."
+		},
+		{
+			"type": "payout.fully_approved",
+			"description": "A payout was fully approved."
+		},
+		{
+			"type": "payout.processing",
+			"description": "A payout started processing."
+		},
+		{
+			"type": "payout.paid",
+			"description": "A payout was paid."
+		},
+		{
+			"type": "payout.in_transit",
+			"description": "A payout is in transit."
+		},
+		{
+			"type": "payout.failed",
+			"description": "A payout failed."
+		},
+		{
+			"type": "payout.rejected",
+			"description": "A payout was rejected."
+		},
+		{
+			"type": "payout.cancelled",
+			"description": "A payout was cancelled."
+		},
+		{
+			"type": "wallet.transaction.created",
+			"description": "A wallet transaction was recorded."
+		},
+		{
+			"type": "wallet.balance.low",
+			"description": "A wallet balance fell below the low-balance threshold."
+		},
+		{
+			"type": "wallet.balance.depleted",
+			"description": "A wallet balance reached zero."
+		},
+		{
+			"type": "wallet.expired",
+			"description": "A wallet expired."
+		},
+		{
+			"type": "wallet.recurring_refill.executed",
+			"description": "A recurring wallet refill succeeded."
+		},
+		{
+			"type": "wallet.recurring_refill.failed",
+			"description": "A recurring wallet refill failed."
+		},
+		{
+			"type": "usage_alert.triggered",
+			"description": "A usage alert threshold was reached."
+		},
+		{
+			"type": "nexus.threshold_approaching",
+			"description": "A sales-tax nexus threshold is approaching."
+		},
+		{
+			"type": "nexus.threshold_exceeded",
+			"description": "A sales-tax nexus threshold was exceeded."
+		},
+		{
+			"type": "nexus.registration_required",
+			"description": "A tax registration is required."
+		},
+		{
+			"type": "customer.vat_validated",
+			"description": "A customer VAT number was validated."
+		},
+		{
+			"type": "customer.vat_invalidated",
+			"description": "A previously valid customer VAT number is now invalid."
+		},
+		{
+			"type": "customer.vat_unavailable",
+			"description": "VAT validation was unavailable after all retries."
+		},
+		{
+			"type": "organization.lifecycle.trial_started",
+			"description": "The organization started its trial."
+		},
+		{
+			"type": "organization.lifecycle.activated",
+			"description": "The organization became active."
+		},
+		{
+			"type": "organization.lifecycle.past_due",
+			"description": "The organization became past due."
+		},
+		{
+			"type": "organization.lifecycle.payment_recovered",
+			"description": "The organization recovered from past due."
+		},
+		{
+			"type": "organization.lifecycle.suspended",
+			"description": "The organization was suspended."
+		},
+		{
+			"type": "organization.lifecycle.reinstated",
+			"description": "The organization was reinstated."
+		},
+		{
+			"type": "organization.lifecycle.deactivation_requested",
+			"description": "The organization requested deactivation."
+		},
+		{
+			"type": "organization.lifecycle.deactivation_cancelled",
+			"description": "The organization cancelled its deactivation request."
+		},
+		{
+			"type": "organization.lifecycle.deactivated",
+			"description": "The organization was deactivated."
+		},
+		{
+			"type": "organization.lifecycle.reactivated",
+			"description": "The organization was reactivated."
+		},
+		{
+			"type": "organization.lifecycle.pending_deletion",
+			"description": "The organization is pending deletion."
+		},
+		{
+			"type": "organization.lifecycle.deleted",
+			"description": "The organization was deleted."
+		},
+		{
+			"type": "saas.subscription.upgraded",
+			"description": "The organization's platform plan was upgraded."
+		},
+		{
+			"type": "saas.subscription.downgraded",
+			"description": "The organization's platform plan was downgraded."
+		},
+		{
+			"type": "saas.subscription.canceled",
+			"description": "The organization's platform plan was canceled."
+		},
+		{
+			"type": "saas.subscription.reactivated",
+			"description": "The organization's platform plan was reactivated."
+		},
+		{
+			"type": "dunning.started",
+			"description": "A dunning campaign started for an invoice."
+		},
+		{
+			"type": "dunning.payment_retry_scheduled",
+			"description": "A dunning payment retry was scheduled."
+		},
+		{
+			"type": "dunning.payment_retry_succeeded",
+			"description": "A dunning payment retry succeeded."
+		},
+		{
+			"type": "dunning.payment_retry_failed",
+			"description": "A dunning payment retry failed."
+		},
+		{
+			"type": "dunning.exhausted",
+			"description": "A dunning campaign used all its attempts."
+		},
+		{
+			"type": "dunning.threshold_warning",
+			"description": "A subscription reached a dunning overdue threshold."
+		},
+		{
+			"type": "dunning.subscription_suspended",
+			"description": "A subscription was suspended by a dunning campaign."
+		},
+		{
+			"type": "dunning.subscription_reactivated",
+			"description": "A subscription was reactivated after dunning."
+		},
+		{
+			"type": "partner.suspended",
+			"description": "A partner was suspended."
+		},
+		{
+			"type": "partner.terminated",
+			"description": "A partner was terminated."
+		},
+		{
+			"type": "partner.reactivated",
+			"description": "A partner was reactivated."
+		},
+		{
+			"type": "partner.activated",
+			"description": "A partner was activated."
+		},
+		{
+			"type": "partner.customer_attributed",
+			"description": "A customer was attributed to a partner."
+		},
+		{
+			"type": "partner.white_label_updated",
+			"description": "A partner white-label configuration was updated."
+		},
+		{
+			"type": "partner_customer.reassigned",
+			"description": "A customer was reassigned to another partner."
+		},
+		{
+			"type": "partner_customer.unassigned",
+			"description": "A customer was unassigned from a partner."
+		},
+		{
+			"type": "settlement.approved",
+			"description": "A settlement was approved."
+		},
+		{
+			"type": "settlement.cancelled",
+			"description": "A settlement was cancelled."
+		},
+		{
+			"type": "settlement.paid",
+			"description": "A settlement was paid."
+		},
+		{
+			"type": "commission.cancelled",
+			"description": "A commission was cancelled."
+		},
+		{
+			"type": "commission.recalculated",
+			"description": "A commission was recalculated."
+		}
+	]
+}

@@ -1,0 +1,254 @@
+{
+  "name": "Email a weekly report of overdue invoices",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## Email a weekly report of overdue invoices\n\nEvery Monday at 8:00, this workflow reads all overdue invoices from LetzBill, writes them to a CSV file, and emails the file.\n\n### Set up\n1. Install the community package `@altarys/n8n-nodes-letzbill`.\n2. Select a **LetzBill API** credential in **Get overdue invoices**. The key needs **Read** for invoices.\n3. Select an SMTP credential in **Email the report**.\n4. Change the addresses in **Settings**.\n5. Publish the workflow.\n\nAmounts come from LetzBill in minor units (cents); **Report columns** converts them to decimal amounts. When no invoice is overdue, no email is sent. If LetzBill can't be read, the execution fails, so it shows as failed in the executions list.\n\nGuide: https://github.com/helmajbri/altarys-n8n-nodes/blob/main/packages/letzbill/docs/examples.md",
+        "height": 600,
+        "width": 440
+      },
+      "id": "b2c4d6e8-0011-4000-8000-000000000012",
+      "name": "Overview",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -460,
+        -160
+      ]
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "weeks",
+              "triggerAtDay": [
+                1
+              ],
+              "triggerAtHour": 8
+            }
+          ]
+        }
+      },
+      "id": "b2c4d6e8-0013-4000-8000-000000000014",
+      "name": "Every Monday at 8:00",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "b2c4d6e8-0015-4000-8000-000000000016",
+              "name": "toEmail",
+              "value": "finance@example.com",
+              "type": "string"
+            },
+            {
+              "id": "b2c4d6e8-0017-4000-8000-000000000018",
+              "name": "fromEmail",
+              "value": "n8n@example.com",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "b2c4d6e8-0019-4000-8000-00000000001a",
+      "name": "Settings",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        220,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "invoice",
+        "operation": "getAll",
+        "returnAll": true,
+        "filters": {
+          "overdue": true
+        }
+      },
+      "id": "b2c4d6e8-001b-4000-8000-00000000001c",
+      "name": "Get overdue invoices",
+      "type": "@altarys/n8n-nodes-letzbill.letzBill",
+      "typeVersion": 1,
+      "position": [
+        440,
+        0
+      ],
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "b2c4d6e8-001d-4000-8000-00000000001e",
+              "name": "invoice",
+              "value": "={{ $json.invoice_number }}",
+              "type": "string"
+            },
+            {
+              "id": "b2c4d6e8-001f-4000-8000-000000000020",
+              "name": "customer",
+              "value": "={{ $json.customer_name }}",
+              "type": "string"
+            },
+            {
+              "id": "b2c4d6e8-0021-4000-8000-000000000022",
+              "name": "due_date",
+              "value": "={{ $json.payment_due_date }}",
+              "type": "string"
+            },
+            {
+              "id": "b2c4d6e8-0023-4000-8000-000000000024",
+              "name": "total",
+              "value": "={{ ($json.total_amount_cents / 100).toFixed(2) }}",
+              "type": "string"
+            },
+            {
+              "id": "b2c4d6e8-0025-4000-8000-000000000026",
+              "name": "currency",
+              "value": "={{ $json.currency }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "b2c4d6e8-0027-4000-8000-000000000028",
+      "name": "Report columns",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        680,
+        -100
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "csv",
+        "options": {
+          "fileName": "=overdue-invoices-{{ $now.toFormat('yyyy-LL-dd') }}.csv"
+        }
+      },
+      "id": "b2c4d6e8-0029-4000-8000-00000000002a",
+      "name": "Write CSV file",
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [
+        900,
+        -100
+      ]
+    },
+    {
+      "parameters": {
+        "fromEmail": "={{ $('Settings').first().json.fromEmail }}",
+        "toEmail": "={{ $('Settings').first().json.toEmail }}",
+        "subject": "=Overdue invoices on {{ $now.toFormat('yyyy-LL-dd') }}",
+        "emailFormat": "text",
+        "text": "=The attached file lists every overdue invoice in LetzBill.",
+        "options": {
+          "fileAttachments": "data"
+        }
+      },
+      "id": "b2c4d6e8-002b-4000-8000-00000000002c",
+      "name": "Email the report",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        1120,
+        -100
+      ]
+    },
+    {
+      "parameters": {
+        "errorMessage": "The overdue invoices could not be read from LetzBill. Open the failed execution to see the message from the LetzBill node."
+      },
+      "id": "b2c4d6e8-002d-4000-8000-00000000002e",
+      "name": "Stop: LetzBill could not be read",
+      "type": "n8n-nodes-base.stopAndError",
+      "typeVersion": 1,
+      "position": [
+        680,
+        120
+      ]
+    }
+  ],
+  "connections": {
+    "Every Monday at 8:00": {
+      "main": [
+        [
+          {
+            "node": "Settings",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Settings": {
+      "main": [
+        [
+          {
+            "node": "Get overdue invoices",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get overdue invoices": {
+      "main": [
+        [
+          {
+            "node": "Report columns",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Stop: LetzBill could not be read",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Report columns": {
+      "main": [
+        [
+          {
+            "node": "Write CSV file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Write CSV file": {
+      "main": [
+        [
+          {
+            "node": "Email the report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}
