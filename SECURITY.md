@@ -15,8 +15,7 @@ No version is published yet. Security fixes will be released as a new version of
 
 Report a vulnerability privately, never in a public issue, pull request, or discussion.
 
-- **Private security advisory:** once private vulnerability reporting is turned on for this repository, open the **Security** tab and select **Report a vulnerability**.
-- **Until then:** contact the owner of this repository through GitHub and ask for a private channel. Don't describe the vulnerability in the first message.
+- **Private security advisory:** open this repository's **Security** tab and select **Report a vulnerability**. Only the maintainers see the report.
 
 In your report, describe the problem, the package and version, and the steps to reproduce it. Don't include real API keys, signing secrets, or customer data: use placeholders.
 
