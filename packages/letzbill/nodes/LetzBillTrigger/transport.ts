@@ -10,6 +10,7 @@ import type {
 import { NodeApiError } from 'n8n-workflow';
 
 import { describeLetzBillRefusal, parseResponseBody } from '../LetzBill/shared/refusal';
+import { assertHttpsBaseUrl } from '../LetzBill/shared/runtime';
 
 export const CREDENTIAL_TYPE = 'letzBillApi';
 
@@ -26,6 +27,7 @@ export async function letzBillRequest(
 	options: { qs?: IDataObject; body?: IDataObject; allowStatus?: number[] } = {},
 ): Promise<LetzBillAnswer> {
 	const credentials = await this.getCredentials<{ baseUrl: string }>(CREDENTIAL_TYPE);
+	assertHttpsBaseUrl(credentials.baseUrl, this.getNode());
 	const request: IHttpRequestOptions = {
 		method,
 		baseURL: credentials.baseUrl,

@@ -1,4 +1,4 @@
-// AC-AUT-001.11a: activating the trigger twice leaves one LetzBill endpoint, deactivating removes
+// Activating the trigger twice leaves one LetzBill endpoint, deactivating removes
 // it, and a delivery that fails signature v2 produces no workflow item. Runs against dist/.
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
@@ -11,9 +11,10 @@ import { fileURLToPath } from 'node:url';
 const require = createRequire(import.meta.url);
 const packageDir = join(dirname(fileURLToPath(import.meta.url)), '..');
 const { LetzBillTrigger } = require('../dist/nodes/LetzBillTrigger/LetzBillTrigger.node.js');
-const { signV2, verifySignatureV2, DEFAULT_TOLERANCE_SECONDS } = require(
+const { signV2, verifySignatureV2, DEFAULT_TOLERANCE_SECONDS, MAX_TOLERANCE_SECONDS } = require(
 	'../dist/nodes/LetzBillTrigger/signature.js',
 );
+const { rememberEvent, MAX_REMEMBERED_EVENTS } = require('../dist/nodes/LetzBillTrigger/dedupe.js');
 
 // A byte-identical copy of the shared vectors file every sender and verifier reproduces.
 const VECTORS_SHA256 = '1910a28ed1ea338402bec8ca8bb977e906cf871946d8607f0b956e19defb48ac';
@@ -67,6 +68,19 @@ test('v1 alone is not accepted, and malformed headers are refused', () => {
 	assert.deepEqual(check({ timestamp: '1234567890123456' }), { ok: false, reason: 'bad_timestamp' });
 	assert.deepEqual(check({ secret: '' }), { ok: false, reason: 'no_secret' });
 	assert.equal(DEFAULT_TOLERANCE_SECONDS, 300);
+});
+
+test('a tolerance that is not a number from 1 to the cap refuses every delivery', () => {
+	const v = vectors.vectors[0];
+	const body = Buffer.from(v.body_hex, 'hex');
+	const check = (toleranceSeconds, nowSeconds = v.timestamp) =>
+		verifySignatureV2({ timestamp: String(v.timestamp), signature: v.expected_v2, rawBody: body, secret: v.secret, nowSeconds, toleranceSeconds });
+	assert.equal(MAX_TOLERANCE_SECONDS, 900);
+	for (const bad of [Number.NaN, Number.POSITIVE_INFINITY, Number.NEGATIVE_INFINITY, 0, -5, 901, 1e9]) {
+		assert.deepEqual(check(bad), { ok: false, reason: 'bad_tolerance' }, String(bad));
+	}
+	assert.deepEqual(check(900), { ok: true });
+	assert.deepEqual(check(900, Number.NaN), { ok: false, reason: 'timestamp_outside_tolerance' });
 });
 
 /** An in-memory LetzBill holding webhook endpoints, answering like the real routes. */
@@ -159,6 +173,14 @@ test('a lost secret or changed events replaces the endpoint instead of adding on
 	assert.deepEqual([...letzbill.endpoints.values()][0].event_types, ['invoice.paid', 'invoice.voided']);
 });
 
+test('the trigger refuses a credential with a plain http:// API URL', async () => {
+	const letzbill = fakeLetzBill();
+	const ctx = hookContext(letzbill, {});
+	ctx.getCredentials = async () => ({ baseUrl: 'http://billing.example.com', apiKey: 'fb_test_key' });
+	await assert.rejects(hooks.checkExists.call(ctx), /https/);
+	assert.deepEqual(letzbill.calls, []);
+});
+
 test('deactivating removes an endpoint that still has pending deliveries', async () => {
 	const letzbill = fakeLetzBill();
 	const staticData = {};
@@ -234,6 +256,43 @@ test('a tampered, replayed or unsigned delivery produces no workflow item', asyn
 	}
 });
 
+test('a delivery replayed inside the tolerance window produces no second item', async () => {
+	const staticData = { endpointId: 'e1', endpointSecret: 'whsec_fake_1' };
+	const body = '{"webhook_type":"invoice.paid","metadata":{"event_id":"ev-replay"}}';
+	const first = signedDelivery('whsec_fake_1', body);
+	const run = async (delivery) => {
+		const { ctx, response } = webhookContext(staticData, delivery.headers, delivery.rawBody);
+		return { result: await trigger.webhook.call(ctx), response };
+	};
+	const once = await run(first);
+	assert.equal(once.result.workflowData.length, 1);
+	// The same signed request again, a second later: inside the window, so it verifies.
+	const replay = await run(first);
+	assert.equal(replay.result.workflowData, undefined);
+	assert.equal(replay.result.webhookResponse, 'Duplicate delivery ignored');
+	assert.equal(replay.response.statusCode, 200);
+	// LetzBill's own retry: fresh timestamp and signature, same event ID.
+	const retry = await run(signedDelivery('whsec_fake_1', body, Math.floor(Date.now() / 1000) + 1));
+	assert.equal(retry.result.workflowData, undefined);
+	assert.ok('ev-replay' in staticData.seenEvents);
+	// Another event is still delivered.
+	const other = await run(signedDelivery('whsec_fake_1', body.replace('ev-replay', 'ev-other')));
+	assert.equal(other.result.workflowData.length, 1);
+});
+
+test('remembered event IDs are pruned past the window and bounded in number', () => {
+	const now = 1_800_000_000;
+	const kept = rememberEvent({ old: now - 301, recent: now - 10, junk: 'x' }, 'new', now, now, 300);
+	assert.equal(kept.duplicate, false);
+	assert.deepEqual(Object.keys(kept.next).sort(), ['new', 'recent']);
+	assert.equal(rememberEvent(kept.next, 'recent', now, now, 300).duplicate, true);
+	let seen = {};
+	for (let i = 0; i < MAX_REMEMBERED_EVENTS + 50; i++) seen = rememberEvent(seen, `e${i}`, now + i, now, 300).next;
+	assert.equal(Object.keys(seen).length, MAX_REMEMBERED_EVENTS);
+	assert.ok(!('e0' in seen));
+	assert.ok(`e${MAX_REMEMBERED_EVENTS + 49}` in seen);
+});
+
 test('the trigger follows the trigger-node rules', () => {
 	const d = trigger.description;
 	assert.ok(d.name.endsWith('Trigger'));
@@ -243,4 +302,5 @@ test('the trigger follows the trigger-node rules', () => {
 	for (const m of ['checkExists', 'create', 'delete']) assert.equal(typeof hooks[m], 'function');
 	const tolerance = d.properties.find((p) => p.name === 'toleranceSeconds');
 	assert.equal(tolerance.default, DEFAULT_TOLERANCE_SECONDS);
+	assert.equal(tolerance.typeOptions.maxValue, MAX_TOLERANCE_SECONDS);
 });

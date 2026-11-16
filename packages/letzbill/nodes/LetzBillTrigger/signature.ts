@@ -7,8 +7,15 @@ import { createHmac, timingSafeEqual } from 'node:crypto';
  */
 export const DEFAULT_TOLERANCE_SECONDS = 300;
 
+/**
+ * The largest tolerance the trigger accepts. A wider window lets a captured delivery be replayed
+ * for longer; a tolerance that is not a number from 1 to this cap refuses every delivery.
+ */
+export const MAX_TOLERANCE_SECONDS = 900;
+
 export type VerificationFailure =
 	| 'no_secret'
+	| 'bad_tolerance'
 	| 'missing_parameters'
 	| 'bad_timestamp'
 	| 'timestamp_outside_tolerance'
@@ -37,12 +44,16 @@ export function signV2(secret: string, timestamp: string, rawBody: Buffer): stri
 
 export function verifySignatureV2(delivery: DeliveryToVerify): Verification {
 	if (!delivery.secret) return { ok: false, reason: 'no_secret' };
+	const tolerance = delivery.toleranceSeconds;
+	if (!Number.isFinite(tolerance) || tolerance <= 0 || tolerance > MAX_TOLERANCE_SECONDS) {
+		return { ok: false, reason: 'bad_tolerance' };
+	}
 	if (!delivery.timestamp || !delivery.signature || delivery.rawBody === undefined) {
 		return { ok: false, reason: 'missing_parameters' };
 	}
 	if (!TIMESTAMP_PATTERN.test(delivery.timestamp)) return { ok: false, reason: 'bad_timestamp' };
 	const timestamp = Number(delivery.timestamp);
-	if (Math.abs(delivery.nowSeconds - timestamp) > delivery.toleranceSeconds) {
+	if (!Number.isFinite(delivery.nowSeconds) || !(Math.abs(delivery.nowSeconds - timestamp) <= tolerance)) {
 		return { ok: false, reason: 'timestamp_outside_tolerance' };
 	}
 	const given = delivery.signature.trim().toLowerCase();

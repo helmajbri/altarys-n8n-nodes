@@ -11,7 +11,8 @@ import {
 	type IWebhookResponseData,
 } from 'n8n-workflow';
 
-import { DEFAULT_TOLERANCE_SECONDS, verifySignatureV2 } from './signature';
+import { rememberEvent } from './dedupe';
+import { DEFAULT_TOLERANCE_SECONDS, MAX_TOLERANCE_SECONDS, verifySignatureV2 } from './signature';
 import { dataOf, letzBillRequest } from './transport';
 
 const ENDPOINTS_PATH = '/api/v1/webhooks/endpoints';
@@ -96,12 +97,14 @@ export class LetzBillTrigger implements INodeType {
 				type: 'number',
 				typeOptions: {
 					minValue: 1,
+					// Same value as MAX_TOLERANCE_SECONDS; a larger value refuses every delivery.
+					maxValue: 900,
 					numberPrecision: 0,
 				},
 				// Same value as DEFAULT_TOLERANCE_SECONDS; lint wants a literal default here.
 				default: 300,
 				description:
-					'How far the signed delivery time may be from the clock of this n8n instance before the delivery is dropped',
+					'How far the signed delivery time may be from the clock of this n8n instance before the delivery is dropped, from 1 to 900',
 			},
 		],
 	};
@@ -177,13 +180,16 @@ export class LetzBillTrigger implements INodeType {
 	async webhook(this: IWebhookFunctions): Promise<IWebhookResponseData> {
 		const request = this.getRequestObject();
 		const staticData = this.getWorkflowStaticData('node');
+		const nowSeconds = Math.floor(Date.now() / 1000);
+		const toleranceSeconds = Number(this.getNodeParameter('toleranceSeconds', DEFAULT_TOLERANCE_SECONDS));
+		const timestampHeader = request.header('x-webhook-timestamp');
 		const verification = verifySignatureV2({
-			timestamp: request.header('x-webhook-timestamp'),
+			timestamp: timestampHeader,
 			signature: request.header('x-webhook-signature-v2'),
 			rawBody: request.rawBody,
 			secret: typeof staticData.endpointSecret === 'string' ? staticData.endpointSecret : '',
-			nowSeconds: Math.floor(Date.now() / 1000),
-			toleranceSeconds: this.getNodeParameter('toleranceSeconds', DEFAULT_TOLERANCE_SECONDS) as number,
+			nowSeconds,
+			toleranceSeconds,
 		});
 		if (!verification.ok) {
 			this.logger.warn(`LetzBill Trigger dropped a delivery: ${verification.reason}`, {
@@ -192,6 +198,22 @@ export class LetzBillTrigger implements INodeType {
 			this.getResponseObject().status(401).send('Unauthorized').end();
 			return { noWebhookResponse: true };
 		}
-		return { workflowData: [[{ json: this.getBodyData() }]] };
+		const body = this.getBodyData();
+		const metadata = body.metadata as IDataObject | undefined;
+		const eventId = typeof metadata?.event_id === 'string' ? metadata.event_id : '';
+		if (eventId) {
+			// n8n saves node static data changed during a production webhook call, so the IDs seen
+			// survive between deliveries. Answering a repeat without data starts no workflow.
+			const seen = rememberEvent(
+				staticData.seenEvents,
+				eventId,
+				Number(timestampHeader),
+				nowSeconds,
+				Math.min(toleranceSeconds, MAX_TOLERANCE_SECONDS),
+			);
+			staticData.seenEvents = seen.next;
+			if (seen.duplicate) return { webhookResponse: 'Duplicate delivery ignored' };
+		}
+		return { workflowData: [[{ json: body }]] };
 	}
 }
