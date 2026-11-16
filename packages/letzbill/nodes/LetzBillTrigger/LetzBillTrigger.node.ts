@@ -79,7 +79,7 @@ export class LetzBillTrigger implements INodeType {
 		],
 		properties: [
 			{
-				displayName: 'Event Names or IDs',
+				displayName: 'event names or IDs',
 				name: 'events',
 				type: 'multiOptions',
 				typeOptions: {
