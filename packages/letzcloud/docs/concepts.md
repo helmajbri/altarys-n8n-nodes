@@ -20,7 +20,7 @@ Creating an instance or a Kubernetes cluster, and starting, stopping, or rebooti
 - **Wait for instance state** reads an instance until it's **Running** or **Stopped**. Use it after **Change instance state**: **Running** after a start or a reboot, **Stopped** after a stop. It stops with a message if the instance is in the `Error`, `Destroyed`, or `Expunging` state instead.
 - **Wait until kubernetes cluster is running** takes the **Job ID** that **Create kubernetes cluster** returned in its `job_id` field. It reads that job until it names the cluster it made, then reads that cluster until it's running. It never looks for a cluster by name, so another Kubernetes cluster with the same name is never mistaken for it. Its output is the cluster, plus a `wait` field that names the job and the cluster it followed.
 
-The labels of these actions write "kubernetes" in lowercase, because n8n requires action labels in sentence case.
+These action labels write the product name in lowercase, because n8n requires action labels in sentence case.
 
 Both operations read again every **Interval (Seconds)**, until **Time Limit (Seconds)** has passed, and then stop with a message. One execution waits at most 7,200 seconds in all. With several items, each item waits at most what's left of that time.
 

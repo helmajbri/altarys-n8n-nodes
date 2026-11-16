@@ -108,7 +108,7 @@ export function camelName(field) {
 const compareNames = (a, b) => a.localeCompare(b);
 
 // n8n's lint wants a one-sentence description without a final period, and a longer one with it.
-const SENTENCE_BREAK = /[a-z0-9)'"]\. [A-Z]/;
+const SENTENCE_BREAK = /[A-Za-z0-9)'"]\. [A-Z]/;
 
 /** Joins description parts into one description, punctuated the way n8n's lint expects. */
 export function sentences(parts) {
