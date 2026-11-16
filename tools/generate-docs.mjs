@@ -215,10 +215,9 @@ function responseOf(openapi, route) {
 	return undefined;
 }
 
-function outputText(spec, context) {
-	if (!spec) return 'The response of the service.';
-	if (spec.output === 'deleted') return 'One item: `{"deleted": true}`.';
-	if (spec.output === 'binary') return 'One item with the file as binary data in the `data` property.';
+/** The top-level fields of an operation's output items, or undefined when it returns no record. */
+function outputFields(spec, context) {
+	if (!spec || spec.output === 'deleted' || spec.output === 'binary') return undefined;
 	const { schemas, solid } = makeSchemaTools(context.openapi);
 	let schema;
 	let added = [];
@@ -235,9 +234,32 @@ function outputText(spec, context) {
 	const omitted = new Set((spec.outputOmit ?? []).filter((path) => !/[.[]/.test(path)));
 	const fields = schema ? Object.keys(solid(schema).properties ?? {}).filter((f) => !omitted.has(f)) : [];
 	fields.push(...added.filter((f) => !fields.includes(f)));
+	return fields;
+}
+
+function outputText(spec, context, shared) {
+	if (!spec) return 'The response of the service.';
+	if (spec.output === 'deleted') return 'One item: `{"deleted": true}`.';
+	if (spec.output === 'binary') return 'One item with the file as binary data in the `data` property.';
+	const fields = outputFields(spec, context) ?? [];
 	const many = spec.output === 'list';
 	if (!fields.length) return many ? 'One item per result.' : 'One item with the response.';
+	if (shared && fields.join(',') === shared.key) {
+		return `${many ? 'One item per result' : 'One item'}, with the [${shared.heading}](#${githubSlug(shared.heading)}).`;
+	}
 	return `${many ? 'One item per result, with these fields' : 'One item with these fields'}: ${fields.map(code).join(', ')}.`;
+}
+
+/** The output field list most operations of a resource share, listed once on the page. */
+function sharedFields(resource, specs, context) {
+	const counts = new Map();
+	for (const o of resource.operations) {
+		const spec = specs.find((s) => s.resource === resource.value && s.operation === o.value);
+		const fields = outputFields(spec, context);
+		if (fields?.length) counts.set(fields.join(','), (counts.get(fields.join(',')) ?? 0) + 1);
+	}
+	const [key, n] = [...counts.entries()].sort((a, b) => b[1] - a[1])[0] ?? [];
+	return n >= 2 ? { key, heading: `${resource.name} fields` } : undefined;
 }
 
 function behaviourNotes(spec) {
@@ -282,12 +304,19 @@ export function renderOperations({ description, specs = [], manifest, openapi })
 	for (const r of resources) {
 		lines.push('', `## ${r.name}`, '');
 		lines.push(`Operations on the **${r.name}** resource of the **${service}** node.`);
+		const shared = sharedFields(r, specs, { manifest, openapi });
+		if (shared) {
+			lines.push('', `### ${shared.heading}`, '');
+			lines.push(
+				`The operations below that return a record of this resource return it with these fields: ${shared.key.split(',').map(code).join(', ')}.`,
+			);
+		}
 		for (const o of r.operations) {
 			const spec = specs.find((s) => s.resource === r.value && s.operation === o.value);
 			lines.push('', `### ${o.action}`, '');
 			lines.push(sentence(cellText(o.description)) || `${o.name} ${r.name}.`);
 			lines.push('', ...parameterTable(o.parameters, spec));
-			lines.push('', `**Output:** ${outputText(spec, { manifest, openapi })}`);
+			lines.push('', `**Output:** ${outputText(spec, { manifest, openapi }, shared)}`);
 			const notes = behaviourNotes(spec);
 			if (notes.length) lines.push('', notes.join(' '));
 		}

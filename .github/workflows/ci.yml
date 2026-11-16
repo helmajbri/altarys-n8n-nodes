@@ -92,6 +92,10 @@ jobs:
         if: ${{ !cancelled() && steps.build.outcome == 'success' }}
         run: node ../../tools/generate-docs.mjs . --check
 
+      - name: Documentation checks (reference, troubleshooting, jargon, links, examples)
+        if: ${{ !cancelled() && steps.build.outcome == 'success' }}
+        run: node ../../tools/check-docs.mjs .
+
       - name: Write the documentation generator output for review
         if: ${{ !cancelled() && steps.docs.outcome == 'failure' }}
         run: |
@@ -107,9 +111,6 @@ jobs:
           path: ${{ runner.temp }}/docs/
           if-no-files-found: ignore
 
-      - name: Documentation checks (reference, troubleshooting, jargon, links, examples)
-        if: ${{ !cancelled() && steps.build.outcome == 'success' }}
-        run: node ../../tools/check-docs.mjs .
 
       - name: The package has a committed lockfile
         if: env.LOCKFILE_MISSING == '1'

@@ -8,14 +8,14 @@ It's for cloud providers' staff and customers of a cloud provider who build work
 
 The same nodes work with two kinds of key, and LetzCloud decides what each one may do. The nodes don't hide operations: an operation a key may not use stops with a message that says which key it needs.
 
-- A **provider key** belongs to the cloud provider's organization. It can use every operation its permissions allow.
-- A **customer key** belongs to one customer of the cloud provider. It can list, read, start, stop, reboot, and delete that customer's instances, read the customer's invoices, usage, and wallet, and receive the customer's events in the trigger.
+- A **provider key** belongs to the organization of a cloud provider. It can use every operation its permissions allow.
+- A **customer key** belongs to one customer of a cloud provider. It can list, read, start, stop, reboot, and delete that customer's instances, read the customer's invoices, usage, and wallet, and receive the customer's events in the trigger.
 
 **Get many invoices**, **Get usage**, and **Get wallet** read what belongs to the customer of the key, so they need a customer key. A provider key gets the message `Only a customer key can use this operation`.
 
 ## Wait for a long-running change
 
-Creating an instance or a Kubernetes cluster, and starting, stopping, or rebooting an instance, take time. LetzCloud answers at once with a job, and the change goes on in the cloud. Two operations wait for the result:
+Creating an instance or a Kubernetes cluster, and starting, stopping, or rebooting an instance, take time. LetzCloud answers at once with a job, and carries on with the change. Two operations wait for the result:
 
 - **Wait for instance state** reads an instance until it's **Running** or **Stopped**. Use it after **Change instance state**: **Running** after a start or a reboot, **Stopped** after a stop. It stops with a message if the instance is in the `Error`, `Destroyed`, or `Expunging` state instead.
 - **Wait until kubernetes cluster is running** takes the **Job ID** that **Create kubernetes cluster** returned in its `job_id` field. It reads that job until it names the cluster it made, then reads that cluster until it's running. It never looks for a cluster by name, so another cluster with the same name is never mistaken for it. Its output is the cluster, plus a `wait` field that names the job and the cluster it followed.

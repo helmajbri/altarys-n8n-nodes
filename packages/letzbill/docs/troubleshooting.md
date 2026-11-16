@@ -6,7 +6,7 @@ Messages about one item end with `[Item <n>]`, the position of the item in the n
 
 ## Credential and connection messages
 
-### The API URL doesn't start with https
+### The API URL doesn't start with HTTPS
 
 `The LetzBill API URL must start with 'https://'. The API key was not sent: over plain 'http://' it could be read and reused. Use the 'https://' address of the LetzBill API.`
 
@@ -72,7 +72,7 @@ Messages about one item end with `[Item <n>]`, the position of the item in the n
 
 `LetzBill refused the request in the current state of the record`
 
-**Cause:** the record isn't in a state that allows the operation, for example voiding an invoice that is still a draft.
+**Cause:** the record isn't in a state that allows the operation, for example voiding an invoice that's still a draft.
 
 **Fix:** read the record again, and run the operation once its state allows it. The message explains the state when LetzBill gives a reason.
 
@@ -88,7 +88,7 @@ Messages about one item end with `[Item <n>]`, the position of the item in the n
 
 `LetzBill answered with status <status>`
 
-**Cause:** LetzBill answered with an error the node doesn't recognize, or was briefly unavailable.
+**Cause:** LetzBill answered with an error the node doesn't recognize, or was unavailable for a moment.
 
 **Fix:** run the node again later. Turn on **Retry On Fail** in the node's settings to retry on its own. If the message persists, contact LetzBill support with the time of the execution.
 

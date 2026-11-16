@@ -1,8 +1,8 @@
-# @altarys/n8n-nodes-letzcloud
+# `@altarys/n8n-nodes-letzcloud`
 
 This is an n8n community node. It lets you use LetzCloud in your n8n workflows.
 
-LetzCloud is the cloud platform that cloud providers run for their customers. With these nodes you can manage instances, volumes, snapshots, networks, Kubernetes clusters, containers, databases, and DNS records, read a customer's invoices, usage, and wallet, and start a workflow when something happens in LetzCloud. The package contains:
+LetzCloud is a cloud platform that cloud providers run for their customers. With these nodes you can manage instances, volumes, snapshots, networks, Kubernetes clusters, containers, databases, and DNS records, read a customer's invoices, usage, and wallet, and start a workflow when something happens in LetzCloud. The package contains:
 
 - The **LetzCloud** node, for actions in LetzCloud, including two operations that wait for a long-running change to finish. n8n's AI agents can also use it as a tool.
 - The **LetzCloud Trigger** node, which starts a workflow when LetzCloud sends an event, such as an instance that changed state.

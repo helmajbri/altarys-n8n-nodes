@@ -6,7 +6,7 @@ Messages about one item end with `[Item <n>]`, the position of the item in the n
 
 ## Credential and connection messages
 
-### The address doesn't start with https
+### The address doesn't start with HTTPS
 
 `The LetzCloud URL must start with 'https://'. The API key was not sent: over plain 'http://' it could be read and reused.`
 
@@ -148,7 +148,7 @@ Messages about one item end with `[Item <n>]`, the position of the item in the n
 
 `LetzCloud refused the request in the current state`
 
-**Cause:** the resource isn't in a state that allows the operation, for example stopping an instance that is already stopped.
+**Cause:** the resource isn't in a state that allows the operation, for example stopping an instance that's already stopped.
 
 **Fix:** read the resource again, and run the operation once its state allows it.
 
@@ -164,7 +164,7 @@ Messages about one item end with `[Item <n>]`, the position of the item in the n
 
 `LetzCloud answered with status <status>`
 
-**Cause:** LetzCloud answered with an error the node doesn't recognize, or was briefly unavailable.
+**Cause:** LetzCloud answered with an error the node doesn't recognize, or was unavailable for a moment.
 
 **Fix:** run the node again later, or turn on **Retry On Fail**. If the message persists, contact your cloud provider with the time of the execution.
 
@@ -280,7 +280,7 @@ These messages come from **Wait for instance state** and **Wait until kubernetes
 
 ## Trigger messages
 
-### n8n's webhook URL isn't https
+### n8n's webhook URL isn't HTTPS
 
 `LetzCloud only delivers to 'https://' webhook URLs`
 

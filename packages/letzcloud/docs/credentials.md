@@ -23,8 +23,8 @@ This page is for cloud providers' staff and for customers of a cloud provider. T
 
 ## Provider keys and customer keys
 
-- A **provider key** belongs to the cloud provider's organization. It can use every operation its permissions allow, across the organization.
-- A **customer key** belongs to one customer of the cloud provider. It can list, read, start, stop, reboot, and delete that customer's instances, read the customer's invoices, usage, and wallet, and receive the customer's events in the trigger. LetzCloud refuses every other operation for a customer key.
+- A **provider key** belongs to the organization of a cloud provider. It can use every operation its permissions allow, across the organization.
+- A **customer key** belongs to one customer of a cloud provider. It can list, read, start, stop, reboot, and delete that customer's instances, read the customer's invoices, usage, and wallet, and receive the customer's events in the trigger. LetzCloud refuses every other operation for a customer key.
 
 A key can never see another customer's resources. LetzCloud decides what each key can do; the nodes show every operation and explain a refusal.
 

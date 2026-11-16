@@ -81,6 +81,19 @@ test('the operations page lists every operation with parameters, output and beha
 	assert.equal(githubSlug('Get many things'), 'get-many-things');
 });
 
+test('a field list most operations of a resource share is listed once and linked', () => {
+	const description = structuredClone(DESCRIPTION);
+	description.properties[1].options.push({ name: 'Get', value: 'get', action: 'Get thing', description: 'Get a thing' });
+	const specs = [...SPECS, { resource: 'thing', operation: 'get', output: 'item', itemSchema: 'Thing', idempotency: 'none', uuidParameters: [], safeParameters: [], outputOmit: ['price'] }];
+	const page = renderOperations({ description, specs, openapi: OPENAPI });
+	assert.match(
+		page,
+		/\n### Thing fields\n\nThe operations below that return a record of this resource return it with these fields: `id`, `name`, `price_cents`, `currency`\.\n/,
+	);
+	assert.match(page, /\*\*Output:\*\* One item, with the \[Thing fields\]\(#thing-fields\)\./);
+	assert.match(page, /\*\*Output:\*\* One item per result, with the \[Thing fields\]\(#thing-fields\)\./);
+});
+
 test('a dropped operation is visible in the rendered page', () => {
 	const fewer = structuredClone(DESCRIPTION);
 	fewer.properties[1].options.pop();

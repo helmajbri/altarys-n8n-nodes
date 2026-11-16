@@ -1,4 +1,4 @@
-# @altarys/n8n-nodes-letzbill
+# `@altarys/n8n-nodes-letzbill`
 
 This is an n8n community node. It lets you use LetzBill in your n8n workflows.
 

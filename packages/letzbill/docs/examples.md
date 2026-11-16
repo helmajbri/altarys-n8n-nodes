@@ -16,7 +16,7 @@ Each example needs the `@altarys/n8n-nodes-letzbill` package, version 0.1.0 or l
 
 ## Notify the billing team when an invoice payment fails
 
-File: [notify-failed-invoice-payment.json](../examples/notify-failed-invoice-payment.json)
+File: [`notify-failed-invoice-payment.json`](../examples/notify-failed-invoice-payment.json)
 
 When a payment attempt on an invoice is refused, the workflow reads the invoice and emails its number, customer, and amount to your billing team.
 
@@ -26,7 +26,7 @@ When a payment attempt on an invoice is refused, the workflow reads the invoice 
 
 ## Email a weekly report of overdue invoices
 
-File: [weekly-overdue-invoices-report.json](../examples/weekly-overdue-invoices-report.json)
+File: [`weekly-overdue-invoices-report.json`](../examples/weekly-overdue-invoices-report.json)
 
 Every Monday at 8:00, the workflow reads all overdue invoices, writes them to a CSV file, and emails the file. **Report columns** turns amounts in minor units into decimal amounts, as described in [Concepts](concepts.md#amounts-are-whole-numbers-in-minor-units).
 
@@ -36,7 +36,7 @@ Every Monday at 8:00, the workflow reads all overdue invoices, writes them to a 
 
 ## Send each finalized invoice PDF to the accounting mailbox
 
-File: [email-finalized-invoice-pdf.json](../examples/email-finalized-invoice-pdf.json)
+File: [`email-finalized-invoice-pdf.json`](../examples/email-finalized-invoice-pdf.json)
 
 When LetzBill finalizes an invoice, the workflow downloads its PDF and emails it to your accounting mailbox.
 

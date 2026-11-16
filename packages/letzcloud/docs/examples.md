@@ -16,7 +16,7 @@ Each example needs the `@altarys/n8n-nodes-letzcloud` package, version 0.1.0 or 
 
 ## Restart stopped instances every morning
 
-File: [restart-stopped-instances.json](../examples/restart-stopped-instances.json)
+File: [`restart-stopped-instances.json`](../examples/restart-stopped-instances.json)
 
 Every day at 7:00, the workflow finds the stopped instances whose name contains the text you set in **Settings**, starts each one, and waits until it runs.
 
@@ -26,7 +26,7 @@ Every day at 7:00, the workflow finds the stopped instances whose name contains 
 
 ## Email last month's usage as a CSV file
 
-File: [monthly-usage-export.json](../examples/monthly-usage-export.json)
+File: [`monthly-usage-export.json`](../examples/monthly-usage-export.json)
 
 On the first day of each month, the workflow reads last month's usage of your account, writes one row per resource to a CSV file, and emails the file.
 
@@ -36,7 +36,7 @@ On the first day of each month, the workflow reads last month's usage of your ac
 
 ## Alert the team when an instance enters the Error state
 
-File: [instance-error-alert.json](../examples/instance-error-alert.json)
+File: [`instance-error-alert.json`](../examples/instance-error-alert.json)
 
 LetzCloud sends an event each time an instance changes. The workflow checks each event and emails your team when the instance is in the `Error` state.
 
