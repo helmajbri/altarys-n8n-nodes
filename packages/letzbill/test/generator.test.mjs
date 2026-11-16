@@ -1,4 +1,4 @@
-// AC-AUT-001.12a: operations come from the OpenAPI document, and a renamed field fails the build.
+// Operations come from the OpenAPI document, and a renamed or missing field fails the build.
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';

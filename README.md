@@ -30,7 +30,9 @@ command inside the package folder.
 - `.github/workflows/publish.yml`: on a tag `<package>-v<version>` (for example
   `letzbill-v0.1.0`), publishes that package to npm with a provenance statement from a
   GitHub-hosted runner, then runs `@n8n/scan-community-package` on the published version and
-  fails unless its output reports that the package passed.
+  fails unless its output reports that the package passed. The publish job runs in the
+  `npm-publish` environment, whose required reviewers approve each release, and refuses a tag
+  whose commit is not on `main`. Actions are pinned by commit SHA.
 
 Run `npm run release` inside a package folder to bump its version and push its tag. The first
 version of a package is published with an `NPM_TOKEN` repository secret; after that, configure

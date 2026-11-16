@@ -1,4 +1,4 @@
-// AC-AUT-001.12b: every amount in the node's output is integer minor units with a currency,
+// Every amount in the node's output is integer minor units with a currency,
 // and the node refuses to send an amount that is not. Runs against the built package (dist/).
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';

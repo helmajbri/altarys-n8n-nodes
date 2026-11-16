@@ -24,6 +24,9 @@ Create a **LetzBill API** credential with:
 | API URL | The address of your LetzBill API, without `/api/v1`, for example `https://billing.example.com` |
 | API Key | A LetzBill API key. Keys start with `fb_`. |
 
+The API URL must use HTTPS. The nodes refuse a plain `http://` URL, because the key travels in
+every request and could be read and reused on the way.
+
 The key is sent as `Authorization: Bearer <key>`. Give the key only the permissions your
 workflows need: each operation needs one permission, for example `customer:read` to get
 customers or `invoice:write` to send an invoice. The trigger needs `webhook:read`,
@@ -60,7 +63,9 @@ text such as `10.5`.
 
 ### Get Many
 
-**Return All** reads every page; otherwise **Limit** sets how many results to return.
+**Return All** reads every page; otherwise **Limit** sets how many results to return. Return All
+stops with a message if LetzBill sends the same page twice or is still sending full pages after
+10,000 pages.
 
 ### Retries
 
@@ -68,11 +73,17 @@ text such as `10.5`.
   **Payment > Refund** sends an idempotency key in its body. LetzBill answers a repeated request
   with the same key with the first result instead of acting twice. Set **Idempotency Key** to a
   value from your own data to make retries across executions safe; left empty, the node derives a
-  key from the workflow, the execution and the item.
+  key from the workflow, the node, the execution, the run of the node and the item, so n8n's
+  Retry On Fail reuses it while another node, another loop pass or another item does not.
 - **Usage Event > Create** and **Create Batch** are recorded once per transaction ID. Use an ID
   from your own data, never a random value, so that a retry is not counted twice.
 - Other operations have no idempotency key in LetzBill. Before a Create, use **Get by External
   ID** where it exists to check whether the record is already there.
+
+### IDs
+
+IDs that LetzBill defines as UUIDs (customer, subscription, invoice, credit note, payment, wallet
+and webhook endpoint IDs) are checked before the request: anything else is refused.
 
 ### Refusals
 
@@ -90,12 +101,25 @@ not add a second endpoint.
 Each delivery carries `X-Webhook-Timestamp` and `X-Webhook-Signature-V2`, the HMAC-SHA256 of
 `{timestamp}.{raw body}` with the endpoint secret. The trigger drops a delivery whose signature
 does not match, or whose timestamp is further from the n8n clock than **Timestamp Tolerance
-(Seconds)** (300 by default). A dropped delivery starts no workflow.
-
-LetzBill delivers each event at least once. Use `metadata.event_id` in the payload to recognise
-a repeated delivery.
+(Seconds)** (300 by default, at most 900; any other value drops every delivery). A dropped
+delivery starts no workflow.
 
 The n8n instance must be reachable from LetzBill at its webhook URL.
+
+LetzBill delivers each event at least once. The trigger remembers the `metadata.event_id` of the
+deliveries it accepted within the tolerance window (up to 1,000 of them) and answers a repeat with
+`200` and no workflow item, so a replayed delivery and a quick retry by LetzBill start no second
+workflow. A retry later than the tolerance window, or two copies arriving at the same moment, can
+still start a second execution: check `metadata.event_id` in the workflow where a duplicate would
+matter.
+
+### The signing secret
+
+The trigger keeps the endpoint's signing secret in the workflow's static data, as n8n's own
+Stripe Trigger does. Anyone who can read the workflow, including through the n8n public API,
+which returns a workflow's static data, can read the secret and forge deliveries to this
+trigger. Limit who can read the workflow; deactivating and activating it again registers a new
+endpoint with a new secret.
 
 ## Example
 

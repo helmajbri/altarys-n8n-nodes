@@ -1,5 +1,5 @@
 {
-	"about": "Each entry changes the LetzBill OpenAPI snapshot in one way the node depends on. The generator must refuse every one of them (AC-AUT-001.12a); test/generator.test.mjs applies them.",
+	"about": "Each entry changes the LetzBill OpenAPI snapshot in one way the node depends on. The generator must refuse every one of them; test/generator.test.mjs applies them.",
 	"mustFail": [
 		{
 			"name": "a renamed required body field",
