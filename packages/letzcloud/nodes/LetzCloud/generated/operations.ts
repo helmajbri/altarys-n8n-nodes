@@ -658,7 +658,7 @@ export const generatedProperties: INodeProperties[] = [
 				name: 'Create',
 				value: 'create',
 				action: 'Create kubernetes cluster',
-				description: 'Create a Kubernetes cluster. LetzCloud answers at once with a job; use Wait Until Running to wait for the cluster.',
+				description: 'Create a Kubernetes cluster. LetzCloud answers at once with a job; pass its job ID to Wait Until Running to wait for the cluster.',
 				routing: {
 					request: {
 						method: 'POST',
@@ -754,7 +754,7 @@ export const generatedProperties: INodeProperties[] = [
 				name: 'Wait Until Running',
 				value: 'waitUntilRunning',
 				action: 'Wait until kubernetes cluster is running',
-				description: 'Wait until a Kubernetes cluster with the given name is running, reading it again at an interval until a time limit',
+				description: 'Wait until the cluster a Create made is running: reads the create job for the cluster ID, then the cluster, until a time limit',
 			},
 		],
 		default: 'get',
@@ -5185,7 +5185,7 @@ export const operationSpecs: GeneratedOperationSpec[] = [
 		resource: 'kubernetesCluster',
 		operation: 'waitUntilRunning',
 		method: 'GET',
-		path: '/api/v1/kubernetes/clusters',
+		path: '/api/v1/jobs/{job_id}',
 		idempotency: 'none',
 		destructive: false,
 		output: 'custom',

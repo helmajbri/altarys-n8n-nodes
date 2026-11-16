@@ -295,30 +295,33 @@ test('a wait reads until ready, stops on a state that cannot become ready, and i
 	assert.equal(reads, 7);
 });
 
-test('a cluster wait matches the exact name and refuses an ambiguous one', () => {
-	const list = (items) => ({ items, total: items.length, page: 1, page_size: 50, total_pages: 1 });
-	assert.equal(wait.judgeCluster(list([]), 'prod').status, 'pending');
-	assert.equal(wait.judgeCluster(list([{ id: 'a', name: 'prod-2', state: 'Running' }]), 'prod').status, 'pending');
-	assert.equal(wait.judgeCluster(list([{ id: 'a', name: 'prod', state: 'Starting' }]), 'prod').status, 'pending');
-	assert.equal(wait.judgeCluster(list([{ id: 'a', name: 'prod', state: 'Alert' }]), 'prod').status, 'pending');
-	const ready = wait.judgeCluster(list([{ id: 'a', name: 'prod', state: 'Running' }]), 'prod');
-	assert.equal(ready.status, 'ready');
-	assert.equal(ready.value.id, 'a');
-	assert.equal(wait.judgeCluster(list([{ id: 'a', name: 'prod', state: 'Error' }]), 'prod').status, 'failed');
-	assert.equal(
-		wait.judgeCluster(list([{ id: 'a', name: 'prod', state: 'Running' }, { id: 'b', name: 'prod', state: 'Running' }]), 'prod').status,
-		'failed',
-	);
+test('a cluster wait follows the cluster its create job names, never a name', () => {
+	const job = (status, result) => ({ job_id: 'j1', job_status: status, job_result: result });
+	assert.equal(wait.judgeClusterJob(job(0, null)).status, 'pending');
+	const done = wait.judgeClusterJob(job(1, { kubernetescluster: { id: 'k1', name: 'prod' } }));
+	assert.deepEqual(done, { status: 'ready', value: 'k1' });
+	assert.equal(wait.judgeClusterJob(job(1, {})).status, 'failed');
+	assert.equal(wait.judgeClusterJob(job(1, { kubernetescluster: { id: '..' } })).status, 'failed');
+	const refused = wait.judgeClusterJob(job(2, { errorcode: 530, errortext: 'Insufficient capacity' }));
+	assert.equal(refused.status, 'failed');
+	assert.match(refused.reason, /Insufficient capacity/);
+	assert.match(wait.judgeClusterJob(job(3, null)).reason, /cancelled/);
+	assert.equal(wait.judgeClusterById({ id: 'k1', name: 'prod', state: 'Starting' }, 'k1').status, 'pending');
+	assert.equal(wait.judgeClusterById({ id: 'k1', name: 'prod', state: 'Alert' }, 'k1').status, 'pending');
+	assert.equal(wait.judgeClusterById({ id: 'k1', name: 'prod', state: 'Running' }, 'k1').status, 'ready');
+	assert.equal(wait.judgeClusterById({ id: 'k1', name: 'prod', state: 'Error' }, 'k1').status, 'failed');
+	// A cluster with the same name but another ID is refused, Running or not.
+	assert.equal(wait.judgeClusterById({ id: 'k-old', name: 'prod', state: 'Running' }, 'k1').status, 'failed');
 });
 
-function executeContext(parameters, answer, { baseUrl = BASE, continueOnFail = false } = {}) {
+function executeContext(parameters, answer, { baseUrl = BASE, continueOnFail = false, items = 1 } = {}) {
 	const requests = [];
 	const node = { id: 'n', name: 'LetzCloud', type: 'letzCloud', typeVersion: 1, position: [0, 0], parameters: {} };
 	return {
 		requests,
 		ctx: {
 			getNode: () => node,
-			getInputData: () => [{ json: {} }],
+			getInputData: () => Array.from({ length: items }, () => ({ json: {} })),
 			getNodeParameter: (name, _i, fallback) => (name in parameters ? parameters[name] : fallback),
 			getCredentials: async () => ({ baseUrl, apiKey: 'bff_sa_test' }),
 			continueOnFail: () => continueOnFail,
@@ -373,18 +376,71 @@ test('Wait for State refuses a bad ID or an http:// URL before any request, and 
 	assert.match(out[0].json.error, /Error/);
 });
 
-test('Wait Until Running lists clusters by name and returns the running one', async () => {
-	const { ctx, requests } = executeContext({ clusterName: 'prod' }, () => ({
-		statusCode: 200,
-		headers: {},
-		body: { items: [{ id: 'k1', name: 'prod', state: 'Running' }], total: 1, page: 1, page_size: 50, total_pages: 1 },
-	}));
+/** An appliance holding the create job, the cluster it made, and a stale cluster of the same name. */
+function clusterAppliance({ jobStatus = 1 } = {}) {
+	return (options) => {
+		if (options.url === '/api/v1/jobs/job-7') {
+			return {
+				statusCode: 200,
+				headers: {},
+				body: { job_id: 'job-7', job_status: jobStatus, job_result: jobStatus === 1 ? { kubernetescluster: { id: 'k-new', name: 'prod' } } : null },
+			};
+		}
+		if (options.url === '/api/v1/kubernetes/clusters/k-new') {
+			return { statusCode: 200, headers: {}, body: { id: 'k-new', name: 'prod', state: 'Running' } };
+		}
+		if (options.url === '/api/v1/kubernetes/clusters') {
+			// Listed first, same name, also Running: a name match would return this one.
+			return { statusCode: 200, headers: {}, body: { items: [{ id: 'k-stale', name: 'prod', state: 'Running' }, { id: 'k-new', name: 'prod', state: 'Running' }] } };
+		}
+		return { statusCode: 404, headers: {}, body: { error: { code: 'RES_NOT_FOUND', type: 'resource', message: 'Not found' } } };
+	};
+}
+
+test('Wait Until Running returns the cluster the create job made, not a stale one with its name', async () => {
+	const { ctx, requests } = executeContext({ jobId: 'job-7' }, clusterAppliance());
 	const [out] = await wait.waitForClusterRunning.call(ctx);
-	assert.equal(out[0].json.id, 'k1');
-	assert.equal(requests[0].url, '/api/v1/kubernetes/clusters');
-	assert.deepEqual(requests[0].qs, { name: 'prod', page: 1, page_size: 50 });
-	const empty = executeContext({ clusterName: '  ' }, () => assert.fail('no request expected'));
-	await assert.rejects(wait.waitForClusterRunning.call(empty.ctx), /Cluster Name/);
+	assert.equal(out[0].json.id, 'k-new');
+	assert.deepEqual(out[0].json.wait, { correlated_by: 'create_job', job_id: 'job-7', cluster_id: 'k-new' });
+	assert.deepEqual(
+		requests.map((r) => r.url),
+		['/api/v1/jobs/job-7', '/api/v1/kubernetes/clusters/k-new'],
+	);
+	// The cluster read by ID answering with another cluster is refused.
+	const swapped = executeContext({ jobId: 'job-7' }, (options) =>
+		options.url === '/api/v1/kubernetes/clusters/k-new'
+			? { statusCode: 200, headers: {}, body: { id: 'k-stale', name: 'prod', state: 'Running' } }
+			: clusterAppliance()(options),
+	);
+	await assert.rejects(wait.waitForClusterRunning.call(swapped.ctx), /another cluster/);
+	const failed = executeContext({ jobId: 'job-7' }, clusterAppliance({ jobStatus: 2 }));
+	await assert.rejects(wait.waitForClusterRunning.call(failed.ctx), /did not succeed/);
+	for (const bad of ['', '  ', '..', 'a/b']) {
+		const refused = executeContext({ jobId: bad }, () => assert.fail('no request expected'));
+		await assert.rejects(wait.waitForClusterRunning.call(refused.ctx), /Job ID/, JSON.stringify(bad));
+	}
+});
+
+test('one execution waits at most the total limit over all its items', async () => {
+	let clock = 0;
+	const limits = [];
+	const { ctx } = executeContext({}, () => assert.fail('no request expected'), { items: 3, continueOnFail: true });
+	const [out] = await wait.runWait(
+		ctx,
+		async (itemIndex, timeoutSeconds) => {
+			limits.push(timeoutSeconds);
+			clock += (wait.MAX_TOTAL_WAIT_SECONDS - 100) * 1000;
+			return { item: itemIndex };
+		},
+		() => clock,
+	);
+	assert.equal(wait.MAX_TOTAL_WAIT_SECONDS, 7200);
+	// The first item gets its own limit; the second only what is left; the third nothing.
+	assert.deepEqual(limits, [900, 100]);
+	assert.deepEqual(out[0].json, { item: 0 });
+	assert.deepEqual(out[1].json, { item: 1 });
+	assert.match(out[2].json.error, /already waited 7200 seconds/);
+	assert.deepEqual(out[2].pairedItem, { item: 2 });
 });
 
 test('the wait parameters are bounded', () => {

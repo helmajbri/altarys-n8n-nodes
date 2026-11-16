@@ -114,9 +114,17 @@
 		{
 			"name": "a moved route a wait operation reads",
 			"kind": "renamePath",
-			"from": "/api/v1/kubernetes/clusters",
-			"to": "/api/v1/k8s/clusters",
+			"from": "/api/v1/jobs/{job_id}",
+			"to": "/api/v1/async-jobs/{job_id}",
 			"expect": "kubernetesCluster.waitUntilRunning"
+		},
+		{
+			"name": "a renamed job result the cluster wait reads the cluster ID from",
+			"kind": "renameProperty",
+			"schema": "AsyncJobQueryResult",
+			"from": "job_result",
+			"to": "result",
+			"expect": "AsyncJobQueryResult has no field 'job_result'"
 		}
 	]
 }

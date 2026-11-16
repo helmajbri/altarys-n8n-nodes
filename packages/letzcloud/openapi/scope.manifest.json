@@ -86,9 +86,19 @@
 		{ "method": "GET", "path": "/api/v1/vms" },
 		{ "method": "GET", "path": "/api/v1/vms/{vm_id}", "fields": { "Vm": ["id", "state"] } },
 		{
-			"method": "GET",
+			"method": "POST",
 			"path": "/api/v1/kubernetes/clusters",
-			"fields": { "PaginatedResponse": ["items"], "KubernetesClusterDetail": ["id", "name", "state"] }
+			"fields": { "KubernetesClusterAsyncJobResponse": ["job_id"] }
+		},
+		{
+			"method": "GET",
+			"path": "/api/v1/jobs/{job_id}",
+			"fields": { "AsyncJobQueryResult": ["job_id", "job_status", "job_result"] }
+		},
+		{
+			"method": "GET",
+			"path": "/api/v1/kubernetes/clusters/{cluster_id}",
+			"fields": { "KubernetesClusterDetail": ["id", "name", "state"] }
 		},
 		{
 			"method": "GET",
@@ -324,7 +334,7 @@
 			"value": "create",
 			"name": "Create",
 			"action": "Create kubernetes cluster",
-			"description": "Create a Kubernetes cluster. LetzCloud answers at once with a job; use Wait Until Running to wait for the cluster.",
+			"description": "Create a Kubernetes cluster. LetzCloud answers at once with a job; pass its job ID to Wait Until Running to wait for the cluster.",
 			"method": "POST",
 			"path": "/api/v1/kubernetes/clusters",
 			"idempotency": "none",
@@ -371,12 +381,15 @@
 			"value": "waitUntilRunning",
 			"name": "Wait Until Running",
 			"action": "Wait until kubernetes cluster is running",
-			"description": "Wait until a Kubernetes cluster with the given name is running, reading it again at an interval until a time limit",
+			"description": "Wait until the cluster a Create made is running: reads the create job for the cluster ID, then the cluster, until a time limit",
 			"method": "GET",
-			"path": "/api/v1/kubernetes/clusters",
+			"path": "/api/v1/jobs/{job_id}",
 			"idempotency": "none",
 			"custom": true,
-			"uses": [{ "method": "GET", "path": "/api/v1/kubernetes/clusters" }]
+			"uses": [
+				{ "method": "GET", "path": "/api/v1/jobs/{job_id}" },
+				{ "method": "GET", "path": "/api/v1/kubernetes/clusters/{cluster_id}" }
+			]
 		},
 		{
 			"resource": "container",

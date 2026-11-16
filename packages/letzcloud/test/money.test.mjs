@@ -129,6 +129,44 @@ test('usage rows take the currency of the report, and keep their own when they h
 	assert.deepEqual(empty.plans, []);
 });
 
+/** The same instance with every currency set to null, as the appliance sends one it cannot name. */
+function withNullCurrencies(value) {
+	if (Array.isArray(value)) return value.map(withNullCurrencies);
+	if (value === null || typeof value !== 'object') return value;
+	const out = {};
+	for (const [k, v] of Object.entries(value)) out[k] = currencyRe.test(k) ? null : withNullCurrencies(v);
+	return out;
+}
+
+for (const spec of withOutput) {
+	test(`${spec.resource}.${spec.operation}: with a null currency every amount still has the currency key`, async () => {
+		const out = await asOutput(spec, withNullCurrencies(sample(schemas[spec.itemSchema])));
+		assert.deepEqual(moneyViolations(out), []);
+	});
+}
+
+test('usage rows get an explicit null currency when the report names none', async () => {
+	const spec = operationSpecs.find((s) => s.resource === 'usage' && s.operation === 'get');
+	// The appliance reports 0 cents with no currency when the rating has no totals.
+	const report = {
+		period: 'current_month',
+		currency: null,
+		usage_amount_cents: 0,
+		plans: [{ plan: 'vm', name: 'VMs', amount_cents: 0, charges: [{ metric_code: 'cpu', name: 'CPU', quantity: 0, amount_cents: 0 }] }],
+	};
+	const out = await asOutput(spec, report);
+	assert.ok('currency' in out.plans[0] && out.plans[0].currency === null);
+	assert.ok('currency' in out.plans[0].charges[0] && out.plans[0].charges[0].currency === null);
+	assert.deepEqual(moneyViolations(out), []);
+	// Without the key at the top either, the rows still get it.
+	const { currency: _dropped, ...noKey } = report;
+	const bare = await asOutput(spec, JSON.parse(JSON.stringify(noKey)));
+	assert.equal(bare.plans[0].currency, null);
+	assert.equal(bare.plans[0].charges[0].currency, null);
+	// The check fails on a row that has an amount and no currency key.
+	assert.ok(moneyViolations({ amount_cents: 0 }).some((v) => v.includes('has no currency beside it')));
+});
+
 test('invoices and the wallet carry integer minor units with their currency', async () => {
 	const invoices = operationSpecs.find((s) => s.resource === 'invoice' && s.operation === 'getAll');
 	assert.equal(invoices.root, 'data');

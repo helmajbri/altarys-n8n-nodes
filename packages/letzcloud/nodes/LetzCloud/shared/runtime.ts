@@ -97,7 +97,9 @@ function fillCurrency(target: unknown, segments: string[], field: string, carrie
 	const own = record[field];
 	const value = own !== undefined && own !== null ? own : carried;
 	if (segments.length === 0) {
-		if ((own === undefined || own === null) && value !== undefined) record[field] = value as IDataObject[string];
+		// The row always ends up with the key: the enclosing currency, or an explicit null when no
+		// enclosing object names one, so an amount never appears without its currency beside it.
+		if (own === undefined || own === null) record[field] = (value ?? null) as IDataObject[string];
 		return;
 	}
 	const [head, ...rest] = segments;
@@ -112,7 +114,9 @@ function fillCurrency(target: unknown, segments: string[], field: string, carrie
 
 /**
  * Copies a currency into objects that carry amounts but leave the currency to an enclosing
- * object (`path=field`, e.g. 'plans[]=currency'), so each amount travels with its currency.
+ * object (`path=field`, e.g. 'plans[]=currency'), so each amount travels with its currency. When
+ * no enclosing object has a currency (the appliance can send `currency: null`), the row gets an
+ * explicit `null`.
  */
 export function inheritCurrency(entries: string[]) {
 	return async function (

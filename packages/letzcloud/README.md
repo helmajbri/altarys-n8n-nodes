@@ -37,6 +37,11 @@ Before n8n adds the key to any request, the credential:
    receives the key.
 
 This check runs before every request the nodes make, so each request costs one extra small read.
+n8n runs it while the credential's hidden **Appliance Check** field is empty, which it always is
+in a credential made in the n8n editor. If that field were given a value (through the n8n API or
+an import), n8n would skip the check; the credential then sends no key at all, so a request fails
+as unauthenticated instead of carrying the key unchecked. The nodes also refuse an `http://`
+appliance URL before each request in any case.
 The **Test** button runs the same check, then lists the first instance with the key. It reports
 a wrong address ("No LetzCloud appliance answered at ...") and a refused key ("The appliance did
 not accept the API key ...") separately. Listing instances needs the `vm:read` permission: a key
@@ -86,19 +91,25 @@ once with a job; the work goes on in the cloud. Two operations wait for the resu
 - **Instance > Wait for State** reads the instance until it is **Running** or **Stopped**. Use it
   after **Change State**: Running after a start or a reboot, Stopped after a stop. It stops with a
   message if the instance is in Error, Destroyed or Expunging instead.
-- **Kubernetes Cluster > Wait Until Running** reads the clusters with the given name until that
-  cluster is Running. Creating a cluster answers with a job, not with the cluster ID, so the wait
-  finds the cluster by the name you created it with. It stops with a message if the cluster is in
-  Error, Destroying or Destroyed, or if two clusters have that name.
+- **Kubernetes Cluster > Wait Until Running** takes the **Job ID** that **Create** answered with
+  (its `job_id`). It reads that job until it has finished and names the cluster it made, then reads
+  that cluster by its ID until it is Running. It never looks a cluster up by name, so another
+  cluster with the same name is never taken for it. The output is the cluster, with
+  `wait: {"correlated_by": "create_job", "job_id": ..., "cluster_id": ...}` naming what it
+  followed. It stops with a message if the job did not succeed, or if the cluster is in Error,
+  Destroying or Destroyed. Reading the job needs the `async_job:read` permission.
 
 Both read again every **Interval (Seconds)** until **Time Limit (Seconds)**, and then stop with a
-message. They wait with n8n's own `sleep` helper.
+message. One execution waits at most 7,200 seconds in all: with several items, each item waits at
+most what is left of that. They wait with n8n's own `sleep` helper.
 
 ### Amounts
 
 Every amount is an integer in the minor unit of its currency, with the currency beside it:
 `amount_cents: 1250` with `currency: "EUR"` means 12.50 EUR. In **Usage > Get**, the per-plan
 rows and their charges carry the currency of the report, which the node copies into each row.
+When the appliance cannot name a currency it sends `currency: null`; the rows then get
+`currency: null` too, so an amount never appears without its currency field.
 The wallet balance is `{"amount": 2500, "currency": "EUR"}`, also in minor units.
 
 ### Get Many

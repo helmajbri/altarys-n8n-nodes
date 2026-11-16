@@ -10,7 +10,7 @@ import type {
 import { NodeApiError, NodeOperationError, sleep } from 'n8n-workflow';
 
 import { describeLetzCloudRefusal, parseResponseBody } from './refusal';
-import { UUID_PATTERN, assertHttpsBaseUrl } from './runtime';
+import { UUID_PATTERN, assertHttpsBaseUrl, isSafePathSegment } from './runtime';
 
 // The "wait" operations are code (customOperations): n8n's declarative routing sends one request
 // per item and has no way to repeat it, so reading a resource until it reaches a state is done
@@ -23,6 +23,12 @@ export const INSTANCE_FAILED_STATES = ['Destroyed', 'Error', 'Expunging'];
 
 /** Kubernetes cluster states that end a wait for Running. */
 export const CLUSTER_FAILED_STATES = ['Destroyed', 'Destroying', 'Error'];
+
+/**
+ * The longest one execution of a wait operation may wait in all, over all its items. Each item
+ * waits at most its own time limit, and never past what is left of this.
+ */
+export const MAX_TOTAL_WAIT_SECONDS = 7200;
 
 export type PollRead<T> =
 	| { status: 'ready'; value: T }
@@ -40,7 +46,7 @@ export interface PollOptions<T> {
 export class WaitStopped extends Error {
 	constructor(
 		message: string,
-		readonly reason: 'failed' | 'timeout',
+		readonly reason: 'failed' | 'timeout' | 'total',
 	) {
 		super(message);
 	}
@@ -123,18 +129,38 @@ export function judgeInstance(body: unknown, target: string): PollRead<IDataObje
 	return { status: 'pending', detail: `the instance is ${state || 'in an unknown state'}` };
 }
 
-/** One read of the cluster list filtered by name, judged against Running. */
-export function judgeCluster(body: unknown, name: string): PollRead<IDataObject> {
-	const items = asRecord(body).items;
-	const matches = (Array.isArray(items) ? items : []).map(asRecord).filter((c) => c.name === name);
-	if (matches.length === 0) return { status: 'pending', detail: `no cluster named '${name}' is listed yet` };
-	if (matches.length > 1) {
+/**
+ * One read of the job a cluster create started. A finished job names the cluster it made under
+ * `job_result.kubernetescluster.id`; that ID, not the cluster's name, is what the wait follows, so
+ * another cluster with the same name, of this organization or of a customer, is never taken for
+ * it. Job status: 0 running, 1 succeeded, 2 failed, 3 cancelled.
+ */
+export function judgeClusterJob(body: unknown): PollRead<string> {
+	const job = asRecord(body);
+	const status = job.job_status;
+	if (status === 0) return { status: 'pending', detail: 'the create job is still running' };
+	const result = asRecord(job.job_result);
+	if (status === 1) {
+		const id = asRecord(result.kubernetescluster).id;
+		if (typeof id === 'string' && isSafePathSegment(id)) return { status: 'ready', value: id };
+		return { status: 'failed', reason: 'The create job finished but does not name the cluster it made' };
+	}
+	if (status === 2 || status === 3) {
+		const text = typeof result.errortext === 'string' && result.errortext ? `: ${result.errortext}` : '';
 		return {
 			status: 'failed',
-			reason: `${matches.length} clusters are named '${name}'; get the cluster by ID instead`,
+			reason: `The create job ${status === 2 ? 'did not succeed' : 'was cancelled'}${text}`,
 		};
 	}
-	const cluster = matches[0];
+	return { status: 'pending', detail: 'the create job reports no status yet' };
+}
+
+/** One read of the cluster the create job named, judged against Running. */
+export function judgeClusterById(body: unknown, clusterId: string): PollRead<IDataObject> {
+	const cluster = asRecord(body);
+	if (cluster.id !== clusterId) {
+		return { status: 'failed', reason: `LetzCloud answered with another cluster than '${clusterId}'` };
+	}
 	const state = typeof cluster.state === 'string' ? cluster.state : '';
 	if (state === 'Running') return { status: 'ready', value: cluster };
 	if (CLUSTER_FAILED_STATES.includes(state)) {
@@ -167,13 +193,13 @@ export const waitProperties: INodeProperties[] = [
 		displayOptions: show('instance', 'waitForState'),
 	},
 	{
-		displayName: 'Cluster Name',
-		name: 'clusterName',
+		displayName: 'Job ID',
+		name: 'jobId',
 		type: 'string',
 		required: true,
 		default: '',
 		description:
-			'The name the cluster was created with. Creating a cluster answers with a job, not with the cluster ID.',
+			"The 'job_id' that Create answered with. The wait reads that job for the ID of the cluster it made, then that cluster; it never matches a cluster by name.",
 		displayOptions: show('kubernetesCluster', 'waitUntilRunning'),
 	},
 	{
@@ -182,7 +208,8 @@ export const waitProperties: INodeProperties[] = [
 		type: 'number',
 		typeOptions: { minValue: 10, maxValue: 7200, numberPrecision: 0 },
 		default: 900,
-		description: 'How long to wait before the node stops with a message, from 10 to 7200',
+		description:
+			'How long to wait for one item before the node stops with a message, from 10 to 7200. One execution waits at most 7200 seconds over all its items.',
 		displayOptions: { show: { resource: ['instance', 'kubernetesCluster'], operation: ['waitForState', 'waitUntilRunning'] } },
 	},
 	{
@@ -202,15 +229,27 @@ function boundedNumber(value: unknown, min: number, max: number, fallback: numbe
 	return Math.min(max, Math.max(min, Math.floor(n)));
 }
 
-async function runWait(
+export async function runWait(
 	ctx: IExecuteFunctions,
 	waitFor: (itemIndex: number, timeoutSeconds: number, intervalSeconds: number) => Promise<IDataObject>,
+	now: () => number = () => Date.now(),
 ): Promise<INodeExecutionData[][]> {
 	const items = ctx.getInputData();
 	const out: INodeExecutionData[] = [];
+	const started = now();
 	for (let itemIndex = 0; itemIndex < items.length; itemIndex++) {
 		try {
-			const timeoutSeconds = boundedNumber(ctx.getNodeParameter('timeoutSeconds', itemIndex, 900), 10, 7200, 900);
+			const left = Math.floor(MAX_TOTAL_WAIT_SECONDS - (now() - started) / 1000);
+			if (left < 10) {
+				throw new WaitStopped(
+					`This execution has already waited ${MAX_TOTAL_WAIT_SECONDS} seconds over its items`,
+					'total',
+				);
+			}
+			const timeoutSeconds = Math.min(
+				left,
+				boundedNumber(ctx.getNodeParameter('timeoutSeconds', itemIndex, 900), 10, 7200, 900),
+			);
 			const intervalSeconds = boundedNumber(ctx.getNodeParameter('intervalSeconds', itemIndex, 15), 5, 600, 15);
 			const value = await waitFor(itemIndex, timeoutSeconds, intervalSeconds);
 			out.push({ json: value, pairedItem: { item: itemIndex } });
@@ -221,7 +260,9 @@ async function runWait(
 							description:
 								error.reason === 'timeout'
 									? "Raise 'Time Limit (Seconds)', or check the resource in the LetzCloud console"
-									: 'Check the resource in the LetzCloud console',
+									: error.reason === 'total'
+										? 'Send fewer items to one wait, or wait for them in separate executions'
+										: 'Check the resource in the LetzCloud console',
 							itemIndex,
 						})
 					: error;
@@ -263,24 +304,27 @@ export async function waitForInstanceState(this: IExecuteFunctions): Promise<INo
 
 export async function waitForClusterRunning(this: IExecuteFunctions): Promise<INodeExecutionData[][]> {
 	return await runWait(this, async (itemIndex, timeoutSeconds, intervalSeconds) => {
-		const name = String(this.getNodeParameter('clusterName', itemIndex, '') ?? '').trim();
-		if (name === '') {
-			throw new NodeOperationError(this.getNode(), `'Cluster Name' is empty [Item ${itemIndex}]`, {
-				description: 'Enter the name the cluster was created with',
+		const jobId = String(this.getNodeParameter('jobId', itemIndex, '') ?? '').trim();
+		if (!isSafePathSegment(jobId)) {
+			throw new NodeOperationError(this.getNode(), `'Job ID' must be the job_id a Create answered with [Item ${itemIndex}]`, {
+				description: 'Map the job_id field of the Create output into this field',
 				itemIndex,
 			});
 		}
-		const { value } = await pollUntil({
-			read: async () =>
-				judgeCluster(
-					await letzCloudGet(this, itemIndex, '/api/v1/kubernetes/clusters', { name, page: 1, page_size: 50 }),
-					name,
-				),
-			timeoutSeconds,
-			intervalSeconds,
-			sleep,
-			now: () => Date.now(),
-		});
-		return value;
+		let clusterId = '';
+		const read = async (): Promise<PollRead<IDataObject>> => {
+			if (!clusterId) {
+				const job = judgeClusterJob(await letzCloudGet(this, itemIndex, `/api/v1/jobs/${encodeURIComponent(jobId)}`));
+				if (job.status !== 'ready') return job;
+				clusterId = job.value;
+			}
+			return judgeClusterById(
+				await letzCloudGet(this, itemIndex, `/api/v1/kubernetes/clusters/${encodeURIComponent(clusterId)}`),
+				clusterId,
+			);
+		};
+		const { value } = await pollUntil({ read, timeoutSeconds, intervalSeconds, sleep, now: () => Date.now() });
+		// Says which cluster was followed and how it was found.
+		return { ...value, wait: { correlated_by: 'create_job', job_id: jobId, cluster_id: clusterId } };
 	});
 }

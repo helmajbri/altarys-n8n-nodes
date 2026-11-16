@@ -91,7 +91,10 @@ test('then one authenticated read-only call, with a readable message for a refus
 });
 
 test('the key is a password field sent as a bearer token, and no host is built in', () => {
-	assert.equal(credential.authenticate.properties.headers.Authorization, '=Bearer {{$credentials.apiKey}}');
+	assert.equal(
+		credential.authenticate.properties.headers.Authorization,
+		'={{ $credentials.applianceCheck === "" ? "Bearer " + $credentials.apiKey : "" }}',
+	);
 	const key = credential.properties.find((p) => p.name === 'apiKey');
 	assert.equal(key.typeOptions.password, true);
 	const url = credential.properties.find((p) => p.name === 'baseUrl');

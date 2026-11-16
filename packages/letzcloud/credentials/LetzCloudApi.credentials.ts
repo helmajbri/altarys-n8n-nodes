@@ -50,12 +50,13 @@ export class LetzCloudApi implements ICredentialType {
 			typeOptions: { password: true },
 			default: '',
 			description:
-				'A LetzCloud service-account key; it starts with bff_sa_. A provider key manages the whole organization; a customer key only what belongs to that customer.',
+				'A LetzCloud service-account key; it starts with bff_sa_. A provider key manages the whole organization; a customer key only what belongs to that customer. The key is sent only after the appliance check passes, and only while the hidden Appliance Check field is empty, as n8n keeps it.',
 			required: true,
 		},
 		{
 			// Never set. An empty expirable field makes n8n run preAuthentication before every
-			// request it authenticates with this credential, the credential test included.
+			// request it authenticates with this credential, the credential test included. n8n
+			// fills a missing value with this default before it reads it.
 			displayName: 'Appliance Check',
 			name: 'applianceCheck',
 			type: 'hidden',
@@ -100,11 +101,14 @@ export class LetzCloudApi implements ICredentialType {
 		return {};
 	}
 
+	// The key is added only while 'applianceCheck' is empty, which is exactly when n8n runs
+	// preAuthentication above. A value set in the stored credential (it is never shown in the
+	// form) would skip that check, so it also withholds the key: the request goes out without it.
 	authenticate: IAuthenticateGeneric = {
 		type: 'generic',
 		properties: {
 			headers: {
-				Authorization: '=Bearer {{$credentials.apiKey}}',
+				Authorization: '={{ $credentials.applianceCheck === "" ? "Bearer " + $credentials.apiKey : "" }}',
 			},
 		},
 	};

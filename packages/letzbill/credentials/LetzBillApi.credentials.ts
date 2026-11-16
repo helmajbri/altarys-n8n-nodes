@@ -35,12 +35,14 @@ export class LetzBillApi implements ICredentialType {
 			type: 'string',
 			typeOptions: { password: true },
 			default: '',
-			description: 'A LetzBill API key; it starts with fb_',
+			description:
+				'A LetzBill API key; it starts with fb_. It is sent only to an HTTPS API URL, and only while the hidden HTTPS Check field is empty, as n8n keeps it.',
 			required: true,
 		},
 		{
 			// Never set. An empty expirable field makes n8n run preAuthentication before every
-			// request it authenticates with this credential, the credential test included.
+			// request it authenticates with this credential, the credential test included. n8n
+			// fills a missing value with this default before it reads it.
 			displayName: 'HTTPS Check',
 			name: 'httpsCheck',
 			type: 'hidden',
@@ -63,11 +65,14 @@ export class LetzBillApi implements ICredentialType {
 		return {};
 	}
 
+	// The key is added only while 'httpsCheck' is empty, which is exactly when n8n runs
+	// preAuthentication above. A value set in the stored credential (it is never shown in the
+	// form) would skip that check, so it also withholds the key: the request goes out without it.
 	authenticate: IAuthenticateGeneric = {
 		type: 'generic',
 		properties: {
 			headers: {
-				Authorization: '=Bearer {{$credentials.apiKey}}',
+				Authorization: '={{ $credentials.httpsCheck === "" ? "Bearer " + $credentials.apiKey : "" }}',
 			},
 		},
 	};

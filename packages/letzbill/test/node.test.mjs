@@ -277,7 +277,10 @@ test('role, lifecycle, quota and validation refusals are told apart', () => {
 
 test('the credential sends the key as a bearer token and tests with a read-only call', () => {
 	const credential = new LetzBillApi();
-	assert.equal(credential.authenticate.properties.headers.Authorization, '=Bearer {{$credentials.apiKey}}');
+	assert.equal(
+		credential.authenticate.properties.headers.Authorization,
+		'={{ $credentials.httpsCheck === "" ? "Bearer " + $credentials.apiKey : "" }}',
+	);
 	assert.equal(credential.test.request.method, 'GET');
 	assert.equal(credential.test.request.url, '/api/v1/webhooks/event_types');
 	const key = credential.properties.find((p) => p.name === 'apiKey');

@@ -1686,6 +1686,33 @@
 				}
 			}
 		},
+		"/api/v1/jobs/{job_id}": {
+			"get": {
+				"operationId": "query_async_job",
+				"parameters": [
+					{
+						"name": "job_id",
+						"in": "path",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Successful Response",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/AsyncJobQueryResult"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
 		"/api/v1/webhooks/event_types": {
 			"get": {
 				"operationId": "list_event_types",
@@ -1895,6 +1922,106 @@
 	},
 	"components": {
 		"schemas": {
+			"AsyncJobQueryResult": {
+				"properties": {
+					"job_id": {
+						"title": "Job Id",
+						"type": "string"
+					},
+					"job_status": {
+						"title": "Job Status",
+						"type": "integer"
+					},
+					"job_result": {
+						"anyOf": [
+							{},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Job Result"
+					},
+					"job_result_code": {
+						"anyOf": [
+							{
+								"type": "integer"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Job Result Code"
+					},
+					"job_result_type": {
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Job Result Type"
+					},
+					"job_instance_type": {
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Job Instance Type"
+					},
+					"job_instance_id": {
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Job Instance Id"
+					},
+					"resource_label": {
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Resource Label"
+					},
+					"created": {
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Created"
+					}
+				},
+				"required": [
+					"job_id",
+					"job_status"
+				],
+				"title": "AsyncJobQueryResult",
+				"type": "object"
+			},
 			"ContainerCondition": {
 				"properties": {
 					"type": {

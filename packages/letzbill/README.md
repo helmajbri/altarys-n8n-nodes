@@ -26,7 +26,10 @@ Create a **LetzBill API** credential with:
 
 The API URL must use HTTPS. The credential refuses a plain `http://` URL before any request is
 sent, the **Test** button included, because the key travels in every request and could be read
-and reused on the way. The nodes check it again before each request.
+and reused on the way. The nodes check it again before each request. n8n runs the credential's
+check while its hidden **HTTPS Check** field is empty, which it always is in a credential made in
+the n8n editor; if that field were given a value (through the n8n API or an import), the
+credential sends no key at all.
 
 The key is sent as `Authorization: Bearer <key>`. Give the key only the permissions your
 workflows need: each operation needs one permission, for example `customer:read` to get
