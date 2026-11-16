@@ -124,7 +124,9 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
-          node-version: 'lts/*'
+          # Node 24, not lts/*: the scanner 0.42.0 depends on isolated-vm 6.2.0, which does not
+          # compile on Node 26, so npx exits 1 without running the scan.
+          node-version: '24'
 
       - name: Wait until the version is on the registry
         run: |
@@ -139,7 +141,10 @@ jobs:
         # The scanner prints its verdict and exits 0 on a failed scan, so the output decides.
         run: |
           npx --yes @n8n/scan-community-package@0.42.0 "$SPEC" 2>&1 | tee scan.log
-          grep -F "Package $SPEC has passed all security checks" scan.log
+          if ! grep -F "Package $SPEC has passed all security checks" scan.log; then
+            echo "::error::No passing verdict for $SPEC. A log without a verdict line means the scanner did not start."
+            exit 1
+          fi
 
       - name: Keep the scan output
         if: always()
