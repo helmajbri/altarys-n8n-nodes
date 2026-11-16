@@ -102,6 +102,20 @@ const breakers = [
 	['a timer after a template literal holding a quote', { node: cleanNode + "const t = `it's`; setTimeout(f, 1);\n" }, /timer global/],
 	['a timer after a regex literal holding a quote', { node: cleanNode + "const r = /'/; setTimeout(f, 1);\n" }, /timer global/],
 	['process inside a template expression', { node: cleanNode + 'const t = `${process.env.X}`;\n' }, /process/],
+	// The guard used to read a `/` after `++`, `--` or a closing `}` as the start of a regex
+	// literal, so the slash pair below swallowed the name between them.
+	['process between divisions after ++', { node: cleanNode + 'let n = 1; n++ / 2 + process.env.X.length / 1;\n' }, /process/],
+	['process between divisions after --', { node: cleanNode + 'let n = 1; n-- / 2 + process.env.X.length / 1;\n' }, /process/],
+	['process between divisions after an object literal', { node: cleanNode + 'const v = { a: 1 } / 2 + process.env.X.length / 1;\n' }, /process/],
+	// And a regex after an `if` head or a block was read as a division, so a quote inside it
+	// opened a string that hid the code after it.
+	['a timer after a regex that follows an if head', { node: cleanNode + "if (docs) /'/.test(docs); setTimeout(f, 1);\n" }, /timer global/],
+	['a timer after a regex that follows a block', { node: cleanNode + "function g() {}\n/'/.test(docs); setTimeout(g, 1);\n" }, /timer global/],
+	[
+		'process after one real regex and one real division',
+		{ node: cleanNode + "if (docs) /'/.test(docs); const z = (docs.length) / 2 + process.env.X.length / 1;\n" },
+		/process/,
+	],
 ];
 
 for (const [label, edit, expected] of breakers) {
@@ -116,10 +130,23 @@ test('comments, strings, template text and regex literals do not trip the code c
 	assert.doesNotMatch(codeOnly('const m = `process is ${1 + 1} fine`;\n'), /process/);
 	assert.doesNotMatch(codeOnly('const r = /process|setTimeout/g;\nif (!/eval\\(/.test(x)) y();\n'), /process|setTimeout|eval/);
 	assert.match(codeOnly('const half = total / 2; const r = /x/;\n'), /total \/ 2/);
+	assert.match(codeOnly('n++ / 2;\n'), /n\+\+ \/ 2/);
+	assert.match(codeOnly('const v = { a: 1 } / 2;\n'), /\} \/ 2/);
+	assert.match(codeOnly('if (x) /y/.test(z);\n'), /\/r\/\.test/);
+	assert.match(codeOnly('if (x) {}\n/y/.test(z);\n'), /\/r\/\.test/);
+	assert.match(codeOnly('if (x) /y/.test(z);\n', { divisionWhenAmbiguous: true }), /\) \/y\//);
+});
+
+test('placeholder hosts are any host under example.com, and only that', () => {
+	assert.deepEqual(findings({ node: `${cleanNode}const a = 'https://cloud.example.com/api';\n` }), []);
+	for (const url of ['https://example.com.evil.test/x', 'https://cloud.example.community/x', 'http://cloud.example.com/x']) {
+		const found = findings({ node: `${cleanNode}const a = '${url}';\n` });
+		assert.ok(found.some((f) => /placeholder host/.test(f)), url);
+	}
 });
 
 test('the packages in this repository pass', () => {
-	for (const name of ['letzbill']) {
+	for (const name of ['letzbill', 'letzcloud']) {
 		assert.deepEqual(checkPackage(join(repoRoot, 'packages', name)), [], name);
 	}
 });

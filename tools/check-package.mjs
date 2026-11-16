@@ -50,6 +50,9 @@ export const DEFAULT_ESLINT_CONFIG =
 
 const PACKAGE_NAME = /^(@[a-z0-9-~][a-z0-9-._~]*\/)?n8n-nodes-[a-z0-9-._~]+$/;
 
+// Examples use hosts under example.com, which RFC 2606 reserves for documentation.
+const PLACEHOLDER_URL = /^https:\/\/([a-z0-9-]+\.)*example\.com(\/|$)/;
+
 function walk(dir, out = []) {
 	if (!existsSync(dir)) return out;
 	for (const entry of readdirSync(dir)) {
@@ -60,15 +63,45 @@ function walk(dir, out = []) {
 	return out;
 }
 
+// After one of these a `/` starts a regular expression. `++` and `--` are excluded where used.
+const REGEX_AFTER_OPERATOR = /[(,=:[!&|?{};+\-*%<>~^]$|\b(return|typeof|case|in|of|new|delete|void|throw|yield|await|else|do)$/;
+// A `{` after one of these opens an object literal (an expression), not a block.
+const EXPRESSION_BRACE_AFTER = /[(,=:[?!&|+\-*%<>~^]$|\b(return|typeof|case|in|of|new|delete|void|throw|yield|await)$/;
+// A `(` after one of these is the head of a statement, so a `/` after its `)` starts a regex.
+const CONTROL_PAREN_AFTER = /\b(if|while|for|with)$/;
+
 /**
  * The code of a TypeScript file without its comments, the text of its strings and template
  * literals, and its regular-expression literals. The expressions inside `${...}` are kept, so a
- * forbidden name used there is still found. A `/` starts a regular expression when it follows an
- * operator, an opening bracket, a comma, a semicolon or a keyword such as `return`.
+ * forbidden name used there is still found.
+ *
+ * A `/` starts a regular expression after an operator, an opening bracket, a comma, a semicolon
+ * or a keyword such as `return`; after the `)` of an `if`/`while`/`for`/`with` head; and after
+ * the `}` that closes a block. It is a division after `++` or `--`, after an identifier, a number,
+ * `]`, any other `)` and the `}` that closes an object literal. With `divisionWhenAmbiguous` a `/`
+ * after any `)` or `}` is a division: checkPackage reads both views, so a slash this function
+ * places on the wrong side cannot hide a name from both.
  */
-export function codeOnly(source) {
+export function codeOnly(source, { divisionWhenAmbiguous = false } = {}) {
 	let i = 0;
-	const REGEX_BEFORE = /[(,=:[!&|?{};+\-*%<>~^]$|\b(return|typeof|case|in|of|new|delete|void|throw|yield|await)$/;
+	const parens = [];
+	const braces = [];
+	let lastClosed = '';
+
+	function regexStartsAfter(code) {
+		const before = code.trimEnd();
+		if (before === '') return true;
+		if (before.endsWith('++') || before.endsWith('--')) return false;
+		if (before.endsWith(')')) return !divisionWhenAmbiguous && lastClosed === 'control-paren';
+		if (before.endsWith('}')) return !divisionWhenAmbiguous && lastClosed === 'block-brace';
+		return REGEX_AFTER_OPERATOR.test(before);
+	}
+
+	function braceKind(code) {
+		const before = code.trimEnd();
+		if (before.endsWith('=>')) return 'block';
+		return EXPRESSION_BRACE_AFTER.test(before) ? 'expression' : 'block';
+	}
 
 	function skipString(quote) {
 		i++;
@@ -106,8 +139,16 @@ export function codeOnly(source) {
 				i++;
 				return out;
 			}
-			if (c === '{') depth++;
-			if (c === '}') depth--;
+			if (c === '{') {
+				depth++;
+				braces.push(braceKind(out));
+			}
+			if (c === '}') {
+				depth--;
+				lastClosed = braces.pop() === 'expression' ? 'expression-brace' : 'block-brace';
+			}
+			if (c === '(') parens.push(CONTROL_PAREN_AFTER.test(out.trimEnd()));
+			if (c === ')') lastClosed = parens.pop() ? 'control-paren' : 'paren';
 			if (c === '/' && next === '/') {
 				while (i < source.length && source[i] !== '\n') i++;
 				continue;
@@ -142,7 +183,7 @@ export function codeOnly(source) {
 				out += '`';
 				continue;
 			}
-			if (c === '/' && REGEX_BEFORE.test(out.trimEnd() || '(')) {
+			if (c === '/' && regexStartsAfter(out)) {
 				skipRegex();
 				out += '/r/';
 				continue;
@@ -207,7 +248,7 @@ export function checkPackage(packageDir) {
 
 	// The repository base URL: the only owner-bearing URL node files may carry (documentation).
 	const repoUrl = String(pkg.repository?.url ?? '').replace(/^git\+/, '').replace(/\.git$/, '');
-	const allowedUrlPrefixes = [repoUrl, 'https://docs.n8n.io/', 'https://billing.example.com'];
+	const allowedUrlPrefixes = [repoUrl, 'https://docs.n8n.io/'];
 
 	const files = [...walk(join(packageDir, 'nodes')), ...walk(join(packageDir, 'credentials'))];
 	for (const file of files) {
@@ -225,8 +266,8 @@ export function checkPackage(packageDir) {
 		// No host other than the package's own repository, n8n's docs and the placeholder host.
 		for (const m of source.matchAll(/https?:\/\/[^\s'"<>)]+/g)) {
 			if (rel.endsWith('.svg') && m[0] === 'http://www.w3.org/2000/svg') continue;
-			if (!allowedUrlPrefixes.some((p) => p && m[0].startsWith(p))) {
-				problems.push(`${rel}: URL ${m[0]} is not the package repository, n8n docs or the placeholder host`);
+			if (!allowedUrlPrefixes.some((p) => p && m[0].startsWith(p)) && !PLACEHOLDER_URL.test(m[0])) {
+				problems.push(`${rel}: URL ${m[0]} is not the package repository, n8n docs or a placeholder host`);
 			}
 		}
 		if (rel.endsWith('.node.json')) {
@@ -245,9 +286,9 @@ export function checkPackage(packageDir) {
 			if (spec.startsWith('.')) continue;
 			if (!ALLOWED_IMPORTS.has(spec)) problems.push(`${rel}: import '${spec}' is not on the allow-list (N22)`);
 		}
-		const code = codeOnly(source);
+		const views = [codeOnly(source), codeOnly(source, { divisionWhenAmbiguous: true })];
 		for (const [pattern, label] of FORBIDDEN_CODE) {
-			if (pattern.test(code)) problems.push(`${rel}: uses ${label}`);
+			if (views.some((code) => pattern.test(code))) problems.push(`${rel}: uses ${label}`);
 		}
 		for (const [pattern, label] of FORBIDDEN_SOURCE) {
 			if (pattern.test(source)) problems.push(`${rel}: uses ${label}`);
