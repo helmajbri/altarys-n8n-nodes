@@ -37,7 +37,7 @@ Create a container from an image.
 |---|---|---|---|
 | Container Image | Text | Yes | Image to run, such as nginx:latest, up to 512 characters. |
 | Name | Text | Yes | Name of the container, up to 128 characters. |
-| Additional Fields | Optional fields | No |   |
+| Additional Fields | Optional fields | No | Select **Add Field** to add any of the fields below. |
 | Additional Fields > Container Size | Text | No | One of 'small' (default), 'medium', 'large' or 'custom'. With 'custom', also set Custom CPU Millicores and Custom Memory MB. |
 | Additional Fields > Custom CPU Millicores | Number | No | CPU limit in millicores, from 100 to 32000, used only when Container Size is 'custom'. |
 | Additional Fields > Custom Memory MB | Number | No | Memory limit in MB, from 64 to 65536, used only when Container Size is 'custom'. |
@@ -85,7 +85,7 @@ Get many containers.
 |---|---|---|---|
 | Return All | Boolean | No | Whether to return all results or only up to a given limit. Default: `false`. |
 | Limit | Number | No | Max number of results to return. From 1 to 500. Default: `50`. Shown when **Return All** is off. |
-| Filters | Optional fields | No |   |
+| Filters | Optional fields | No | Select **Add Filter** to add any of the fields below. |
 | Filters > Search | Text | No | Text to search for in names. |
 | Filters > Status | Text | No | One of 'deploying', 'running', 'stopped', 'failed', 'scaling', 'updating' or 'deleting'. |
 
@@ -110,7 +110,7 @@ Create a managed database cluster.
 | Engine | Text | Yes | One of 'postgresql', 'mysql', 'valkey', 'mongodb', 'kafka' or 'opensearch'. |
 | Engine Version | Text | Yes | Version of the engine, such as 17 for PostgreSQL or 8.4 for MySQL. |
 | Name | Text | Yes | Name of the cluster, up to 128 characters. |
-| Additional Fields | Optional fields | No |   |
+| Additional Fields | Optional fields | No | Select **Add Field** to add any of the fields below. |
 | Additional Fields > CPU Cores per Node | Number | No | CPU cores per node, from 1 to 64; replaces the tier's default. |
 | Additional Fields > Customer ID | Text | No | ID of the customer who will own the database. A provider key must set it. |
 | Additional Fields > HA Enabled | Boolean | No | Whether the database runs with high availability. Default: `false`. |
@@ -157,7 +157,7 @@ Get many managed database clusters.
 |---|---|---|---|
 | Return All | Boolean | No | Whether to return all results or only up to a given limit. Default: `false`. |
 | Limit | Number | No | Max number of results to return. From 1 to 500. Default: `50`. Shown when **Return All** is off. |
-| Filters | Optional fields | No |   |
+| Filters | Optional fields | No | Select **Add Filter** to add any of the fields below. |
 | Filters > Engine | Text | No | Only clusters of this engine, such as postgresql. |
 | Filters > Search | Text | No | Text to search for in names. |
 | Filters > Status | Text | No | One of 'provisioning', 'running', 'degraded', 'maintenance', 'stopped', 'failed', 'deleting' or 'resizing'. |
@@ -184,7 +184,7 @@ Create a DNS record in a zone.
 | Content | Text | Yes | Value of the record, such as an IP address for A, a host name for CNAME, or the text for TXT. |
 | Name | Text | Yes | Name of the record: a subdomain such as www, @ for the zone itself, or a full domain name. |
 | Record Type | Text | Yes | One of A, AAAA, CNAME, MX, TXT, NS, SRV, CAA or PTR. |
-| Additional Fields | Optional fields | No |   |
+| Additional Fields | Optional fields | No | Select **Add Field** to add any of the fields below. |
 | Additional Fields > Disabled | Boolean | No | Whether the DNS record is disabled. Default: `false`. |
 | Additional Fields > Flags | Number | No | Flags of a CAA record: 0 for non-critical, 128 for critical. From 0 to 255. |
 | Additional Fields > Port | Number | No | Port of an SRV record, from 0 to 65535. |
@@ -217,7 +217,7 @@ Get many DNS records of a zone.
 | Zone ID | Text | Yes | ID of the DNS zone, as Get many DNS zones lists it. Must be an ID in UUID form. |
 | Return All | Boolean | No | Whether to return all results or only up to a given limit. Default: `false`. |
 | Limit | Number | No | Max number of results to return. From 1 to 500. Default: `50`. Shown when **Return All** is off. |
-| Filters | Optional fields | No |   |
+| Filters | Optional fields | No | Select **Add Filter** to add any of the fields below. |
 | Filters > Record Type | Text | No | Only records of this type, such as A or CNAME. |
 | Filters > Search | Text | No | Text to search for in names. |
 
@@ -233,7 +233,7 @@ Update a DNS record.
 |---|---|---|---|
 | Zone ID | Text | Yes | ID of the DNS zone, as Get many DNS zones lists it. Must be an ID in UUID form. |
 | Record ID | Text | Yes | ID of the DNS record. Must be an ID in UUID form. |
-| Update Fields | Optional fields | No |   |
+| Update Fields | Optional fields | No | Select **Add Field** to add any of the fields below. |
 | Update Fields > Content | Text | No | Value of the record, such as an IP address for A, a host name for CNAME, or the text for TXT. |
 | Update Fields > Disabled | Boolean | No | Whether the DNS record is disabled. Default: `false`. |
 | Update Fields > Flags | Number | No | Flags of a CAA record: 0 for non-critical, 128 for critical. From 0 to 255. |
@@ -258,7 +258,7 @@ Get many DNS zones, for example to find the zone of a record.
 |---|---|---|---|
 | Return All | Boolean | No | Whether to return all results or only up to a given limit. Default: `false`. |
 | Limit | Number | No | Max number of results to return. From 1 to 500. Default: `50`. Shown when **Return All** is off. |
-| Filters | Optional fields | No |   |
+| Filters | Optional fields | No | Select **Add Filter** to add any of the fields below. |
 | Filters > Plane | Text | No | Either 'public' or 'private'. |
 | Filters > Search | Text | No | Text to search for in names. |
 | Filters > Status | Text | No | One of 'active', 'pending', 'error' or 'deleting'. |
@@ -283,7 +283,7 @@ Start, stop or reboot an instance. LetzCloud answers at once with a job; use Wai
 |---|---|---|---|
 | VM ID | Text | Yes | ID of the instance. Must be an ID in UUID form. |
 | Action | Option | Yes | One of: `Reboot`, `Start`, `Stop`. Default: `Start`. |
-| Additional Fields | Optional fields | No |   |
+| Additional Fields | Optional fields | No | Select **Add Field** to add any of the fields below. |
 | Additional Fields > Force | Boolean | No | Whether to force the action, such as a hard stop. Default: `false`. |
 
 **Output:** One item, with the [Instance fields](#instance-fields).
@@ -298,7 +298,7 @@ Create an instance. LetzCloud answers at once with a job; the instance appears i
 | Service Offering ID | Text | Yes | ID of the service offering, which sets the CPU and memory. |
 | Template ID | Text | Yes | ID of the template or operating system image. |
 | Zone ID | Text | Yes | ID of the zone to create the instance in. |
-| Additional Fields | Optional fields | No |   |
+| Additional Fields | Optional fields | No | Select **Add Field** to add any of the fields below. |
 | Additional Fields > Affinity Group IDs | JSON | No | JSON array of strings. |
 | Additional Fields > Boot Mode | Text | No | Either 'LEGACY' or 'SECURE'. |
 | Additional Fields > Boot Type | Text | No | Either 'UEFI' or 'BIOS'. |
@@ -327,7 +327,7 @@ Delete an instance. Its root disk goes with it; with Expunge it cannot be recove
 | Parameter | Type | Required | Details |
 |---|---|---|---|
 | VM ID | Text | Yes | ID of the instance. Must be an ID in UUID form. |
-| Options | Optional fields | No |   |
+| Options | Optional fields | No | Select **Add Option** to add any of the fields below. |
 | Options > Expunge | Boolean | No | Whether to remove the instance at once instead of keeping it recoverable for a while. Default: `false`. |
 
 **Output:** One item, with the [Instance fields](#instance-fields).
@@ -352,7 +352,7 @@ Get many instances.
 |---|---|---|---|
 | Return All | Boolean | No | Whether to return all results or only up to a given limit. Default: `false`. |
 | Limit | Number | No | Max number of results to return. From 1 to 500. Default: `50`. Shown when **Return All** is off. |
-| Filters | Optional fields | No |   |
+| Filters | Optional fields | No | Select **Add Filter** to add any of the fields below. |
 | Filters > Search | Text | No | Text to search for in names. |
 | Filters > State | Text | No | Only instances in this state, such as Running or Stopped. |
 | Filters > Zone ID | Text | No | Only resources in this zone, by its ID. |
@@ -386,7 +386,7 @@ Get many of your own invoices. Needs a customer key.
 |---|---|---|---|
 | Return All | Boolean | No | Whether to return all results or only up to a given limit. Default: `false`. |
 | Limit | Number | No | Max number of results to return. From 1 to 100. Default: `50`. Shown when **Return All** is off. |
-| Filters | Optional fields | No |   |
+| Filters | Optional fields | No | Select **Add Filter** to add any of the fields below. |
 | Filters > Search | Text | No | Text to search for in invoice numbers. |
 | Filters > Status | Text | No | One of 'draft', 'finalized', 'paid' or 'voided'. |
 | Filters > Subscription ID | Text | No | Only invoices of this subscription, by its ID. |
@@ -411,7 +411,7 @@ Create a Kubernetes cluster. LetzCloud answers at once with a job; pass its job 
 |---|---|---|---|
 | Name | Text | Yes | Name of the cluster. |
 | Zone ID | Text | Yes | ID of the zone to create the cluster in. |
-| Additional Fields | Optional fields | No |   |
+| Additional Fields | Optional fields | No | Select **Add Field** to add any of the fields below. |
 | Additional Fields > Cluster Type | Option | No | One of: `CloudManaged`, `ExternalManaged`. Default: `CloudManaged`. |
 | Additional Fields > Control Plane Nodes | Number | No | Number of control plane nodes: 1, or 3 for high availability. From 1 to 3. Default: `1`. |
 | Additional Fields > Description | Text | No | Description of the cluster. |
@@ -465,7 +465,7 @@ Get many Kubernetes clusters.
 |---|---|---|---|
 | Return All | Boolean | No | Whether to return all results or only up to a given limit. Default: `false`. |
 | Limit | Number | No | Max number of results to return. From 1 to 500. Default: `50`. Shown when **Return All** is off. |
-| Filters | Optional fields | No |   |
+| Filters | Optional fields | No | Select **Add Filter** to add any of the fields below. |
 | Filters > Name | Text | No | Only clusters with this name. |
 | Filters > State | Text | No | Only clusters in this state, such as Running. |
 | Filters > Zone ID | Text | No | Only resources in this zone, by its ID. |
@@ -504,7 +504,7 @@ Create a network.
 | Name | Text | Yes | Name of the network. |
 | Network Offering ID | Text | Yes | ID of the network offering, which sets the type and features of the network. |
 | Zone ID | Text | Yes | ID of the zone to create the network in. |
-| Additional Fields | Optional fields | No |   |
+| Additional Fields | Optional fields | No | Select **Add Field** to add any of the fields below. |
 | Additional Fields > ACL ID | Text | No | ID of the access control list, for a network that is a tier of a VPC. |
 | Additional Fields > End IP | Text | No | Last IP address of the range, for a shared network. |
 | Additional Fields > Gateway | Text | No | Gateway IP address. |
@@ -545,7 +545,7 @@ Get many networks.
 |---|---|---|---|
 | Return All | Boolean | No | Whether to return all results or only up to a given limit. Default: `false`. |
 | Limit | Number | No | Max number of results to return. From 1 to 500. Default: `50`. Shown when **Return All** is off. |
-| Filters | Optional fields | No |   |
+| Filters | Optional fields | No | Select **Add Filter** to add any of the fields below. |
 | Filters > Search | Text | No | Text to search for in names. |
 | Filters > Type | Text | No | One of 'Isolated', 'Shared' or 'L2'. |
 | Filters > VPC ID | Text | No | Only the networks of this VPC, by its ID. |
@@ -570,7 +570,7 @@ Create a snapshot of a volume.
 | Parameter | Type | Required | Details |
 |---|---|---|---|
 | Volume ID | Text | Yes | ID of the volume to snapshot. |
-| Additional Fields | Optional fields | No |   |
+| Additional Fields | Optional fields | No | Select **Add Field** to add any of the fields below. |
 | Additional Fields > Location Type | Option | No | One of: `Primary`, `Secondary`. Default: `Primary`. |
 | Additional Fields > Name | Text | No | Name of the snapshot. |
 | Additional Fields > Policy ID | Text | No | ID of an existing snapshot policy to link the snapshot to. |
@@ -597,7 +597,7 @@ Get many volume snapshots.
 |---|---|---|---|
 | Return All | Boolean | No | Whether to return all results or only up to a given limit. Default: `false`. |
 | Limit | Number | No | Max number of results to return. From 1 to 500. Default: `50`. Shown when **Return All** is off. |
-| Filters | Optional fields | No |   |
+| Filters | Optional fields | No | Select **Add Filter** to add any of the fields below. |
 | Filters > Search | Text | No | Text to search for in names. |
 | Filters > Snapshot Type | Text | No | Either 'MANUAL' or 'RECURRING'. |
 | Filters > State | Text | No | Only snapshots in this state. |
@@ -618,7 +618,7 @@ Get your own usage and its cost for a period. Needs a customer key.
 
 | Parameter | Type | Required | Details |
 |---|---|---|---|
-| Options | Optional fields | No |   |
+| Options | Optional fields | No | Select **Add Option** to add any of the fields below. |
 | Options > Period | Text | No | Either 'current_month' (default) or 'last_month'. |
 
 **Output:** One item with these fields: `period`, `period_start`, `period_end`, `metrics`, `total_records`, `resources`, `plans`, `usage_amount_cents`, `currency`, `cost_reason`.
@@ -640,7 +640,7 @@ Create a volume, and attach it to an instance if one is named.
 | Disk Offering ID | Text | Yes | ID of the disk offering. |
 | Name | Text | Yes | Name of the volume. |
 | Zone ID | Text | Yes | ID of the zone to create the volume in. |
-| Additional Fields | Optional fields | No |   |
+| Additional Fields | Optional fields | No | Select **Add Field** to add any of the fields below. |
 | Additional Fields > Attach to VM ID | Text | No | ID of an instance to attach the new volume to. |
 | Additional Fields > Encrypt | Boolean | No | Whether to encrypt the volume. Default: `false`. |
 | Additional Fields > Max IOPS | Number | No | Maximum IOPS of the volume. |
@@ -679,7 +679,7 @@ Get many volumes.
 |---|---|---|---|
 | Return All | Boolean | No | Whether to return all results or only up to a given limit. Default: `false`. |
 | Limit | Number | No | Max number of results to return. From 1 to 500. Default: `50`. Shown when **Return All** is off. |
-| Filters | Optional fields | No |   |
+| Filters | Optional fields | No | Select **Add Filter** to add any of the fields below. |
 | Filters > Search | Text | No | Text to search for in names. |
 | Filters > State | Text | No | Only volumes in this state. |
 | Filters > Type | Text | No | Either 'ROOT' or 'DATADISK'. |
