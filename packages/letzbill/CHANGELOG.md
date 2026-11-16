@@ -2,7 +2,17 @@
 
 All notable changes to `@altarys/n8n-nodes-letzbill` are listed here. Each release lists what was added, changed, and fixed, and what it means for compatibility.
 
-## 0.1.0 (not released yet)
+## 0.1.1 (2026-11-17)
+
+### Changed
+
+- The installation steps no longer say that the package isn't on npm. Install it as described in [Installation](README.md#installation).
+
+### Compatibility
+
+- No changes to the nodes or the credential. Needs n8n 2.47.7 or later.
+
+## 0.1.0 (2026-11-16)
 
 ### Added
 

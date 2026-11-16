@@ -1,6 +1,6 @@
 {
 	"name": "@altarys/n8n-nodes-letzbill",
-	"version": "0.1.0",
+	"version": "0.1.1",
 	"description": "n8n nodes for LetzBill: manage customers, subscriptions, invoices, credit notes, payments, wallets and usage events, and start workflows from signed LetzBill webhooks",
 	"license": "MIT",
 	"homepage": "https://github.com/helmajbri/altarys-n8n-nodes/tree/main/packages/letzbill#readme",
