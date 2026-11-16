@@ -1,0 +1,64 @@
+{
+	"name": "@altarys/n8n-nodes-letzcloud",
+	"version": "0.1.0",
+	"description": "n8n nodes for LetzCloud: manage instances, volumes, snapshots, networks, Kubernetes clusters, containers, databases and DNS records on a LetzCloud appliance, read your own invoices, usage and wallet, and start workflows from signed LetzCloud webhooks",
+	"license": "MIT",
+	"homepage": "https://github.com/helmajbri/altarys-n8n-nodes/tree/main/packages/letzcloud#readme",
+	"keywords": [
+		"n8n-community-node-package",
+		"letzcloud",
+		"cloud",
+		"infrastructure"
+	],
+	"author": {
+		"name": "helmajbri",
+		"email": "154004386+helmajbri@users.noreply.github.com"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/helmajbri/altarys-n8n-nodes.git",
+		"directory": "packages/letzcloud"
+	},
+	"publishConfig": {
+		"access": "public"
+	},
+	"scripts": {
+		"build": "n8n-node build",
+		"build:watch": "tsc --watch",
+		"dev": "n8n-node dev",
+		"lint": "n8n-node lint",
+		"lint:fix": "n8n-node lint --fix",
+		"release": "n8n-node release",
+		"prepublishOnly": "n8n-node prerelease",
+		"generate": "node ../../tools/generate-operations.mjs . --write",
+		"generate:check": "node ../../tools/generate-operations.mjs . --check",
+		"guard": "node ../../tools/check-package.mjs .",
+		"test": "node --test \"test/*.test.mjs\""
+	},
+	"files": [
+		"dist"
+	],
+	"n8n": {
+		"n8nNodesApiVersion": 1,
+		"strict": true,
+		"credentials": [
+			"dist/credentials/LetzCloudApi.credentials.js"
+		],
+		"nodes": [
+			"dist/nodes/LetzCloud/LetzCloud.node.js",
+			"dist/nodes/LetzCloudTrigger/LetzCloudTrigger.node.js"
+		]
+	},
+	"devDependencies": {
+		"@n8n/node-cli": "0.56.4",
+		"@types/node": "22.20.5",
+		"eslint": "9.39.4",
+		"n8n-workflow": "2.47.2",
+		"prettier": "3.8.3",
+		"release-it": "20.2.0",
+		"typescript": "5.9.3"
+	},
+	"peerDependencies": {
+		"n8n-workflow": "*"
+	}
+}

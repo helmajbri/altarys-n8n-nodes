@@ -1,0 +1,7 @@
+{
+	"git": {
+		"tagName": "letzcloud-v${version}",
+		"tagMatch": "letzcloud-v*",
+		"commitMessage": "chore(letzcloud): release ${version}"
+	}
+}

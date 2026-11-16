@@ -1,0 +1,122 @@
+{
+	"about": "Each entry changes the LetzCloud OpenAPI snapshot in one way the node depends on. The generator must refuse every one of them; test/generator.test.mjs applies them.",
+	"mustFail": [
+		{
+			"name": "a renamed required body field",
+			"kind": "renameProperty",
+			"schema": "VmCreate",
+			"from": "name",
+			"to": "hostname",
+			"expect": "[name, service_offering_id, template_id, zone_id] in the manifest"
+		},
+		{
+			"name": "a renamed field the manifest excludes",
+			"kind": "renameProperty",
+			"schema": "KubernetesClusterCreate",
+			"from": "master_nodes",
+			"to": "legacy_nodes",
+			"expect": "master_nodes"
+		},
+		{
+			"name": "a renamed field the manifest gives options",
+			"kind": "renameProperty",
+			"schema": "VmStateUpdate",
+			"from": "action",
+			"to": "verb",
+			"expect": "VmStateUpdate has no field 'action'"
+		},
+		{
+			"name": "a moved route",
+			"kind": "renamePath",
+			"from": "/api/v1/vms/{vm_id}/state",
+			"to": "/api/v1/vms/{vm_id}/power",
+			"expect": "/api/v1/vms/{vm_id}/state"
+		},
+		{
+			"name": "a renamed list root",
+			"kind": "renameProperty",
+			"schema": "ContainerList",
+			"from": "items",
+			"to": "results",
+			"expect": "the response has no 'items'"
+		},
+		{
+			"name": "a removed page size parameter",
+			"kind": "removeParameter",
+			"path": "/api/v1/vms",
+			"method": "get",
+			"parameter": "page_size",
+			"expect": "'page_size'"
+		},
+		{
+			"name": "a route that starts to take an Idempotency-Key",
+			"kind": "addHeader",
+			"path": "/api/v1/vms",
+			"method": "post",
+			"expect": "Idempotency-Key"
+		},
+		{
+			"name": "a renamed currency beside an invoice amount",
+			"kind": "renameProperty",
+			"schema": "L3InvoiceItem",
+			"from": "currency",
+			"to": "currency_code",
+			"expect": "L3InvoiceItem carries minor-unit amounts but no currency field"
+		},
+		{
+			"name": "a renamed currency the usage plans take theirs from",
+			"kind": "renameProperty",
+			"schema": "L3UsageReportResponse",
+			"from": "currency",
+			"to": "ccy",
+			"expect": "L3UsagePlanRow takes 'currency'"
+		},
+		{
+			"name": "a wallet amount turned into a decimal",
+			"kind": "setProperty",
+			"schema": "WalletMoneyCents",
+			"property": "amount",
+			"to": { "type": "number" },
+			"expect": "WalletMoneyCents.amount is not an integer"
+		},
+		{
+			"name": "an invoice amount turned into a decimal",
+			"kind": "setProperty",
+			"schema": "L3InvoiceItem",
+			"property": "amount_cents",
+			"to": { "type": "number" },
+			"expect": "L3InvoiceItem.amount_cents is minor units but not an integer"
+		},
+		{
+			"name": "a renamed field of the appliance descriptor the credential checks",
+			"kind": "renameProperty",
+			"schema": "WellKnownApplianceResponse",
+			"from": "fingerprint",
+			"to": "thumbprint",
+			"expect": "WellKnownApplianceResponse has no field 'fingerprint'"
+		},
+		{
+			"name": "a renamed signing secret the trigger stores",
+			"kind": "renameProperty",
+			"schema": "WebhookEndpointCreatedResponse",
+			"from": "secret",
+			"to": "signing_secret",
+			"expect": "WebhookEndpointCreatedResponse has no field 'secret'"
+		},
+		{
+			"name": "a renamed instance state the wait reads",
+			"kind": "renameProperty",
+			"schema": "Vm",
+			"from": "state",
+			"to": "status",
+			"expect": "Vm has no field 'state'"
+		},
+		{
+			"name": "a moved route a wait operation reads",
+			"kind": "renamePath",
+			"from": "/api/v1/kubernetes/clusters",
+			"to": "/api/v1/k8s/clusters",
+			"expect": "kubernetesCluster.waitUntilRunning"
+		}
+	]
+}
