@@ -22,7 +22,8 @@ export class LetzBillApi implements ICredentialType {
 			type: 'string',
 			default: '',
 			placeholder: 'e.g. https://billing.example.com',
-			description: 'Address of the LetzBill API, without the /api/v1 path',
+			description:
+				'Address of the LetzBill API, without the /api/v1 path. It must use HTTPS: the nodes refuse plain HTTP because the API key would cross the network unencrypted.',
 			required: true,
 		},
 		{

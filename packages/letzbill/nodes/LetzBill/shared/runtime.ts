@@ -5,6 +5,7 @@ import type {
 	IExecuteSingleFunctions,
 	IHttpRequestOptions,
 	IN8nHttpFullResponse,
+	INode,
 	INodeExecutionData,
 	JsonObject,
 } from 'n8n-workflow';
@@ -139,9 +140,28 @@ export function requireIntegerMinorUnits(paths: string[]) {
 }
 
 /**
+ * The key derived when 'Idempotency Key' is empty. It names the workflow, the node, the execution,
+ * the run of the node and the item: a retry of the same item (n8n's Retry On Fail re-runs the
+ * node inside the same run) keeps the key, while another node, another loop pass or another item
+ * gets a new one. The run index comes from the workflow data proxy ($runIndex).
+ */
+export function derivedIdempotencyKey(this: IExecuteSingleFunctions): string {
+	const itemIndex = this.getItemIndex();
+	const runIndex = Number(this.getWorkflowDataProxy(itemIndex).$runIndex ?? 0);
+	const parts = [
+		'n8n',
+		this.getWorkflow().id ?? 'workflow',
+		this.getNode().id,
+		this.getExecutionId(),
+		`r${Number.isInteger(runIndex) ? runIndex : 0}`,
+		`i${itemIndex}`,
+	];
+	return parts.join('-').replace(/[^A-Za-z0-9_.:-]/g, '-').slice(0, 255);
+}
+
+/**
  * Sends an idempotency key where the LetzBill route honours one: as the Idempotency-Key header,
- * or as a body field. An empty parameter derives a key that is stable for the same workflow,
- * execution and item, so a retry inside one execution is recognised.
+ * or as a body field. An empty parameter uses derivedIdempotencyKey.
  */
 export function applyIdempotencyKey(target: 'header' | 'body', bodyField = '') {
 	return async function (
@@ -149,9 +169,7 @@ export function applyIdempotencyKey(target: 'header' | 'body', bodyField = '') {
 		requestOptions: IHttpRequestOptions,
 	): Promise<IHttpRequestOptions> {
 		const given = String(this.getNodeParameter('idempotencyKey', '') ?? '').trim();
-		const workflowId = this.getWorkflow().id ?? 'workflow';
-		const derived = `n8n-${workflowId}-${this.getExecutionId()}-${this.getItemIndex()}`;
-		const value = given !== '' ? given : derived.replace(/[^A-Za-z0-9_.:-]/g, '-');
+		const value = given !== '' ? given : derivedIdempotencyKey.call(this);
 		if (!IDEMPOTENCY_KEY_PATTERN.test(value)) {
 			throw new NodeOperationError(
 				this.getNode(),
@@ -178,21 +196,87 @@ export function applyIdempotencyKey(target: 'header' | 'body', bodyField = '') {
 	};
 }
 
-/** "Return All": walks page / per_page until a page comes back short. */
-export function paginateByPage(perPage: number) {
+/** At most this many pages per "Return All": 10,000 pages of up to 1,000 items. */
+export const MAX_PAGES = 10000;
+
+/**
+ * "Return All": walks page / per_page until a page comes back short. It stops with a message,
+ * instead of looping, when a page repeats the one before it (the server ignored `page`) or when
+ * maxPages pages were all full.
+ */
+export function paginateByPage(perPage: number, maxPages = MAX_PAGES) {
 	return async function (
 		this: IExecutePaginationFunctions,
 		requestData: DeclarativeRestApiSettings.ResultOptions,
 	): Promise<INodeExecutionData[]> {
 		const results: INodeExecutionData[] = [];
-		let page = 1;
-		for (;;) {
+		let previous = '';
+		for (let page = 1; page <= maxPages; page++) {
 			requestData.options.qs = { ...(requestData.options.qs ?? {}), page, per_page: perPage };
 			const pageItems = await this.makeRoutingRequest(requestData);
+			if (pageItems.length < perPage) {
+				results.push(...pageItems);
+				return results;
+			}
+			const signature = JSON.stringify(pageItems.map((item) => item.json));
+			if (signature === previous) {
+				throw new NodeOperationError(
+					this.getNode(),
+					`LetzBill returned page ${page} with the same items as page ${page - 1}`,
+					{ description: "Turn off 'Return All' and use 'Limit', or narrow the filters" },
+				);
+			}
+			previous = signature;
 			results.push(...pageItems);
-			if (pageItems.length < perPage) break;
-			page += 1;
 		}
-		return results;
+		throw new NodeOperationError(this.getNode(), `LetzBill still had full pages after ${maxPages} pages`, {
+			description: "Turn off 'Return All' and use 'Limit', or narrow the filters",
+		});
 	};
+}
+
+const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+/** Refuses an ID that is not a UUID before it is placed in the request path. */
+export function requireUuids(parameters: string[]) {
+	return async function (
+		this: IExecuteSingleFunctions,
+		requestOptions: IHttpRequestOptions,
+	): Promise<IHttpRequestOptions> {
+		for (const name of parameters) {
+			const value = String(this.getNodeParameter(name, '') ?? '').trim();
+			if (!UUID_PATTERN.test(value)) {
+				throw new NodeOperationError(
+					this.getNode(),
+					`'${name}' must be a LetzBill ID (a UUID) [Item ${this.getItemIndex()}]`,
+					{
+						description: 'e.g. 3f2b8c1e-5d4a-4f6b-9c2d-1a2b3c4d5e6f',
+						itemIndex: this.getItemIndex(),
+					},
+				);
+			}
+		}
+		return requestOptions;
+	};
+}
+
+/**
+ * Refuses a credential whose API URL does not use HTTPS: the API key travels in the Authorization
+ * header, and over plain HTTP anyone on the network path could read and reuse it.
+ */
+export function assertHttpsBaseUrl(baseUrl: unknown, node: INode): void {
+	if (!/^https:\/\//i.test(String(baseUrl ?? '').trim())) {
+		throw new NodeOperationError(node, "The LetzBill credential's API URL must start with https://", {
+			description:
+				'The API key is sent with every request; over plain http:// it could be read and reused. Use the https:// address of the LetzBill API.',
+		});
+	}
+}
+
+export async function requireHttps(
+	this: IExecuteSingleFunctions,
+	requestOptions: IHttpRequestOptions,
+): Promise<IHttpRequestOptions> {
+	assertHttpsBaseUrl(requestOptions.baseURL, this.getNode());
+	return requestOptions;
 }

@@ -9,7 +9,9 @@ import {
 	checkResponse,
 	omitMoneyFields,
 	paginateByPage,
+	requireHttps,
 	requireIntegerMinorUnits,
+	requireUuids,
 	returnDeleted,
 } from '../shared/runtime';
 
@@ -80,6 +82,7 @@ export const generatedProperties: INodeProperties[] = [
 					},
 					send: {
 						preSend: [
+							requireHttps,
 							requireIntegerMinorUnits(['items[].amount_cents', 'credit_amount_cents', 'refund_amount_cents']),
 							applyIdempotencyKey('header'),
 						],
@@ -102,6 +105,12 @@ export const generatedProperties: INodeProperties[] = [
 						method: 'GET',
 						url: '=/api/v1/credit_notes/{{encodeURIComponent($parameter["creditNoteId"])}}',
 					},
+					send: {
+						preSend: [
+							requireHttps,
+							requireUuids(['creditNoteId']),
+						],
+					},
 					output: {
 						postReceive: [
 							checkResponse,
@@ -119,6 +128,11 @@ export const generatedProperties: INodeProperties[] = [
 					request: {
 						method: 'GET',
 						url: '/api/v1/credit_notes',
+					},
+					send: {
+						preSend: [
+							requireHttps,
+						],
 					},
 					output: {
 						postReceive: [
@@ -143,6 +157,12 @@ export const generatedProperties: INodeProperties[] = [
 					request: {
 						method: 'POST',
 						url: '=/api/v1/credit_notes/{{encodeURIComponent($parameter["creditNoteId"])}}/void',
+					},
+					send: {
+						preSend: [
+							requireHttps,
+							requireUuids(['creditNoteId']),
+						],
 					},
 					output: {
 						postReceive: [
@@ -178,6 +198,11 @@ export const generatedProperties: INodeProperties[] = [
 						method: 'POST',
 						url: '/api/v1/customers',
 					},
+					send: {
+						preSend: [
+							requireHttps,
+						],
+					},
 					output: {
 						postReceive: [
 							checkResponse,
@@ -194,6 +219,12 @@ export const generatedProperties: INodeProperties[] = [
 					request: {
 						method: 'DELETE',
 						url: '=/api/v1/customers/{{encodeURIComponent($parameter["customerId"])}}',
+					},
+					send: {
+						preSend: [
+							requireHttps,
+							requireUuids(['customerId']),
+						],
 					},
 					output: {
 						postReceive: [
@@ -213,6 +244,12 @@ export const generatedProperties: INodeProperties[] = [
 						method: 'GET',
 						url: '=/api/v1/customers/{{encodeURIComponent($parameter["customerId"])}}',
 					},
+					send: {
+						preSend: [
+							requireHttps,
+							requireUuids(['customerId']),
+						],
+					},
 					output: {
 						postReceive: [
 							checkResponse,
@@ -230,6 +267,11 @@ export const generatedProperties: INodeProperties[] = [
 						method: 'GET',
 						url: '=/api/v1/customers/external/{{encodeURIComponent($parameter["externalId"])}}',
 					},
+					send: {
+						preSend: [
+							requireHttps,
+						],
+					},
 					output: {
 						postReceive: [
 							checkResponse,
@@ -246,6 +288,11 @@ export const generatedProperties: INodeProperties[] = [
 					request: {
 						method: 'GET',
 						url: '/api/v1/customers',
+					},
+					send: {
+						preSend: [
+							requireHttps,
+						],
 					},
 					output: {
 						postReceive: [
@@ -269,6 +316,12 @@ export const generatedProperties: INodeProperties[] = [
 					request: {
 						method: 'PUT',
 						url: '=/api/v1/customers/{{encodeURIComponent($parameter["customerId"])}}',
+					},
+					send: {
+						preSend: [
+							requireHttps,
+							requireUuids(['customerId']),
+						],
 					},
 					output: {
 						postReceive: [
@@ -305,6 +358,7 @@ export const generatedProperties: INodeProperties[] = [
 					},
 					send: {
 						preSend: [
+							requireHttps,
 							requireIntegerMinorUnits(['fees[].unit_amount_cents']),
 						],
 					},
@@ -329,6 +383,12 @@ export const generatedProperties: INodeProperties[] = [
 							Accept: 'application/pdf',
 						},
 					},
+					send: {
+						preSend: [
+							requireHttps,
+							requireUuids(['invoiceId']),
+						],
+					},
 					output: {
 						postReceive: [
 							checkResponse,
@@ -352,6 +412,12 @@ export const generatedProperties: INodeProperties[] = [
 						method: 'PUT',
 						url: '=/api/v1/invoices/{{encodeURIComponent($parameter["invoiceId"])}}/finalize',
 					},
+					send: {
+						preSend: [
+							requireHttps,
+							requireUuids(['invoiceId']),
+						],
+					},
 					output: {
 						postReceive: [
 							checkResponse,
@@ -369,6 +435,12 @@ export const generatedProperties: INodeProperties[] = [
 						method: 'GET',
 						url: '=/api/v1/invoices/{{encodeURIComponent($parameter["invoiceId"])}}',
 					},
+					send: {
+						preSend: [
+							requireHttps,
+							requireUuids(['invoiceId']),
+						],
+					},
 					output: {
 						postReceive: [
 							checkResponse,
@@ -385,6 +457,11 @@ export const generatedProperties: INodeProperties[] = [
 					request: {
 						method: 'GET',
 						url: '/api/v1/invoices',
+					},
+					send: {
+						preSend: [
+							requireHttps,
+						],
 					},
 					output: {
 						postReceive: [
@@ -411,6 +488,8 @@ export const generatedProperties: INodeProperties[] = [
 					},
 					send: {
 						preSend: [
+							requireHttps,
+							requireUuids(['invoiceId']),
 							applyIdempotencyKey('header'),
 						],
 					},
@@ -430,6 +509,12 @@ export const generatedProperties: INodeProperties[] = [
 					request: {
 						method: 'PUT',
 						url: '=/api/v1/invoices/{{encodeURIComponent($parameter["invoiceId"])}}/void',
+					},
+					send: {
+						preSend: [
+							requireHttps,
+							requireUuids(['invoiceId']),
+						],
 					},
 					output: {
 						postReceive: [
@@ -466,6 +551,7 @@ export const generatedProperties: INodeProperties[] = [
 					},
 					send: {
 						preSend: [
+							requireHttps,
 							requireIntegerMinorUnits(['amount_cents']),
 						],
 					},
@@ -486,6 +572,12 @@ export const generatedProperties: INodeProperties[] = [
 						method: 'GET',
 						url: '=/api/v1/payments/{{encodeURIComponent($parameter["paymentId"])}}',
 					},
+					send: {
+						preSend: [
+							requireHttps,
+							requireUuids(['paymentId']),
+						],
+					},
 					output: {
 						postReceive: [
 							checkResponse,
@@ -502,6 +594,11 @@ export const generatedProperties: INodeProperties[] = [
 					request: {
 						method: 'GET',
 						url: '/api/v1/payments',
+					},
+					send: {
+						preSend: [
+							requireHttps,
+						],
 					},
 					output: {
 						postReceive: [
@@ -528,6 +625,8 @@ export const generatedProperties: INodeProperties[] = [
 					},
 					send: {
 						preSend: [
+							requireHttps,
+							requireUuids(['paymentId']),
 							requireIntegerMinorUnits(['amount_cents']),
 							applyIdempotencyKey('body', 'idempotency_key'),
 						],
@@ -567,6 +666,7 @@ export const generatedProperties: INodeProperties[] = [
 					},
 					send: {
 						preSend: [
+							requireHttps,
 							requireIntegerMinorUnits(['amount_cents', 'commitment.amount_cents', 'commitment.termination_charge_fixed_cents']),
 						],
 					},
@@ -587,6 +687,12 @@ export const generatedProperties: INodeProperties[] = [
 						method: 'GET',
 						url: '=/api/v1/subscriptions/{{encodeURIComponent($parameter["subscriptionId"])}}',
 					},
+					send: {
+						preSend: [
+							requireHttps,
+							requireUuids(['subscriptionId']),
+						],
+					},
 					output: {
 						postReceive: [
 							checkResponse,
@@ -604,6 +710,11 @@ export const generatedProperties: INodeProperties[] = [
 						method: 'GET',
 						url: '=/api/v1/subscriptions/external/{{encodeURIComponent($parameter["externalId"])}}',
 					},
+					send: {
+						preSend: [
+							requireHttps,
+						],
+					},
 					output: {
 						postReceive: [
 							checkResponse,
@@ -620,6 +731,11 @@ export const generatedProperties: INodeProperties[] = [
 					request: {
 						method: 'GET',
 						url: '/api/v1/subscriptions',
+					},
+					send: {
+						preSend: [
+							requireHttps,
+						],
 					},
 					output: {
 						postReceive: [
@@ -644,6 +760,12 @@ export const generatedProperties: INodeProperties[] = [
 						method: 'POST',
 						url: '=/api/v1/subscriptions/{{encodeURIComponent($parameter["subscriptionId"])}}/terminate',
 					},
+					send: {
+						preSend: [
+							requireHttps,
+							requireUuids(['subscriptionId']),
+						],
+					},
 					output: {
 						postReceive: [
 							checkResponse,
@@ -663,6 +785,8 @@ export const generatedProperties: INodeProperties[] = [
 					},
 					send: {
 						preSend: [
+							requireHttps,
+							requireUuids(['subscriptionId']),
 							requireIntegerMinorUnits(['amount_cents']),
 						],
 					},
@@ -699,6 +823,11 @@ export const generatedProperties: INodeProperties[] = [
 						method: 'POST',
 						url: '/api/v1/events',
 					},
+					send: {
+						preSend: [
+							requireHttps,
+						],
+					},
 					output: {
 						postReceive: [
 							checkResponse,
@@ -716,6 +845,11 @@ export const generatedProperties: INodeProperties[] = [
 					request: {
 						method: 'POST',
 						url: '/api/v1/events/batch',
+					},
+					send: {
+						preSend: [
+							requireHttps,
+						],
 					},
 					output: {
 						postReceive: [
@@ -735,6 +869,11 @@ export const generatedProperties: INodeProperties[] = [
 						method: 'GET',
 						url: '=/api/v1/events/{{encodeURIComponent($parameter["transactionId"])}}',
 					},
+					send: {
+						preSend: [
+							requireHttps,
+						],
+					},
 					output: {
 						postReceive: [
 							checkResponse,
@@ -752,6 +891,11 @@ export const generatedProperties: INodeProperties[] = [
 					request: {
 						method: 'GET',
 						url: '/api/v1/events',
+					},
+					send: {
+						preSend: [
+							requireHttps,
+						],
 					},
 					output: {
 						postReceive: [
@@ -793,6 +937,11 @@ export const generatedProperties: INodeProperties[] = [
 						method: 'POST',
 						url: '/api/v1/wallets',
 					},
+					send: {
+						preSend: [
+							requireHttps,
+						],
+					},
 					output: {
 						postReceive: [
 							checkResponse,
@@ -811,6 +960,12 @@ export const generatedProperties: INodeProperties[] = [
 						method: 'GET',
 						url: '=/api/v1/wallets/{{encodeURIComponent($parameter["walletId"])}}',
 					},
+					send: {
+						preSend: [
+							requireHttps,
+							requireUuids(['walletId']),
+						],
+					},
 					output: {
 						postReceive: [
 							checkResponse,
@@ -828,6 +983,11 @@ export const generatedProperties: INodeProperties[] = [
 					request: {
 						method: 'GET',
 						url: '/api/v1/wallets',
+					},
+					send: {
+						preSend: [
+							requireHttps,
+						],
 					},
 					output: {
 						postReceive: [
@@ -853,6 +1013,12 @@ export const generatedProperties: INodeProperties[] = [
 						method: 'GET',
 						url: '=/api/v1/wallets/{{encodeURIComponent($parameter["walletId"])}}/transactions',
 					},
+					send: {
+						preSend: [
+							requireHttps,
+							requireUuids(['walletId']),
+						],
+					},
 					output: {
 						postReceive: [
 							checkResponse,
@@ -876,6 +1042,12 @@ export const generatedProperties: INodeProperties[] = [
 					request: {
 						method: 'POST',
 						url: '=/api/v1/wallets/{{encodeURIComponent($parameter["walletId"])}}/top_up',
+					},
+					send: {
+						preSend: [
+							requireHttps,
+							requireUuids(['walletId']),
+						],
 					},
 					output: {
 						postReceive: [
@@ -911,6 +1083,12 @@ export const generatedProperties: INodeProperties[] = [
 						method: 'DELETE',
 						url: '=/api/v1/webhooks/endpoints/{{encodeURIComponent($parameter["endpointId"])}}',
 					},
+					send: {
+						preSend: [
+							requireHttps,
+							requireUuids(['endpointId']),
+						],
+					},
 					output: {
 						postReceive: [
 							checkResponse,
@@ -928,6 +1106,12 @@ export const generatedProperties: INodeProperties[] = [
 					request: {
 						method: 'GET',
 						url: '=/api/v1/webhooks/endpoints/{{encodeURIComponent($parameter["endpointId"])}}',
+					},
+					send: {
+						preSend: [
+							requireHttps,
+							requireUuids(['endpointId']),
+						],
 					},
 					output: {
 						postReceive: [
@@ -952,6 +1136,11 @@ export const generatedProperties: INodeProperties[] = [
 						method: 'GET',
 						url: '/api/v1/webhooks/endpoints',
 					},
+					send: {
+						preSend: [
+							requireHttps,
+						],
+					},
 					output: {
 						postReceive: [
 							checkResponse,
@@ -974,6 +1163,12 @@ export const generatedProperties: INodeProperties[] = [
 					request: {
 						method: 'POST',
 						url: '=/api/v1/webhooks/endpoints/{{encodeURIComponent($parameter["endpointId"])}}/test',
+					},
+					send: {
+						preSend: [
+							requireHttps,
+							requireUuids(['endpointId']),
+						],
 					},
 					output: {
 						postReceive: [

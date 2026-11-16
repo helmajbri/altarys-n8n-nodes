@@ -11,15 +11,20 @@ const runtime = require('../dist/nodes/LetzBill/shared/runtime.js');
 const { describeLetzBillRefusal } = require('../dist/nodes/LetzBill/shared/refusal.js');
 const { LetzBillApi } = require('../dist/credentials/LetzBillApi.credentials.js');
 
-const node = { id: '1', name: 'LetzBill', type: 'letzBill', typeVersion: 1, position: [0, 0], parameters: {} };
+const UUID = '3f2b8c1e-5d4a-4f6b-9c2d-1a2b3c4d5e6f';
+const BASE = 'https://billing.example.com';
 
-function single(parameters = {}) {
+/** A stand-in for n8n's per-item execution context. IDs default to a valid UUID. */
+function single(parameters = {}, { nodeId = 'node-a', runIndex = 0, itemIndex = 0 } = {}) {
+	const node = { id: nodeId, name: 'LetzBill', type: 'letzBill', typeVersion: 1, position: [0, 0], parameters: {} };
 	return {
 		getNode: () => node,
-		getItemIndex: () => 0,
+		getItemIndex: () => itemIndex,
 		getExecutionId: () => '41',
 		getWorkflow: () => ({ id: 'wf7', active: true }),
-		getNodeParameter: (name, fallback) => (name in parameters ? parameters[name] : fallback),
+		getWorkflowDataProxy: () => ({ $runIndex: runIndex }),
+		getNodeParameter: (name, fallback) =>
+			name in parameters ? parameters[name] : /Id$/.test(name) ? UUID : fallback,
 	};
 }
 
@@ -42,13 +47,45 @@ test('Idempotency-Key goes only where the scope map says LetzBill honours it', a
 	]);
 	for (const spec of operationSpecs) {
 		const option = optionFor(spec.resource, spec.operation);
-		let options = { url: option.routing.request.url, headers: {}, body: {} };
+		let options = { baseURL: BASE, url: option.routing.request.url, headers: {}, body: {} };
 		for (const preSend of option.routing.send?.preSend ?? []) {
 			options = await preSend.call(single(), options);
 		}
 		const key = `${spec.resource}.${spec.operation}`;
 		assert.equal('Idempotency-Key' in options.headers, spec.idempotency === 'header', key);
 		assert.equal('idempotency_key' in options.body, spec.idempotency === 'body:idempotency_key', key);
+	}
+});
+
+test('derived keys differ between nodes, runs and items, and repeat for a retry', async () => {
+	const key = (opts) => runtime.derivedIdempotencyKey.call(single({}, opts));
+	const base = key({});
+	assert.equal(key({}), base, 'a retry of the same item keeps its key');
+	assert.notEqual(key({ nodeId: 'node-b' }), base, 'two LetzBill nodes in one execution');
+	assert.notEqual(key({ runIndex: 1 }), base, 'a second pass of a loop');
+	assert.notEqual(key({ itemIndex: 1 }), base, 'another item');
+	assert.match(base, /^[A-Za-z0-9_.:-]{1,255}$/);
+});
+
+test('an ID that is not a UUID is refused before it reaches the path', async () => {
+	const guard = runtime.requireUuids(['customerId']);
+	for (const bad of ['..', '../invoices', 'abc', '', `${UUID}/x`]) {
+		await assert.rejects(guard.call(single({ customerId: bad }), { url: '/x' }), /UUID/, JSON.stringify(bad));
+	}
+	const ok = await guard.call(single({ customerId: UUID.toUpperCase() }), { url: '/x' });
+	assert.equal(ok.url, '/x');
+	const get = optionFor('customer', 'get');
+	assert.ok(get.routing.send.preSend.length >= 2, 'customer.get checks its ID');
+});
+
+test('a credential with a plain http:// API URL is refused', async () => {
+	await assert.rejects(runtime.requireHttps.call(single(), { baseURL: 'http://billing.example.com', url: '/x' }), /https/);
+	await assert.rejects(runtime.requireHttps.call(single(), { url: '/x' }), /https/);
+	const ok = await runtime.requireHttps.call(single(), { baseURL: BASE, url: '/x' });
+	assert.equal(ok.baseURL, BASE);
+	for (const spec of operationSpecs) {
+		const option = optionFor(spec.resource, spec.operation);
+		assert.equal(option.routing.send.preSend[0], runtime.requireHttps, `${spec.resource}.${spec.operation}`);
 	}
 });
 
@@ -107,6 +144,29 @@ test('Return All pages with page / per_page and Limit maps to per_page', async (
 		{ search: 'march', page: 2, per_page: 2 },
 		{ search: 'march', page: 3, per_page: 2 },
 	]);
+});
+
+test('Return All stops on a server that keeps returning full pages', async () => {
+	const ctx = (makeRoutingRequest) => ({ ...single(), makeRoutingRequest });
+	// Ignores `page`: the same full page every time.
+	await assert.rejects(
+		runtime.paginateByPage(2).call(ctx(async () => [{ json: { id: 1 } }, { json: { id: 2 } }]), { options: {} }),
+		/same items/,
+	);
+	// Distinct full pages forever: stops at the page cap.
+	let calls = 0;
+	await assert.rejects(
+		runtime.paginateByPage(1, 5).call(
+			ctx(async (requestData) => {
+				calls += 1;
+				return [{ json: { page: requestData.options.qs.page } }];
+			}),
+			{ options: {} },
+		),
+		/after 5 pages/,
+	);
+	assert.equal(calls, 5);
+	assert.equal(runtime.MAX_PAGES, 10000);
 });
 
 test('destructive operations are their own operations and say what they do', () => {

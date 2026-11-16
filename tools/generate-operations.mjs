@@ -407,12 +407,16 @@ export function generate({ manifest, openapi, openapiName = manifest.openapi }) 
 		const byIn = (where_) => params.filter((p) => p.in === where_);
 		const fields = [];
 
-		// Path parameters, in path order.
+		// Path parameters, in path order. A UUID-typed one is checked before the request.
 		const pathNames = [...m.path.matchAll(/\{([^}]+)\}/g)].map((x) => x[1]);
+		const uuidParameters = [];
 		let url = m.path;
 		for (const name of pathNames) {
-			if (!byIn('path').some((p) => p.name === name)) {
+			const declared = byIn('path').find((p) => p.name === name);
+			if (!declared) {
 				problems.push(`${where}: path parameter '${name}' is not declared in ${openapiName}`);
+			} else if (solid(declared.schema).format === 'uuid') {
+				uuidParameters.push(camelName(name));
 			}
 			url = url.replace(`{${name}}`, `{{encodeURIComponent($parameter["${camelName(name)}"])}}`);
 			fields.push({
@@ -427,7 +431,8 @@ export function generate({ manifest, openapi, openapiName = manifest.openapi }) 
 		if (pathNames.length) url = `=${url}`;
 
 		// Request body.
-		const preSend = [];
+		const preSend = [code('requireHttps')];
+		if (uuidParameters.length) preSend.push(code(`requireUuids(${inlineList(uuidParameters)})`));
 		const bodyFieldsRequired = [];
 		const bodyFieldsOptional = [];
 		let minorInputs = [];
@@ -686,7 +691,9 @@ export function generate({ manifest, openapi, openapiName = manifest.openapi }) 
 		'checkResponse',
 		'omitMoneyFields',
 		'paginateByPage',
+		'requireHttps',
 		'requireIntegerMinorUnits',
+		'requireUuids',
 		'returnDeleted',
 	];
 	const body = toTs(properties);
