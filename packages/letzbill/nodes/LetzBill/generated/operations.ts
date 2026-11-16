@@ -11,6 +11,7 @@ import {
 	paginateByPage,
 	requireHttps,
 	requireIntegerMinorUnits,
+	requireSafePathSegments,
 	requireUuids,
 	returnDeleted,
 } from '../shared/runtime';
@@ -270,6 +271,7 @@ export const generatedProperties: INodeProperties[] = [
 					send: {
 						preSend: [
 							requireHttps,
+							requireSafePathSegments(['externalId']),
 						],
 					},
 					output: {
@@ -713,6 +715,7 @@ export const generatedProperties: INodeProperties[] = [
 					send: {
 						preSend: [
 							requireHttps,
+							requireSafePathSegments(['externalId']),
 						],
 					},
 					output: {
@@ -872,6 +875,7 @@ export const generatedProperties: INodeProperties[] = [
 					send: {
 						preSend: [
 							requireHttps,
+							requireSafePathSegments(['transactionId']),
 						],
 					},
 					output: {
@@ -5740,6 +5744,9 @@ export const operationSpecs: GeneratedOperationSpec[] = [
 		itemSchema: 'CustomerResponse',
 		outputOmit: [],
 		minorUnitInputs: [],
+		inheritCurrency: [],
+		uuidParameters: [],
+		safeParameters: [],
 	},
 	{
 		resource: 'customer',
@@ -5754,6 +5761,11 @@ export const operationSpecs: GeneratedOperationSpec[] = [
 		itemSchema: '',
 		outputOmit: [],
 		minorUnitInputs: [],
+		inheritCurrency: [],
+		uuidParameters: [
+			'customerId',
+		],
+		safeParameters: [],
 	},
 	{
 		resource: 'customer',
@@ -5768,6 +5780,11 @@ export const operationSpecs: GeneratedOperationSpec[] = [
 		itemSchema: 'CustomerResponse',
 		outputOmit: [],
 		minorUnitInputs: [],
+		inheritCurrency: [],
+		uuidParameters: [
+			'customerId',
+		],
+		safeParameters: [],
 	},
 	{
 		resource: 'customer',
@@ -5782,6 +5799,11 @@ export const operationSpecs: GeneratedOperationSpec[] = [
 		itemSchema: 'CustomerResponse',
 		outputOmit: [],
 		minorUnitInputs: [],
+		inheritCurrency: [],
+		uuidParameters: [],
+		safeParameters: [
+			'externalId',
+		],
 	},
 	{
 		resource: 'customer',
@@ -5796,6 +5818,9 @@ export const operationSpecs: GeneratedOperationSpec[] = [
 		itemSchema: 'CustomerResponse',
 		outputOmit: [],
 		minorUnitInputs: [],
+		inheritCurrency: [],
+		uuidParameters: [],
+		safeParameters: [],
 	},
 	{
 		resource: 'customer',
@@ -5810,6 +5835,11 @@ export const operationSpecs: GeneratedOperationSpec[] = [
 		itemSchema: 'CustomerResponse',
 		outputOmit: [],
 		minorUnitInputs: [],
+		inheritCurrency: [],
+		uuidParameters: [
+			'customerId',
+		],
+		safeParameters: [],
 	},
 	{
 		resource: 'subscription',
@@ -5828,6 +5858,9 @@ export const operationSpecs: GeneratedOperationSpec[] = [
 			'commitment.amount_cents',
 			'commitment.termination_charge_fixed_cents',
 		],
+		inheritCurrency: [],
+		uuidParameters: [],
+		safeParameters: [],
 	},
 	{
 		resource: 'subscription',
@@ -5842,6 +5875,11 @@ export const operationSpecs: GeneratedOperationSpec[] = [
 		itemSchema: 'SubscriptionResponse',
 		outputOmit: [],
 		minorUnitInputs: [],
+		inheritCurrency: [],
+		uuidParameters: [
+			'subscriptionId',
+		],
+		safeParameters: [],
 	},
 	{
 		resource: 'subscription',
@@ -5856,6 +5894,11 @@ export const operationSpecs: GeneratedOperationSpec[] = [
 		itemSchema: 'SubscriptionResponse',
 		outputOmit: [],
 		minorUnitInputs: [],
+		inheritCurrency: [],
+		uuidParameters: [],
+		safeParameters: [
+			'externalId',
+		],
 	},
 	{
 		resource: 'subscription',
@@ -5870,6 +5913,9 @@ export const operationSpecs: GeneratedOperationSpec[] = [
 		itemSchema: 'SubscriptionResponse',
 		outputOmit: [],
 		minorUnitInputs: [],
+		inheritCurrency: [],
+		uuidParameters: [],
+		safeParameters: [],
 	},
 	{
 		resource: 'subscription',
@@ -5884,6 +5930,11 @@ export const operationSpecs: GeneratedOperationSpec[] = [
 		itemSchema: 'SubscriptionResponse',
 		outputOmit: [],
 		minorUnitInputs: [],
+		inheritCurrency: [],
+		uuidParameters: [
+			'subscriptionId',
+		],
+		safeParameters: [],
 	},
 	{
 		resource: 'subscription',
@@ -5900,6 +5951,11 @@ export const operationSpecs: GeneratedOperationSpec[] = [
 		minorUnitInputs: [
 			'amount_cents',
 		],
+		inheritCurrency: [],
+		uuidParameters: [
+			'subscriptionId',
+		],
+		safeParameters: [],
 	},
 	{
 		resource: 'invoice',
@@ -5916,6 +5972,9 @@ export const operationSpecs: GeneratedOperationSpec[] = [
 		minorUnitInputs: [
 			'fees[].unit_amount_cents',
 		],
+		inheritCurrency: [],
+		uuidParameters: [],
+		safeParameters: [],
 	},
 	{
 		resource: 'invoice',
@@ -5930,6 +5989,11 @@ export const operationSpecs: GeneratedOperationSpec[] = [
 		itemSchema: '',
 		outputOmit: [],
 		minorUnitInputs: [],
+		inheritCurrency: [],
+		uuidParameters: [
+			'invoiceId',
+		],
+		safeParameters: [],
 	},
 	{
 		resource: 'invoice',
@@ -5944,6 +6008,11 @@ export const operationSpecs: GeneratedOperationSpec[] = [
 		itemSchema: 'InvoiceResponse',
 		outputOmit: [],
 		minorUnitInputs: [],
+		inheritCurrency: [],
+		uuidParameters: [
+			'invoiceId',
+		],
+		safeParameters: [],
 	},
 	{
 		resource: 'invoice',
@@ -5958,6 +6027,11 @@ export const operationSpecs: GeneratedOperationSpec[] = [
 		itemSchema: 'InvoiceResponse',
 		outputOmit: [],
 		minorUnitInputs: [],
+		inheritCurrency: [],
+		uuidParameters: [
+			'invoiceId',
+		],
+		safeParameters: [],
 	},
 	{
 		resource: 'invoice',
@@ -5972,6 +6046,9 @@ export const operationSpecs: GeneratedOperationSpec[] = [
 		itemSchema: 'InvoiceResponse',
 		outputOmit: [],
 		minorUnitInputs: [],
+		inheritCurrency: [],
+		uuidParameters: [],
+		safeParameters: [],
 	},
 	{
 		resource: 'invoice',
@@ -5986,6 +6063,11 @@ export const operationSpecs: GeneratedOperationSpec[] = [
 		itemSchema: 'InvoiceResponse',
 		outputOmit: [],
 		minorUnitInputs: [],
+		inheritCurrency: [],
+		uuidParameters: [
+			'invoiceId',
+		],
+		safeParameters: [],
 	},
 	{
 		resource: 'invoice',
@@ -6000,6 +6082,11 @@ export const operationSpecs: GeneratedOperationSpec[] = [
 		itemSchema: 'InvoiceResponse',
 		outputOmit: [],
 		minorUnitInputs: [],
+		inheritCurrency: [],
+		uuidParameters: [
+			'invoiceId',
+		],
+		safeParameters: [],
 	},
 	{
 		resource: 'creditNote',
@@ -6021,6 +6108,9 @@ export const operationSpecs: GeneratedOperationSpec[] = [
 			'credit_amount_cents',
 			'refund_amount_cents',
 		],
+		inheritCurrency: [],
+		uuidParameters: [],
+		safeParameters: [],
 	},
 	{
 		resource: 'creditNote',
@@ -6038,6 +6128,11 @@ export const operationSpecs: GeneratedOperationSpec[] = [
 			'precise_coupons_adjustment_amount_cents',
 		],
 		minorUnitInputs: [],
+		inheritCurrency: [],
+		uuidParameters: [
+			'creditNoteId',
+		],
+		safeParameters: [],
 	},
 	{
 		resource: 'creditNote',
@@ -6055,6 +6150,9 @@ export const operationSpecs: GeneratedOperationSpec[] = [
 			'precise_coupons_adjustment_amount_cents',
 		],
 		minorUnitInputs: [],
+		inheritCurrency: [],
+		uuidParameters: [],
+		safeParameters: [],
 	},
 	{
 		resource: 'creditNote',
@@ -6072,6 +6170,11 @@ export const operationSpecs: GeneratedOperationSpec[] = [
 			'precise_coupons_adjustment_amount_cents',
 		],
 		minorUnitInputs: [],
+		inheritCurrency: [],
+		uuidParameters: [
+			'creditNoteId',
+		],
+		safeParameters: [],
 	},
 	{
 		resource: 'payment',
@@ -6088,6 +6191,9 @@ export const operationSpecs: GeneratedOperationSpec[] = [
 		minorUnitInputs: [
 			'amount_cents',
 		],
+		inheritCurrency: [],
+		uuidParameters: [],
+		safeParameters: [],
 	},
 	{
 		resource: 'payment',
@@ -6102,6 +6208,11 @@ export const operationSpecs: GeneratedOperationSpec[] = [
 		itemSchema: 'PaymentDetailResponse',
 		outputOmit: [],
 		minorUnitInputs: [],
+		inheritCurrency: [],
+		uuidParameters: [
+			'paymentId',
+		],
+		safeParameters: [],
 	},
 	{
 		resource: 'payment',
@@ -6116,6 +6227,9 @@ export const operationSpecs: GeneratedOperationSpec[] = [
 		itemSchema: 'PaymentResponse',
 		outputOmit: [],
 		minorUnitInputs: [],
+		inheritCurrency: [],
+		uuidParameters: [],
+		safeParameters: [],
 	},
 	{
 		resource: 'payment',
@@ -6132,6 +6246,11 @@ export const operationSpecs: GeneratedOperationSpec[] = [
 		minorUnitInputs: [
 			'amount_cents',
 		],
+		inheritCurrency: [],
+		uuidParameters: [
+			'paymentId',
+		],
+		safeParameters: [],
 	},
 	{
 		resource: 'wallet',
@@ -6148,6 +6267,9 @@ export const operationSpecs: GeneratedOperationSpec[] = [
 			'rate_amount',
 		],
 		minorUnitInputs: [],
+		inheritCurrency: [],
+		uuidParameters: [],
+		safeParameters: [],
 	},
 	{
 		resource: 'wallet',
@@ -6164,6 +6286,11 @@ export const operationSpecs: GeneratedOperationSpec[] = [
 			'rate_amount',
 		],
 		minorUnitInputs: [],
+		inheritCurrency: [],
+		uuidParameters: [
+			'walletId',
+		],
+		safeParameters: [],
 	},
 	{
 		resource: 'wallet',
@@ -6180,6 +6307,9 @@ export const operationSpecs: GeneratedOperationSpec[] = [
 			'rate_amount',
 		],
 		minorUnitInputs: [],
+		inheritCurrency: [],
+		uuidParameters: [],
+		safeParameters: [],
 	},
 	{
 		resource: 'wallet',
@@ -6196,6 +6326,11 @@ export const operationSpecs: GeneratedOperationSpec[] = [
 			'amount',
 		],
 		minorUnitInputs: [],
+		inheritCurrency: [],
+		uuidParameters: [
+			'walletId',
+		],
+		safeParameters: [],
 	},
 	{
 		resource: 'wallet',
@@ -6212,6 +6347,11 @@ export const operationSpecs: GeneratedOperationSpec[] = [
 			'rate_amount',
 		],
 		minorUnitInputs: [],
+		inheritCurrency: [],
+		uuidParameters: [
+			'walletId',
+		],
+		safeParameters: [],
 	},
 	{
 		resource: 'usageEvent',
@@ -6228,6 +6368,9 @@ export const operationSpecs: GeneratedOperationSpec[] = [
 			'precise_total_amount_cents',
 		],
 		minorUnitInputs: [],
+		inheritCurrency: [],
+		uuidParameters: [],
+		safeParameters: [],
 	},
 	{
 		resource: 'usageEvent',
@@ -6244,6 +6387,9 @@ export const operationSpecs: GeneratedOperationSpec[] = [
 			'events[].precise_total_amount_cents',
 		],
 		minorUnitInputs: [],
+		inheritCurrency: [],
+		uuidParameters: [],
+		safeParameters: [],
 	},
 	{
 		resource: 'usageEvent',
@@ -6260,6 +6406,11 @@ export const operationSpecs: GeneratedOperationSpec[] = [
 			'precise_total_amount_cents',
 		],
 		minorUnitInputs: [],
+		inheritCurrency: [],
+		uuidParameters: [],
+		safeParameters: [
+			'transactionId',
+		],
 	},
 	{
 		resource: 'usageEvent',
@@ -6276,6 +6427,9 @@ export const operationSpecs: GeneratedOperationSpec[] = [
 			'precise_total_amount_cents',
 		],
 		minorUnitInputs: [],
+		inheritCurrency: [],
+		uuidParameters: [],
+		safeParameters: [],
 	},
 	{
 		resource: 'webhookEndpoint',
@@ -6290,6 +6444,11 @@ export const operationSpecs: GeneratedOperationSpec[] = [
 		itemSchema: '',
 		outputOmit: [],
 		minorUnitInputs: [],
+		inheritCurrency: [],
+		uuidParameters: [
+			'endpointId',
+		],
+		safeParameters: [],
 	},
 	{
 		resource: 'webhookEndpoint',
@@ -6304,6 +6463,11 @@ export const operationSpecs: GeneratedOperationSpec[] = [
 		itemSchema: 'WebhookEndpoint',
 		outputOmit: [],
 		minorUnitInputs: [],
+		inheritCurrency: [],
+		uuidParameters: [
+			'endpointId',
+		],
+		safeParameters: [],
 	},
 	{
 		resource: 'webhookEndpoint',
@@ -6318,6 +6482,9 @@ export const operationSpecs: GeneratedOperationSpec[] = [
 		itemSchema: 'WebhookEndpoint',
 		outputOmit: [],
 		minorUnitInputs: [],
+		inheritCurrency: [],
+		uuidParameters: [],
+		safeParameters: [],
 	},
 	{
 		resource: 'webhookEndpoint',
@@ -6332,5 +6499,10 @@ export const operationSpecs: GeneratedOperationSpec[] = [
 		itemSchema: 'WebhookDelivery',
 		outputOmit: [],
 		minorUnitInputs: [],
+		inheritCurrency: [],
+		uuidParameters: [
+			'endpointId',
+		],
+		safeParameters: [],
 	},
 ];

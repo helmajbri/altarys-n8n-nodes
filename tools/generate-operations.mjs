@@ -13,8 +13,8 @@
 // node-param-operation-option-action-miscased, so a generated name that lint would refuse is
 // refused here first.
 
-import { readFileSync, writeFileSync } from 'node:fs';
-import { join, resolve } from 'node:path';
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 export class GeneratorError extends Error {
@@ -854,9 +854,14 @@ function main(argv) {
 	}
 	const target = join(packageDir, manifest.output);
 	if (mode === 'write') {
+		mkdirSync(dirname(target), { recursive: true });
 		writeFileSync(target, output);
 		console.log(`Wrote ${target}`);
 		return 0;
+	}
+	if (!existsSync(target)) {
+		console.error(`${target} does not exist. Run with --write and commit the result.`);
+		return 1;
 	}
 	const committed = readFileSync(target, 'utf8');
 	if (committed !== output) {
