@@ -69,12 +69,6 @@ const REGEX_AFTER_OPERATOR = /[(,=:[!&|?{};+\-*%<>~^]$|\b(return|typeof|case|in|
 const EXPRESSION_BRACE_AFTER = /[(,=:[?!&|+\-*%<>~^]$|\b(return|typeof|case|in|of|new|delete|void|throw|yield|await)$/;
 // A `(` after one of these is the head of a statement, so a `/` after its `)` starts a regex.
 const CONTROL_PAREN_AFTER = /\b(if|while|for|with)$/;
-// The return-type annotation of a function or method: `): void`, `): Promise<A, B>`. A `{` after
-// it opens the function body, a block, although the annotation ends in a keyword or a `>`.
-const RETURN_TYPE_BEFORE = /\)\s*:\s*[\w$.<>[\]|&,\s"]*$/;
-
-/** How codeOnly reads a `/` after a `)` or a `}`: by context, or always one way. */
-export const SLASH_VIEWS = ['context', 'division', 'regex'];
 
 /**
  * The code of a TypeScript file without its comments, the text of its strings and template
@@ -84,12 +78,11 @@ export const SLASH_VIEWS = ['context', 'division', 'regex'];
  * A `/` starts a regular expression after an operator, an opening bracket, a comma, a semicolon
  * or a keyword such as `return`; after the `)` of an `if`/`while`/`for`/`with` head; and after
  * the `}` that closes a block. It is a division after `++` or `--`, after an identifier, a number,
- * `]`, any other `)` and the `}` that closes an object literal. With `ambiguous: 'division'` a `/`
- * after any `)` or `}` is a division, and with `ambiguous: 'regex'` it starts a regex: checkPackage
- * reads all three views, so a slash read on the wrong side in one view is read on the right side
- * in another.
+ * `]`, any other `)` and the `}` that closes an object literal. With `divisionWhenAmbiguous` a `/`
+ * after any `)` or `}` is a division: checkPackage reads both views, so a slash this function
+ * places on the wrong side cannot hide a name from both.
  */
-export function codeOnly(source, { ambiguous = 'context' } = {}) {
+export function codeOnly(source, { divisionWhenAmbiguous = false } = {}) {
 	let i = 0;
 	const parens = [];
 	const braces = [];
@@ -99,18 +92,14 @@ export function codeOnly(source, { ambiguous = 'context' } = {}) {
 		const before = code.trimEnd();
 		if (before === '') return true;
 		if (before.endsWith('++') || before.endsWith('--')) return false;
-		if (before.endsWith(')')) {
-			return ambiguous === 'context' ? lastClosed === 'control-paren' : ambiguous === 'regex';
-		}
-		if (before.endsWith('}')) {
-			return ambiguous === 'context' ? lastClosed === 'block-brace' : ambiguous === 'regex';
-		}
+		if (before.endsWith(')')) return !divisionWhenAmbiguous && lastClosed === 'control-paren';
+		if (before.endsWith('}')) return !divisionWhenAmbiguous && lastClosed === 'block-brace';
 		return REGEX_AFTER_OPERATOR.test(before);
 	}
 
 	function braceKind(code) {
 		const before = code.trimEnd();
-		if (before.endsWith('=>') || RETURN_TYPE_BEFORE.test(before)) return 'block';
+		if (before.endsWith('=>')) return 'block';
 		return EXPRESSION_BRACE_AFTER.test(before) ? 'expression' : 'block';
 	}
 
@@ -297,7 +286,7 @@ export function checkPackage(packageDir) {
 			if (spec.startsWith('.')) continue;
 			if (!ALLOWED_IMPORTS.has(spec)) problems.push(`${rel}: import '${spec}' is not on the allow-list (N22)`);
 		}
-		const views = SLASH_VIEWS.map((ambiguous) => codeOnly(source, { ambiguous }));
+		const views = [codeOnly(source), codeOnly(source, { divisionWhenAmbiguous: true })];
 		for (const [pattern, label] of FORBIDDEN_CODE) {
 			if (views.some((code) => pattern.test(code))) problems.push(`${rel}: uses ${label}`);
 		}

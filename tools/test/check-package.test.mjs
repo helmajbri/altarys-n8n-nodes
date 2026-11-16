@@ -146,7 +146,7 @@ test('comments, strings, template text and regex literals do not trip the code c
 	assert.match(codeOnly('const v = { a: 1 } / 2;\n'), /\} \/ 2/);
 	assert.match(codeOnly('if (x) /y/.test(z);\n'), /\/r\/\.test/);
 	assert.match(codeOnly('if (x) {}\n/y/.test(z);\n'), /\/r\/\.test/);
-	assert.match(codeOnly('if (x) /y/.test(z);\n', { ambiguous: 'division' }), /\) \/y\//);
+	assert.match(codeOnly('if (x) /y/.test(z);\n', { divisionWhenAmbiguous: true }), /\) \/y\//);
 	assert.match(codeOnly('function f(): void {}\n/y/.test(z);\n'), /\/r\/\.test/);
 	assert.match(codeOnly('const o = {}\n/y/.test(z);\n', { ambiguous: 'regex' }), /\/r\/\.test/);
 	assert.match(codeOnly('const v = c ? 1 : { a: 1 } / 2;\n'), /\} \/ 2/);
