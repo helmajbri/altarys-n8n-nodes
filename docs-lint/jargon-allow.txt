@@ -1,0 +1,5 @@
+# Exact spellings removed before the no-jargon list is applied, because the product shows them
+# to the same reader. Each entry names where the reader sees it. Adding an entry is a reviewed
+# change.
+#
+# (none yet: the key prefixes and field names the docs show do not match any listed term)

@@ -1,0 +1,49 @@
+# The no-jargon word list for the published documentation and node texts.
+#
+# tools/check-docs.mjs fails the build when one of these terms appears in a published file: a
+# package README, CHANGELOG, docs page or example workflow, the package description, or the
+# text of a node or credential file (labels, descriptions, messages). Readers are cloud
+# providers' staff and customers of a cloud provider; they need the words the product shows
+# them, not the words used to build it.
+#
+# Format: one term per line, matched as a whole word in any case. "term -> instead" names the
+# word to use. A line starting with "re:" is a regular expression. Adding or removing a term is
+# a reviewed change. Exact spellings the product itself shows a reader (a key prefix, an output
+# field name) go in jargon-allow.txt, with the place the reader sees them.
+
+# Internal tier names
+L1 -> the platform
+L2 -> cloud provider
+L3 -> customer
+re:\b[Ll][123]\s+(customer|user|key|tenant|realm)s?\b
+
+# Internal component names
+BFF -> your LetzCloud address
+appliance -> your LetzCloud address, the LetzCloud console
+Kong
+Keycloak
+realm -> account
+DBOS
+Celery
+outbox
+Redis
+CloudStack -> LetzCloud
+
+# Internal process words
+ADR
+SPEC
+re:\bSPEC-[A-Z]{3}-\d{3}\b
+wave
+re:\bT\d{1,3}\b
+scope map
+persona -> cloud provider, customer
+tenant -> organization, customer
+re:\b(AC|REQ|BR)-[A-Z0-9]+[-.]\d
+
+# Lab host names, internal paths and internal product names
+lab
+re:\bos\d{1,2}\b
+re:\.claude/
+re:\bproducts/(letzbill|letzcloud|letzcore|fiscalia)\b
+re:\bapp/(services|api|models|schemas)/
+LetzCore
