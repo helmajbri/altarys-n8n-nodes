@@ -7,8 +7,11 @@
 #
 # GitHub-hosted runners only: npm provenance and trusted publishing do not support self-hosted
 # runners. Authentication: npm trusted publishing (OIDC) once the package exists; the first
-# version of a package is published with an NPM_TOKEN repository secret, which is then removed.
-# Configure the trusted publisher on npmjs.com with the workflow file name "publish.yml".
+# version of a package is published with an NPM_TOKEN secret, which is then removed. Configure
+# the trusted publisher on npmjs.com with the workflow file name "publish.yml".
+#
+# Gates: the publish job runs in the "npm-publish" environment (its required reviewers approve
+# each release), and only for a tag whose commit is already on main.
 #
 # Release: in packages/<name>, run `npm run release`. It bumps the version, commits, and pushes
 # the tag "<name>-v<version>" (see .release-it.json), which starts this workflow.
@@ -24,6 +27,7 @@ jobs:
   publish:
     name: Publish to npm
     runs-on: ubuntu-latest
+    environment: npm-publish
 
     permissions:
       # Required to mint an OIDC token for the npm provenance attestation.
@@ -35,12 +39,26 @@ jobs:
       version: ${{ steps.package.outputs.version }}
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: The tagged commit is on main
+        run: |
+          git fetch --no-tags origin main
+          if ! git merge-base --is-ancestor "$GITHUB_SHA" origin/main; then
+            echo "$GITHUB_REF_NAME ($GITHUB_SHA) is not on main; refusing to publish"
+            exit 1
+          fi
 
       - name: Set up Node.js
-        uses: actions/setup-node@v4
+        # registry-url writes an .npmrc that reads the token from NODE_AUTH_TOKEN; with no token
+        # set, npm uses trusted publishing (OIDC).
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: 'lts/*'
+          registry-url: 'https://registry.npmjs.org'
 
       - name: npm with trusted publishing support (11.5.1 or later)
         run: npm install -g npm@11.6.2
@@ -79,10 +97,12 @@ jobs:
 
       - name: Release
         # n8n-node release, inside GitHub Actions, lints, builds and runs npm publish with
-        # NPM_CONFIG_PROVENANCE=true. Leave NPM_TOKEN unset to use trusted publishing (OIDC).
+        # NPM_CONFIG_PROVENANCE=true. Leave the NPM_TOKEN secret unset to use trusted publishing.
         working-directory: ${{ steps.package.outputs.dir }}
+        # With the secret set, it becomes the token setup-node's .npmrc reads; without it, the
+        # placeholder setup-node exports stays and npm uses OIDC, as in npm's own example.
         run: |
-          [ -n "$NPM_TOKEN" ] && npm config set //registry.npmjs.org/:_authToken "$NPM_TOKEN"
+          if [ -n "$NPM_TOKEN" ]; then export NODE_AUTH_TOKEN="$NPM_TOKEN"; fi
           npm run release
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
@@ -100,7 +120,7 @@ jobs:
 
     steps:
       - name: Set up Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: 'lts/*'
 
@@ -121,7 +141,7 @@ jobs:
 
       - name: Keep the scan output
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: community-package-scan
           path: scan.log

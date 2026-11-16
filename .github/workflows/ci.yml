@@ -29,10 +29,12 @@ jobs:
         working-directory: packages/${{ matrix.package }}
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          persist-credentials: false
 
       - name: Set up Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: 'lts/*'
 
@@ -44,9 +46,7 @@ jobs:
         run: npm run generate:check
 
       - name: Install dependencies
-        # npm ci once a lockfile is committed; until then a plain install.
-        run: |
-          if [ -f package-lock.json ]; then npm ci; else npm install --no-audit --no-fund; fi
+        run: npm ci
 
       - name: Lint (n8n-node lint, strict mode, n8n Cloud rules on)
         run: npm run lint
@@ -61,10 +61,12 @@ jobs:
     name: Repository tools
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          persist-credentials: false
 
       - name: Set up Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: 'lts/*'
 
