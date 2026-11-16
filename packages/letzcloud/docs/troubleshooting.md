@@ -82,7 +82,7 @@ Messages about one item end with `[Item <n>]`, the position of the item in the n
 
 **Cause:** the operation reads or changes what belongs to one customer, such as **Get usage**. A provider key isn't tied to a customer.
 
-**Fix:** use a key issued to that customer. Customers can't yet create such a key, so these operations aren't available yet.
+**Fix:** use a key issued to that customer. Customers create one under **Configuration** > **API tokens**, as described in [Customer keys](credentials.md#customer-keys).
 
 ## Plan and account messages
 

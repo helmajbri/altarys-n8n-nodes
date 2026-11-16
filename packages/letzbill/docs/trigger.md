@@ -74,7 +74,7 @@ The parameters of the trigger and the events you can choose. The event list is t
 | Parameter | Type | Required | Details |
 |---|---|---|---|
 | Event Names or IDs | Options | Yes | Choose from the list, or specify IDs using an [expression](https://docs.n8n.io/code/expressions/). n8n loads the list from your account. |
-| Timestamp Tolerance (Seconds) | Number | No | How far the signed delivery time may be from the clock of this n8n instance before the delivery is dropped, from 1 to 900. From 1 to 900. Default: `300`. |
+| Timestamp Tolerance (Seconds) | Number | No | How far the signed delivery time may be from the clock of this n8n instance before the delivery is dropped, from 1 to 900. Default: `300`. |
 
 ### Events
 
@@ -86,7 +86,7 @@ The parameters of the trigger and the events you can choose. The event list is t
 | `invoice.voided` | An invoice was voided. |
 | `invoice.overdue` | An invoice is past its due date and unpaid. |
 | `invoice.payment_failed` | A payment attempt on an invoice was refused. |
-| `invoice.dispute_lost` | A payment dispute on an invoice was lost. |
+| `invoice.dispute_lost` | The customer disputed a payment on an invoice with their bank or card issuer, and the dispute was lost. |
 | `credit_note.refunded` | A credit note was refunded. |
 | `credit_note.voided` | A credit note was voided. |
 | `subscription.created` | A subscription was created. |
@@ -96,73 +96,73 @@ The parameters of the trigger and the events you can choose. The event list is t
 | `subscription.paused` | A subscription was paused. |
 | `subscription.resumed` | A paused subscription was resumed. |
 | `payment.succeeded` | A payment succeeded. |
-| `payment.unapplied` | A payment was captured but could not be applied to an invoice. |
-| `payment.unapplied_resolved` | A captured payment that could not be applied was resolved. |
-| `payment.permanently_failed` | A payment failed after its last retry attempt. |
-| `mandate.active` | A payment mandate became active. |
-| `commitment.true_up_generated` | A true-up invoice was generated for a commitment shortfall. |
-| `commitment.at_risk` | A subscription commitment is at risk of a shortfall. |
-| `entitlement.updated` | An entitlement value changed for a subscription. |
-| `entitlement.override_created` | An entitlement override was created for a subscription. |
-| `connector.sync.completed` | A connector finished processing a document. |
-| `connector.sync.failed` | A connector failed to process a document. |
-| `payout.fully_approved` | A payout was fully approved. |
-| `payout.processing` | A payout started processing. |
-| `payout.paid` | A payout was paid. |
-| `payout.in_transit` | A payout is in transit. |
-| `payout.failed` | A payout failed. |
-| `payout.rejected` | A payout was rejected. |
-| `payout.cancelled` | A payout was cancelled. |
+| `payment.unapplied` | A payment was received but couldn't be matched to an invoice. |
+| `payment.unapplied_resolved` | A received payment that couldn't be matched to an invoice was matched or settled. |
+| `payment.permanently_failed` | A payment failed, and LetzBill has no retries left for it. |
+| `mandate.active` | A customer's payment mandate, such as a direct debit authorization, became active, so payments can be collected. |
+| `commitment.true_up_generated` | An invoice was created for the part of a committed amount that the customer didn't use. |
+| `commitment.at_risk` | A customer is unlikely to reach the amount their subscription commits them to. |
+| `entitlement.updated` | A feature limit or allowance of a subscription changed. |
+| `entitlement.override_created` | A feature limit or allowance was changed for one subscription only. |
+| `connector.sync.completed` | An e-invoicing connection finished sending or receiving a document. |
+| `connector.sync.failed` | An e-invoicing connection couldn't send or receive a document. |
+| `payout.fully_approved` | A payout to a partner was approved. |
+| `payout.processing` | A payout to a partner started. |
+| `payout.paid` | A payout to a partner was paid. |
+| `payout.in_transit` | A payout to a partner is on its way to the bank. |
+| `payout.failed` | A payout to a partner failed. |
+| `payout.rejected` | A payout to a partner was rejected. |
+| `payout.cancelled` | A payout to a partner was cancelled. |
 | `wallet.transaction.created` | A wallet transaction was recorded. |
-| `wallet.balance.low` | A wallet balance fell below the low-balance threshold. |
+| `wallet.balance.low` | A wallet balance fell below its low-balance threshold. |
 | `wallet.balance.depleted` | A wallet balance reached zero. |
 | `wallet.expired` | A wallet expired. |
-| `wallet.recurring_refill.executed` | A recurring wallet refill succeeded. |
-| `wallet.recurring_refill.failed` | A recurring wallet refill failed. |
-| `usage_alert.triggered` | A usage alert threshold was reached. |
-| `nexus.threshold_approaching` | A sales-tax nexus threshold is approaching. |
-| `nexus.threshold_exceeded` | A sales-tax nexus threshold was exceeded. |
-| `nexus.registration_required` | A tax registration is required. |
-| `customer.vat_validated` | A customer VAT number was validated. |
-| `customer.vat_invalidated` | A previously valid customer VAT number is now invalid. |
-| `customer.vat_unavailable` | VAT validation was unavailable after all retries. |
-| `organization.lifecycle.trial_started` | The organization started its trial. |
-| `organization.lifecycle.activated` | The organization became active. |
-| `organization.lifecycle.past_due` | The organization became past due. |
-| `organization.lifecycle.payment_recovered` | The organization recovered from past due. |
-| `organization.lifecycle.suspended` | The organization was suspended. |
-| `organization.lifecycle.reinstated` | The organization was reinstated. |
-| `organization.lifecycle.deactivation_requested` | The organization requested deactivation. |
-| `organization.lifecycle.deactivation_cancelled` | The organization cancelled its deactivation request. |
-| `organization.lifecycle.deactivated` | The organization was deactivated. |
-| `organization.lifecycle.reactivated` | The organization was reactivated. |
-| `organization.lifecycle.pending_deletion` | The organization is pending deletion. |
-| `organization.lifecycle.deleted` | The organization was deleted. |
-| `saas.subscription.upgraded` | The organization's platform plan was upgraded. |
-| `saas.subscription.downgraded` | The organization's platform plan was downgraded. |
-| `saas.subscription.canceled` | The organization's platform plan was canceled. |
-| `saas.subscription.reactivated` | The organization's platform plan was reactivated. |
-| `dunning.started` | A dunning campaign started for an invoice. |
-| `dunning.payment_retry_scheduled` | A dunning payment retry was scheduled. |
-| `dunning.payment_retry_succeeded` | A dunning payment retry succeeded. |
-| `dunning.payment_retry_failed` | A dunning payment retry failed. |
-| `dunning.exhausted` | A dunning campaign used all its attempts. |
-| `dunning.threshold_warning` | A subscription reached a dunning overdue threshold. |
-| `dunning.subscription_suspended` | A subscription was suspended by a dunning campaign. |
-| `dunning.subscription_reactivated` | A subscription was reactivated after dunning. |
-| `partner.suspended` | A partner was suspended. |
-| `partner.terminated` | A partner was terminated. |
-| `partner.reactivated` | A partner was reactivated. |
-| `partner.activated` | A partner was activated. |
-| `partner.customer_attributed` | A customer was attributed to a partner. |
-| `partner.white_label_updated` | A partner white-label configuration was updated. |
-| `partner_customer.reassigned` | A customer was reassigned to another partner. |
-| `partner_customer.unassigned` | A customer was unassigned from a partner. |
-| `settlement.approved` | A settlement was approved. |
-| `settlement.cancelled` | A settlement was cancelled. |
-| `settlement.paid` | A settlement was paid. |
-| `commission.cancelled` | A commission was cancelled. |
-| `commission.recalculated` | A commission was recalculated. |
+| `wallet.recurring_refill.executed` | A wallet was topped up by its recurring top-up. |
+| `wallet.recurring_refill.failed` | The recurring top-up of a wallet failed. |
+| `usage_alert.triggered` | A customer's usage reached the threshold of a usage alert. |
+| `nexus.threshold_approaching` | Sales in a tax region are close to the amount from which you must register for sales tax there. |
+| `nexus.threshold_exceeded` | Sales in a tax region passed the amount from which you must register for sales tax there. |
+| `nexus.registration_required` | You must register for tax in a region. |
+| `customer.vat_validated` | A customer's VAT number was checked and is valid. |
+| `customer.vat_invalidated` | A customer's VAT number that was valid is no longer valid. |
+| `customer.vat_unavailable` | A customer's VAT number couldn't be checked, even after retries. |
+| `organization.lifecycle.trial_started` | Your organization started its trial of LetzBill. |
+| `organization.lifecycle.activated` | Your organization's LetzBill account became active. |
+| `organization.lifecycle.past_due` | A payment for your organization's LetzBill account is overdue. |
+| `organization.lifecycle.payment_recovered` | The overdue payment for your organization's LetzBill account was paid. |
+| `organization.lifecycle.suspended` | Your organization's LetzBill account was suspended. |
+| `organization.lifecycle.reinstated` | Your organization's suspended LetzBill account was reinstated. |
+| `organization.lifecycle.deactivation_requested` | Someone asked to deactivate your organization's LetzBill account. |
+| `organization.lifecycle.deactivation_cancelled` | The request to deactivate your organization's LetzBill account was cancelled. |
+| `organization.lifecycle.deactivated` | Your organization's LetzBill account was deactivated. |
+| `organization.lifecycle.reactivated` | Your organization's deactivated LetzBill account was reactivated. |
+| `organization.lifecycle.pending_deletion` | Your organization's LetzBill account is going to be deleted. |
+| `organization.lifecycle.deleted` | Your organization's LetzBill account was deleted. |
+| `saas.subscription.upgraded` | Your organization's own LetzBill plan was upgraded. |
+| `saas.subscription.downgraded` | Your organization's own LetzBill plan was downgraded. |
+| `saas.subscription.canceled` | Your organization's own LetzBill plan was canceled. |
+| `saas.subscription.reactivated` | Your organization's own LetzBill plan was reactivated. |
+| `dunning.started` | LetzBill started sending payment reminders for an unpaid invoice. |
+| `dunning.payment_retry_scheduled` | LetzBill scheduled another attempt to collect an unpaid invoice. |
+| `dunning.payment_retry_succeeded` | A new attempt to collect an unpaid invoice succeeded. |
+| `dunning.payment_retry_failed` | A new attempt to collect an unpaid invoice failed. |
+| `dunning.exhausted` | LetzBill made every planned attempt to collect an unpaid invoice, without success. |
+| `dunning.threshold_warning` | A subscription has been unpaid long enough to reach a warning step of its payment reminders. |
+| `dunning.subscription_suspended` | A subscription was suspended because its invoices stayed unpaid. |
+| `dunning.subscription_reactivated` | A subscription suspended for unpaid invoices was reactivated. |
+| `partner.suspended` | A reseller partner was suspended. |
+| `partner.terminated` | The agreement with a reseller partner ended. |
+| `partner.reactivated` | A suspended reseller partner was reactivated. |
+| `partner.activated` | A reseller partner was activated. |
+| `partner.customer_attributed` | A customer was linked to a reseller partner. |
+| `partner.white_label_updated` | A reseller partner's own branding settings were changed. |
+| `partner_customer.reassigned` | A customer was moved to another reseller partner. |
+| `partner_customer.unassigned` | A customer was unlinked from its reseller partner. |
+| `settlement.approved` | A settlement of amounts owed to a reseller partner was approved. |
+| `settlement.cancelled` | A settlement of amounts owed to a reseller partner was cancelled. |
+| `settlement.paid` | A settlement of amounts owed to a reseller partner was paid. |
+| `commission.cancelled` | A reseller partner's commission was cancelled. |
+| `commission.recalculated` | A reseller partner's commission was calculated again. |
 
 <!-- vale on -->
 <!-- END GENERATED: trigger reference -->

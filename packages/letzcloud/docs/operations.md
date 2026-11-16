@@ -35,22 +35,22 @@ Create a container from an image.
 
 | Parameter | Type | Required | Details |
 |---|---|---|---|
-| Container Image | Text | Yes |   |
-| Name | Text | Yes |   |
+| Container Image | Text | Yes | Image to run, such as nginx:latest, up to 512 characters. |
+| Name | Text | Yes | Name of the container, up to 128 characters. |
 | Additional Fields | Optional fields | No |   |
-| Additional Fields > Container Size | Text | No |   |
-| Additional Fields > Custom CPU Millicores | Number | No | From 100 to 32000. |
-| Additional Fields > Custom Memory MB | Number | No | From 64 to 65536. |
-| Additional Fields > Customer ID | Text | No |   |
+| Additional Fields > Container Size | Text | No | One of 'small' (default), 'medium', 'large' or 'custom'. With 'custom', also set Custom CPU Millicores and Custom Memory MB. |
+| Additional Fields > Custom CPU Millicores | Number | No | CPU limit in millicores, from 100 to 32000, used only when Container Size is 'custom'. |
+| Additional Fields > Custom Memory MB | Number | No | Memory limit in MB, from 64 to 65536, used only when Container Size is 'custom'. |
+| Additional Fields > Customer ID | Text | No | ID of the customer who will own the container. A provider key must set it. |
 | Additional Fields > Environment Variables | JSON | No | JSON object. |
-| Additional Fields > Health Check Path | Text | No |   |
-| Additional Fields > Health Check Port | Number | No | From 1 to 65535. |
-| Additional Fields > Max Replicas | Number | No | From 1 to 100. Default: `1`. |
-| Additional Fields > Min Replicas | Number | No | From 0 to 100. Default: `1`. |
-| Additional Fields > Port | Number | No | From 1 to 65535. Default: `8080`. |
-| Additional Fields > Protocol | Text | No |   |
-| Additional Fields > Registry Credential ID | Text | No |   |
-| Additional Fields > Registry URL | Text | No |   |
+| Additional Fields > Health Check Path | Text | No | HTTP path LetzCloud calls to check that the container is healthy; /health when left empty. |
+| Additional Fields > Health Check Port | Number | No | Port of the health check; the container's port when left empty. From 1 to 65535. |
+| Additional Fields > Max Replicas | Number | No | Largest number of copies of the container that run, from 1 to 100. Default: `1`. |
+| Additional Fields > Min Replicas | Number | No | Smallest number of copies of the container that run, from 0 to 100. Default: `1`. |
+| Additional Fields > Port | Number | No | Port the container listens on, from 1 to 65535; 8080 when left empty. Default: `8080`. |
+| Additional Fields > Protocol | Text | No | Protocol of the port: 'http' (default), 'tcp' or 'grpc'. |
+| Additional Fields > Registry Credential ID | Text | No | ID of the registry credential that lets LetzCloud pull a private image. |
+| Additional Fields > Registry URL | Text | No | Address of the container registry, for an image on your own registry. |
 | Additional Fields > Volume Mounts | JSON | No | JSON array of objects with: mount_path (required), size_gb, storage_class. |
 
 **Output:** One item, with the [Container fields](#container-fields).
@@ -61,7 +61,7 @@ Delete a container. It stops serving and its replicas are removed.
 
 | Parameter | Type | Required | Details |
 |---|---|---|---|
-| Container ID | Text | Yes | Must be an ID in UUID form. |
+| Container ID | Text | Yes | ID of the container. Must be an ID in UUID form. |
 
 **Output:** One item, with the [Container fields](#container-fields).
 
@@ -73,7 +73,7 @@ Get a container by ID.
 
 | Parameter | Type | Required | Details |
 |---|---|---|---|
-| Container ID | Text | Yes | Must be an ID in UUID form. |
+| Container ID | Text | Yes | ID of the container. Must be an ID in UUID form. |
 
 **Output:** One item, with the [Container fields](#container-fields).
 
@@ -86,8 +86,8 @@ Get many containers.
 | Return All | Boolean | No | Whether to return all results or only up to a given limit. Default: `false`. |
 | Limit | Number | No | Max number of results to return. From 1 to 500. Default: `50`. Shown when **Return All** is off. |
 | Filters | Optional fields | No |   |
-| Filters > Search | Text | No |   |
-| Filters > Status | Text | No |   |
+| Filters > Search | Text | No | Text to search for in names. |
+| Filters > Status | Text | No | One of 'deploying', 'running', 'stopped', 'failed', 'scaling', 'updating' or 'deleting'. |
 
 **Output:** One item per result, with the [Container fields](#container-fields).
 
@@ -107,23 +107,23 @@ Create a managed database cluster.
 
 | Parameter | Type | Required | Details |
 |---|---|---|---|
-| Engine | Text | Yes |   |
-| Engine Version | Text | Yes |   |
-| Name | Text | Yes |   |
+| Engine | Text | Yes | One of 'postgresql', 'mysql', 'valkey', 'mongodb', 'kafka' or 'opensearch'. |
+| Engine Version | Text | Yes | Version of the engine, such as 17 for PostgreSQL or 8.4 for MySQL. |
+| Name | Text | Yes | Name of the cluster, up to 128 characters. |
 | Additional Fields | Optional fields | No |   |
-| Additional Fields > CPU Cores per Node | Number | No | From 1 to 64. |
-| Additional Fields > Customer ID | Text | No |   |
+| Additional Fields > CPU Cores per Node | Number | No | CPU cores per node, from 1 to 64; replaces the tier's default. |
+| Additional Fields > Customer ID | Text | No | ID of the customer who will own the database. A provider key must set it. |
 | Additional Fields > HA Enabled | Boolean | No | Whether the database runs with high availability. Default: `false`. |
-| Additional Fields > KMS Key ID | Text | No |   |
-| Additional Fields > Memory GB per Node | Number | No | From 1 to 512. |
-| Additional Fields > Node Count | Number | No | From 1 to 20. |
-| Additional Fields > Placement Mode | Text | No |   |
-| Additional Fields > Read Replicas | Number | No | From 0 to 10. |
-| Additional Fields > Region | Text | No |   |
-| Additional Fields > Storage GB per Node | Number | No | From 10 to 10000. |
-| Additional Fields > Storage Type | Text | No |   |
-| Additional Fields > Tier | Text | No |   |
-| Additional Fields > Zone ID | Text | No |   |
+| Additional Fields > KMS Key ID | Text | No | ID of one of your encryption keys, to encrypt the database's administrator password with instead of the default key. |
+| Additional Fields > Memory GB per Node | Number | No | Memory per node in GB, from 1 to 512; replaces the tier's default. |
+| Additional Fields > Node Count | Number | No | Number of nodes, from 1 to 20; replaces the tier's default. |
+| Additional Fields > Placement Mode | Text | No | Leave empty: 'kubernetes' is the default and the only placement offered. |
+| Additional Fields > Read Replicas | Number | No | Number of read replicas, from 0 to 10. |
+| Additional Fields > Region | Text | No | Region to deploy in; 'default' when left empty. |
+| Additional Fields > Storage GB per Node | Number | No | Storage per node in GB, from 10 to 10000; replaces the tier's default. |
+| Additional Fields > Storage Type | Text | No | Either 'ssd' or 'nvme'. |
+| Additional Fields > Tier | Text | No | One of 'dev' (default), 'standard', 'production' or 'enterprise'. The tier sets the default size of the cluster. |
+| Additional Fields > Zone ID | Text | No | ID of the zone to deploy in. |
 
 **Output:** One item, with the [Database fields](#database-fields).
 
@@ -133,7 +133,7 @@ Delete a managed database cluster. Its data is lost; the removal can finish afte
 
 | Parameter | Type | Required | Details |
 |---|---|---|---|
-| Cluster ID | Text | Yes | Must be an ID in UUID form. |
+| Cluster ID | Text | Yes | ID of the database cluster. Must be an ID in UUID form. |
 
 **Output:** One item: `{"deleted": true}`.
 
@@ -145,7 +145,7 @@ Get a managed database cluster by ID.
 
 | Parameter | Type | Required | Details |
 |---|---|---|---|
-| Cluster ID | Text | Yes | Must be an ID in UUID form. |
+| Cluster ID | Text | Yes | ID of the database cluster. Must be an ID in UUID form. |
 
 **Output:** One item, with the [Database fields](#database-fields).
 
@@ -158,9 +158,9 @@ Get many managed database clusters.
 | Return All | Boolean | No | Whether to return all results or only up to a given limit. Default: `false`. |
 | Limit | Number | No | Max number of results to return. From 1 to 500. Default: `50`. Shown when **Return All** is off. |
 | Filters | Optional fields | No |   |
-| Filters > Engine | Text | No |   |
-| Filters > Search | Text | No |   |
-| Filters > Status | Text | No |   |
+| Filters > Engine | Text | No | Only clusters of this engine, such as postgresql. |
+| Filters > Search | Text | No | Text to search for in names. |
+| Filters > Status | Text | No | One of 'provisioning', 'running', 'degraded', 'maintenance', 'stopped', 'failed', 'deleting' or 'resizing'. |
 
 **Output:** One item per result, with the [Database fields](#database-fields).
 
@@ -172,7 +172,7 @@ Operations on the **DNS Record** resource of the **LetzCloud** node.
 
 ### DNS Record fields
 
-The operations below that return a record of this resource return it with these fields: `id`, `zone_id`, `name`, `record_type`, `content`, `ttl`, `priority`, `weight`, `port`, `flags`, `tag`, `disabled`, `auto_registered`, `resource_type`, `resource_id`, `cloudstack_nic_id`, `created_at`, `updated_at`.
+The operations below that return a record of this resource return it with these fields: `id`, `zone_id`, `name`, `record_type`, `content`, `ttl`, `priority`, `weight`, `port`, `flags`, `tag`, `disabled`, `auto_registered`, `resource_type`, `resource_id`, `created_at`, `updated_at`.
 
 ### Create DNS record
 
@@ -180,18 +180,18 @@ Create a DNS record in a zone.
 
 | Parameter | Type | Required | Details |
 |---|---|---|---|
-| Zone ID | Text | Yes | Must be an ID in UUID form. |
-| Content | Text | Yes |   |
-| Name | Text | Yes |   |
-| Record Type | Text | Yes |   |
+| Zone ID | Text | Yes | ID of the DNS zone, as Get many DNS zones lists it. Must be an ID in UUID form. |
+| Content | Text | Yes | Value of the record, such as an IP address for A, a host name for CNAME, or the text for TXT. |
+| Name | Text | Yes | Name of the record: a subdomain such as www, @ for the zone itself, or a full domain name. |
+| Record Type | Text | Yes | One of A, AAAA, CNAME, MX, TXT, NS, SRV, CAA or PTR. |
 | Additional Fields | Optional fields | No |   |
 | Additional Fields > Disabled | Boolean | No | Whether the DNS record is disabled. Default: `false`. |
-| Additional Fields > Flags | Number | No | From 0 to 255. |
-| Additional Fields > Port | Number | No | From 0 to 65535. |
-| Additional Fields > Priority | Number | No | From 0 to 65535. |
-| Additional Fields > Tag | Text | No |   |
-| Additional Fields > TTL | Number | No | From 60 to 604800. Default: `3600`. |
-| Additional Fields > Weight | Number | No | From 0 to 65535. |
+| Additional Fields > Flags | Number | No | Flags of a CAA record: 0 for non-critical, 128 for critical. From 0 to 255. |
+| Additional Fields > Port | Number | No | Port of an SRV record, from 0 to 65535. |
+| Additional Fields > Priority | Number | No | Priority from 0 to 65535, needed for MX and SRV records. |
+| Additional Fields > Tag | Text | No | Tag of a CAA record: 'issue', 'issuewild' or 'iodef'. |
+| Additional Fields > TTL | Number | No | Time to live in seconds, from 60 to 604800; 3600 when left empty. Default: `3600`. |
+| Additional Fields > Weight | Number | No | Weight of an SRV record, from 0 to 65535. |
 
 **Output:** One item, with the [DNS Record fields](#dns-record-fields).
 
@@ -201,8 +201,8 @@ Delete a DNS record. The name stops resolving to it.
 
 | Parameter | Type | Required | Details |
 |---|---|---|---|
-| Zone ID | Text | Yes | Must be an ID in UUID form. |
-| Record ID | Text | Yes | Must be an ID in UUID form. |
+| Zone ID | Text | Yes | ID of the DNS zone, as Get many DNS zones lists it. Must be an ID in UUID form. |
+| Record ID | Text | Yes | ID of the DNS record. Must be an ID in UUID form. |
 
 **Output:** One item: `{"deleted": true}`.
 
@@ -214,12 +214,12 @@ Get many DNS records of a zone.
 
 | Parameter | Type | Required | Details |
 |---|---|---|---|
-| Zone ID | Text | Yes | Must be an ID in UUID form. |
+| Zone ID | Text | Yes | ID of the DNS zone, as Get many DNS zones lists it. Must be an ID in UUID form. |
 | Return All | Boolean | No | Whether to return all results or only up to a given limit. Default: `false`. |
 | Limit | Number | No | Max number of results to return. From 1 to 500. Default: `50`. Shown when **Return All** is off. |
 | Filters | Optional fields | No |   |
-| Filters > Record Type | Text | No |   |
-| Filters > Search | Text | No |   |
+| Filters > Record Type | Text | No | Only records of this type, such as A or CNAME. |
+| Filters > Search | Text | No | Text to search for in names. |
 
 **Output:** One item per result, with the [DNS Record fields](#dns-record-fields).
 
@@ -231,18 +231,18 @@ Update a DNS record.
 
 | Parameter | Type | Required | Details |
 |---|---|---|---|
-| Zone ID | Text | Yes | Must be an ID in UUID form. |
-| Record ID | Text | Yes | Must be an ID in UUID form. |
+| Zone ID | Text | Yes | ID of the DNS zone, as Get many DNS zones lists it. Must be an ID in UUID form. |
+| Record ID | Text | Yes | ID of the DNS record. Must be an ID in UUID form. |
 | Update Fields | Optional fields | No |   |
-| Update Fields > Content | Text | No |   |
+| Update Fields > Content | Text | No | Value of the record, such as an IP address for A, a host name for CNAME, or the text for TXT. |
 | Update Fields > Disabled | Boolean | No | Whether the DNS record is disabled. Default: `false`. |
-| Update Fields > Flags | Number | No | From 0 to 255. |
-| Update Fields > Name | Text | No |   |
-| Update Fields > Port | Number | No | From 0 to 65535. |
-| Update Fields > Priority | Number | No | From 0 to 65535. |
-| Update Fields > Tag | Text | No |   |
-| Update Fields > TTL | Number | No | From 60 to 604800. |
-| Update Fields > Weight | Number | No | From 0 to 65535. |
+| Update Fields > Flags | Number | No | Flags of a CAA record: 0 for non-critical, 128 for critical. From 0 to 255. |
+| Update Fields > Name | Text | No | Name of the record: a subdomain such as www, @ for the zone itself, or a full domain name. |
+| Update Fields > Port | Number | No | Port of an SRV record, from 0 to 65535. |
+| Update Fields > Priority | Number | No | Priority from 0 to 65535, for MX and SRV records. |
+| Update Fields > Tag | Text | No | Tag of a CAA record: 'issue', 'issuewild' or 'iodef'. |
+| Update Fields > TTL | Number | No | Time to live in seconds, from 60 to 604800. |
+| Update Fields > Weight | Number | No | Weight of an SRV record, from 0 to 65535. |
 
 **Output:** One item, with the [DNS Record fields](#dns-record-fields).
 
@@ -259,11 +259,11 @@ Get many DNS zones, for example to find the zone of a record.
 | Return All | Boolean | No | Whether to return all results or only up to a given limit. Default: `false`. |
 | Limit | Number | No | Max number of results to return. From 1 to 500. Default: `50`. Shown when **Return All** is off. |
 | Filters | Optional fields | No |   |
-| Filters > Plane | Text | No |   |
-| Filters > Search | Text | No |   |
-| Filters > Status | Text | No |   |
+| Filters > Plane | Text | No | Either 'public' or 'private'. |
+| Filters > Search | Text | No | Text to search for in names. |
+| Filters > Status | Text | No | One of 'active', 'pending', 'error' or 'deleting'. |
 
-**Output:** One item per result, with these fields: `id`, `organization_id`, `domain_name`, `zone_type`, `plane`, `nameservers`, `soa_record`, `dnssec_enabled`, `status`, `provider_zone_id`, `status_message`, `ownership_token`, `ownership_verified_at`, `record_name`, `record_count`, `auto_created`, `l3_customer_id`, `customer_name`, `soa_serial`, `soa_minimum_ttl`, `soa_ttl`, `default_ttl`, `tags`, `masters`, `zone_import`, `created_at`, `updated_at`.
+**Output:** One item per result, with these fields: `id`, `organization_id`, `domain_name`, `zone_type`, `plane`, `nameservers`, `soa_record`, `dnssec_enabled`, `status`, `provider_zone_id`, `status_message`, `ownership_token`, `ownership_verified_at`, `record_name`, `record_count`, `auto_created`, `customer_name`, `soa_serial`, `soa_minimum_ttl`, `soa_ttl`, `default_ttl`, `tags`, `masters`, `zone_import`, `created_at`, `updated_at`.
 
 **Return All** reads every page; otherwise **Limit** sets how many results to return.
 
@@ -281,7 +281,7 @@ Start, stop or reboot an instance. LetzCloud answers at once with a job; use Wai
 
 | Parameter | Type | Required | Details |
 |---|---|---|---|
-| VM ID | Text | Yes | Must be an ID in UUID form. |
+| VM ID | Text | Yes | ID of the instance. Must be an ID in UUID form. |
 | Action | Option | Yes | One of: `Reboot`, `Start`, `Stop`. Default: `Start`. |
 | Additional Fields | Optional fields | No |   |
 | Additional Fields > Force | Boolean | No | Whether to force the action, such as a hard stop. Default: `false`. |
@@ -294,29 +294,29 @@ Create an instance. LetzCloud answers at once with a job; the instance appears i
 
 | Parameter | Type | Required | Details |
 |---|---|---|---|
-| Name | Text | Yes |   |
-| Service Offering ID | Text | Yes |   |
-| Template ID | Text | Yes |   |
-| Zone ID | Text | Yes |   |
+| Name | Text | Yes | Host name of the instance. |
+| Service Offering ID | Text | Yes | ID of the service offering, which sets the CPU and memory. |
+| Template ID | Text | Yes | ID of the template or operating system image. |
+| Zone ID | Text | Yes | ID of the zone to create the instance in. |
 | Additional Fields | Optional fields | No |   |
 | Additional Fields > Affinity Group IDs | JSON | No | JSON array of strings. |
-| Additional Fields > Boot Mode | Text | No |   |
-| Additional Fields > Boot Type | Text | No |   |
-| Additional Fields > Disk Offering ID | Text | No |   |
-| Additional Fields > Display Name | Text | No |   |
+| Additional Fields > Boot Mode | Text | No | Either 'LEGACY' or 'SECURE'. |
+| Additional Fields > Boot Type | Text | No | Either 'UEFI' or 'BIOS'. |
+| Additional Fields > Disk Offering ID | Text | No | ID of a disk offering for an additional data disk. |
+| Additional Fields > Display Name | Text | No | Name shown for the instance. |
 | Additional Fields > Dynamic Scaling Enabled | Boolean | No | Whether CPU and memory can be changed while the instance runs. Default: `false`. |
-| Additional Fields > Extra Config | Text | No |   |
-| Additional Fields > IP Address | Text | No |   |
-| Additional Fields > IPv6 Address | Text | No |   |
-| Additional Fields > Keyboard | Text | No |   |
-| Additional Fields > Keypair | Text | No |   |
-| Additional Fields > MAC Address | Text | No |   |
+| Additional Fields > Extra Config | Text | No | Extra cloud-init or configuration data. |
+| Additional Fields > IP Address | Text | No | Fixed IPv4 address of the default network interface. |
+| Additional Fields > IPv6 Address | Text | No | IPv6 address of the default network interface. |
+| Additional Fields > Keyboard | Text | No | Keyboard layout: de, de-ch, es, fi, fr, fr-be, fr-ch, is, it, jp, nl-be, no, pt, uk or us. |
+| Additional Fields > Keypair | Text | No | Name of the SSH key pair to install. |
+| Additional Fields > MAC Address | Text | No | MAC address of the default network interface. |
 | Additional Fields > Network IDs | JSON | No | JSON array of strings. |
-| Additional Fields > Project ID | Text | No |   |
-| Additional Fields > Root Disk Size | Number | No | At least 1. |
+| Additional Fields > Project ID | Text | No | ID of the project to create the instance in. |
+| Additional Fields > Root Disk Size | Number | No | Root disk size in GB. At least 1. |
 | Additional Fields > Security Group IDs | JSON | No | JSON array of strings. |
 | Additional Fields > Start VM | Boolean | No | Whether to start the instance once it is created. Default: `false`. |
-| Additional Fields > User Data | Text | No |   |
+| Additional Fields > User Data | Text | No | Cloud-init user data. |
 
 **Output:** One item, with the [Instance fields](#instance-fields).
 
@@ -326,7 +326,7 @@ Delete an instance. Its root disk goes with it; with Expunge it cannot be recove
 
 | Parameter | Type | Required | Details |
 |---|---|---|---|
-| VM ID | Text | Yes | Must be an ID in UUID form. |
+| VM ID | Text | Yes | ID of the instance. Must be an ID in UUID form. |
 | Options | Optional fields | No |   |
 | Options > Expunge | Boolean | No | Whether to remove the instance at once instead of keeping it recoverable for a while. Default: `false`. |
 
@@ -340,7 +340,7 @@ Get an instance by ID.
 
 | Parameter | Type | Required | Details |
 |---|---|---|---|
-| VM ID | Text | Yes | Must be an ID in UUID form. |
+| VM ID | Text | Yes | ID of the instance. Must be an ID in UUID form. |
 
 **Output:** One item with these fields: `name`, `display_name`, `id`, `state`, `zone_name`, `zone_id`, `service_offering_name`, `service_offering_id`, `template_name`, `template_id`, `hypervisor`, `ip_address`, `created`, `cpunumber`, `memory`, `hostname`, `cpu_used_percent`, `memory_used_percent`, `ha_enable`, `group`, `nic`, `volumes`, `public_ip_addresses`, `tags`.
 
@@ -353,9 +353,9 @@ Get many instances.
 | Return All | Boolean | No | Whether to return all results or only up to a given limit. Default: `false`. |
 | Limit | Number | No | Max number of results to return. From 1 to 500. Default: `50`. Shown when **Return All** is off. |
 | Filters | Optional fields | No |   |
-| Filters > Search | Text | No |   |
-| Filters > State | Text | No |   |
-| Filters > Zone ID | Text | No |   |
+| Filters > Search | Text | No | Text to search for in names. |
+| Filters > State | Text | No | Only instances in this state, such as Running or Stopped. |
+| Filters > Zone ID | Text | No | Only resources in this zone, by its ID. |
 
 **Output:** One item per result.
 
@@ -369,8 +369,8 @@ Wait until an instance is running or stopped, reading it again at an interval un
 |---|---|---|---|
 | VM ID | Text | Yes |   |
 | State | Option | No | The state to wait for: Running after a start or a reboot, Stopped after a stop. One of: `Running`, `Stopped`. Default: `Running`. |
-| Time Limit (Seconds) | Number | No | How long to wait for one item before the node stops with a message, from 10 to 7200. One execution waits at most 7200 seconds over all its items. From 10 to 7200. Default: `900`. |
-| Interval (Seconds) | Number | No | How long to wait between two reads, from 5 to 600. From 5 to 600. Default: `15`. |
+| Time Limit (Seconds) | Number | No | How long to wait for one item before the node stops with a message, from 10 to 7200. One execution waits at most 7200 seconds over all its items. Default: `900`. |
+| Interval (Seconds) | Number | No | How long to wait between two reads, from 5 to 600. Default: `15`. |
 
 **Output:** One item with these fields: `name`, `display_name`, `id`, `state`, `zone_name`, `zone_id`, `service_offering_name`, `service_offering_id`, `template_name`, `template_id`, `hypervisor`, `ip_address`, `created`, `cpunumber`, `memory`, `hostname`, `cpu_used_percent`, `memory_used_percent`, `ha_enable`, `group`, `nic`, `volumes`, `public_ip_addresses`, `tags`.
 
@@ -387,9 +387,9 @@ Get many of your own invoices. Needs a customer key.
 | Return All | Boolean | No | Whether to return all results or only up to a given limit. Default: `false`. |
 | Limit | Number | No | Max number of results to return. From 1 to 100. Default: `50`. Shown when **Return All** is off. |
 | Filters | Optional fields | No |   |
-| Filters > Search | Text | No |   |
-| Filters > Status | Text | No |   |
-| Filters > Subscription ID | Text | No |   |
+| Filters > Search | Text | No | Text to search for in invoice numbers. |
+| Filters > Status | Text | No | One of 'draft', 'finalized', 'paid' or 'voided'. |
+| Filters > Subscription ID | Text | No | Only invoices of this subscription, by its ID. |
 
 **Output:** One item per result, with these fields: `id`, `letzbill_invoice_id`, `invoice_number`, `amount_cents`, `currency`, `status`, `invoice_date`, `due_date`, `pdf_url`, `paid_at`, `payment_failed_at`, `has_pdf`.
 
@@ -409,28 +409,28 @@ Create a Kubernetes cluster. LetzCloud answers at once with a job; pass its job 
 
 | Parameter | Type | Required | Details |
 |---|---|---|---|
-| Name | Text | Yes |   |
-| Zone ID | Text | Yes |   |
+| Name | Text | Yes | Name of the cluster. |
+| Zone ID | Text | Yes | ID of the zone to create the cluster in. |
 | Additional Fields | Optional fields | No |   |
 | Additional Fields > Cluster Type | Option | No | One of: `CloudManaged`, `ExternalManaged`. Default: `CloudManaged`. |
-| Additional Fields > Control Plane Nodes | Number | No | From 1 to 3. Default: `1`. |
-| Additional Fields > Description | Text | No |   |
-| Additional Fields > Docker Registry Password | Text (hidden) | No |   |
-| Additional Fields > Docker Registry URL | Text | No |   |
-| Additional Fields > Docker Registry Username | Text | No |   |
+| Additional Fields > Control Plane Nodes | Number | No | Number of control plane nodes: 1, or 3 for high availability. From 1 to 3. Default: `1`. |
+| Additional Fields > Description | Text | No | Description of the cluster. |
+| Additional Fields > Docker Registry Password | Text (hidden) | No | Password for the private registry. |
+| Additional Fields > Docker Registry URL | Text | No | Address of a private registry the nodes pull images from. |
+| Additional Fields > Docker Registry Username | Text | No | User name for the private registry. |
 | Additional Fields > Enable CSI | Boolean | No | Whether to install the CSI driver for persistent volumes. Default: `false`. |
-| Additional Fields > Etcd Nodes | Number | No | From 0 to 5. |
+| Additional Fields > Etcd Nodes | Number | No | Number of separate etcd nodes, from 0 to 5; 0 keeps etcd on the control plane nodes. |
 | Additional Fields > External Load Balancer | Boolean | No | Whether to use an external load balancer for the control plane. Default: `false`. |
-| Additional Fields > Kubernetes Version ID | Text | No |   |
-| Additional Fields > Network ID | Text | No |   |
+| Additional Fields > Kubernetes Version ID | Text | No | ID of the Kubernetes version; your provider's default when left empty. |
+| Additional Fields > Network ID | Text | No | ID of the network for the cluster. |
 | Additional Fields > Node Offerings | JSON | No | JSON object. |
 | Additional Fields > Node Pools | JSON | No | JSON array of objects with: name (required), size, service_offering_id (required), min_size, max_size. |
-| Additional Fields > Node Root Disk Size | Number | No | At least 1. |
+| Additional Fields > Node Root Disk Size | Number | No | Root disk size of each node in GB. At least 1. |
 | Additional Fields > Node Templates | JSON | No | JSON object. |
-| Additional Fields > Project ID | Text | No |   |
-| Additional Fields > Service Offering ID | Text | No |   |
-| Additional Fields > Size | Number | No | At least 1. Default: `1`. |
-| Additional Fields > SSH Keypair | Text | No |   |
+| Additional Fields > Project ID | Text | No | ID of the project to create the cluster in. |
+| Additional Fields > Service Offering ID | Text | No | ID of the service offering (CPU and memory) of the control plane nodes. |
+| Additional Fields > Size | Number | No | Number of worker nodes, at least 1. At least 1. Default: `1`. |
+| Additional Fields > SSH Keypair | Text | No | Name of the SSH key pair that gives access to the nodes. |
 | Additional Fields > Tags | JSON | No | JSON object. |
 
 **Output:** One item, with the [Kubernetes Cluster fields](#kubernetes-cluster-fields).
@@ -441,7 +441,7 @@ Delete a Kubernetes cluster. Its nodes and the workloads on them are removed.
 
 | Parameter | Type | Required | Details |
 |---|---|---|---|
-| Cluster ID | Text | Yes | Any ID text without a slash. |
+| Cluster ID | Text | Yes | ID of the Kubernetes cluster. Any ID text without a slash. |
 
 **Output:** One item, with the [Kubernetes Cluster fields](#kubernetes-cluster-fields).
 
@@ -453,7 +453,7 @@ Get a Kubernetes cluster by ID.
 
 | Parameter | Type | Required | Details |
 |---|---|---|---|
-| Cluster ID | Text | Yes | Any ID text without a slash. |
+| Cluster ID | Text | Yes | ID of the Kubernetes cluster. Any ID text without a slash. |
 
 **Output:** One item with these fields: `id`, `name`, `description`, `state`, `zone_id`, `zone_name`, `kubernetes_version_id`, `kubernetes_version_name`, `service_offering_id`, `service_offering_name`, `network_id`, `network_name`, `size`, `master_nodes`, `control_plane_nodes`, `total_node_count`, `endpoint`, `console_endpoint`, `autoscaling_enabled`, `min_size`, `max_size`, `node_pools`, `cpu_total`, `memory_total`, `keypair`, `tags`, `created`, `account`, `domain`, `customer_name`, `ip_address`, `ip_address_name`, `associated_network_name`, `vm_ids`, `virtual_machines`, `supported_upgrade_versions`.
 
@@ -466,9 +466,9 @@ Get many Kubernetes clusters.
 | Return All | Boolean | No | Whether to return all results or only up to a given limit. Default: `false`. |
 | Limit | Number | No | Max number of results to return. From 1 to 500. Default: `50`. Shown when **Return All** is off. |
 | Filters | Optional fields | No |   |
-| Filters > Name | Text | No |   |
-| Filters > State | Text | No |   |
-| Filters > Zone ID | Text | No |   |
+| Filters > Name | Text | No | Only clusters with this name. |
+| Filters > State | Text | No | Only clusters in this state, such as Running. |
+| Filters > Zone ID | Text | No | Only resources in this zone, by its ID. |
 
 **Output:** One item per result.
 
@@ -481,8 +481,8 @@ Wait until the cluster a Create made is running: reads the create job for the cl
 | Parameter | Type | Required | Details |
 |---|---|---|---|
 | Job ID | Text | Yes | The 'job_id' that Create answered with. The wait reads that job for the ID of the cluster it made, then that cluster; it never matches a cluster by name. |
-| Time Limit (Seconds) | Number | No | How long to wait for one item before the node stops with a message, from 10 to 7200. One execution waits at most 7200 seconds over all its items. From 10 to 7200. Default: `900`. |
-| Interval (Seconds) | Number | No | How long to wait between two reads, from 5 to 600. From 5 to 600. Default: `15`. |
+| Time Limit (Seconds) | Number | No | How long to wait for one item before the node stops with a message, from 10 to 7200. One execution waits at most 7200 seconds over all its items. Default: `900`. |
+| Interval (Seconds) | Number | No | How long to wait between two reads, from 5 to 600. Default: `15`. |
 
 **Output:** One item with these fields: `id`, `name`, `description`, `state`, `zone_id`, `zone_name`, `kubernetes_version_id`, `kubernetes_version_name`, `service_offering_id`, `service_offering_name`, `network_id`, `network_name`, `size`, `master_nodes`, `control_plane_nodes`, `total_node_count`, `endpoint`, `console_endpoint`, `autoscaling_enabled`, `min_size`, `max_size`, `node_pools`, `cpu_total`, `memory_total`, `keypair`, `tags`, `created`, `account`, `domain`, `customer_name`, `ip_address`, `ip_address_name`, `associated_network_name`, `vm_ids`, `virtual_machines`, `supported_upgrade_versions`, `wait`.
 
@@ -500,18 +500,18 @@ Create a network.
 
 | Parameter | Type | Required | Details |
 |---|---|---|---|
-| Display Text | Text | Yes |   |
-| Name | Text | Yes |   |
-| Network Offering ID | Text | Yes |   |
-| Zone ID | Text | Yes |   |
+| Display Text | Text | Yes | Text shown for the network. |
+| Name | Text | Yes | Name of the network. |
+| Network Offering ID | Text | Yes | ID of the network offering, which sets the type and features of the network. |
+| Zone ID | Text | Yes | ID of the zone to create the network in. |
 | Additional Fields | Optional fields | No |   |
-| Additional Fields > ACL ID | Text | No |   |
-| Additional Fields > End IP | Text | No |   |
-| Additional Fields > Gateway | Text | No |   |
-| Additional Fields > Netmask | Text | No |   |
-| Additional Fields > Network Domain | Text | No |   |
-| Additional Fields > Start IP | Text | No |   |
-| Additional Fields > VPC ID | Text | No |   |
+| Additional Fields > ACL ID | Text | No | ID of the access control list, for a network that is a tier of a VPC. |
+| Additional Fields > End IP | Text | No | Last IP address of the range, for a shared network. |
+| Additional Fields > Gateway | Text | No | Gateway IP address. |
+| Additional Fields > Netmask | Text | No | Network mask, such as 255.255.255.0. |
+| Additional Fields > Network Domain | Text | No | DNS suffix for the network. |
+| Additional Fields > Start IP | Text | No | First IP address of the range, for a shared network. |
+| Additional Fields > VPC ID | Text | No | ID of the VPC, for a network that is a tier of a VPC. |
 
 **Output:** One item, with the [Network fields](#network-fields).
 
@@ -521,7 +521,7 @@ Delete a network. Instances can no longer connect to it.
 
 | Parameter | Type | Required | Details |
 |---|---|---|---|
-| Network ID | Text | Yes | Must be an ID in UUID form. |
+| Network ID | Text | Yes | ID of the network. Must be an ID in UUID form. |
 
 **Output:** One item, with the [Network fields](#network-fields).
 
@@ -533,7 +533,7 @@ Get a network by ID.
 
 | Parameter | Type | Required | Details |
 |---|---|---|---|
-| Network ID | Text | Yes | Must be an ID in UUID form. |
+| Network ID | Text | Yes | ID of the network. Must be an ID in UUID form. |
 
 **Output:** One item with these fields: `name`, `display_text`, `id`, `state`, `type`, `cidr`, `gateway`, `netmask`, `network_domain`, `network_offering_name`, `zone_name`, `zone_id`, `vlan`, `dns1`, `dns2`, `vpc_id`, `acl_id`, `acl_name`.
 
@@ -546,10 +546,10 @@ Get many networks.
 | Return All | Boolean | No | Whether to return all results or only up to a given limit. Default: `false`. |
 | Limit | Number | No | Max number of results to return. From 1 to 500. Default: `50`. Shown when **Return All** is off. |
 | Filters | Optional fields | No |   |
-| Filters > Search | Text | No |   |
-| Filters > Type | Text | No |   |
-| Filters > VPC ID | Text | No |   |
-| Filters > Zone ID | Text | No |   |
+| Filters > Search | Text | No | Text to search for in names. |
+| Filters > Type | Text | No | One of 'Isolated', 'Shared' or 'L2'. |
+| Filters > VPC ID | Text | No | Only the networks of this VPC, by its ID. |
+| Filters > Zone ID | Text | No | Only resources in this zone, by its ID. |
 
 **Output:** One item per result.
 
@@ -569,11 +569,11 @@ Create a snapshot of a volume.
 
 | Parameter | Type | Required | Details |
 |---|---|---|---|
-| Volume ID | Text | Yes |   |
+| Volume ID | Text | Yes | ID of the volume to snapshot. |
 | Additional Fields | Optional fields | No |   |
 | Additional Fields > Location Type | Option | No | One of: `Primary`, `Secondary`. Default: `Primary`. |
-| Additional Fields > Name | Text | No |   |
-| Additional Fields > Policy ID | Text | No |   |
+| Additional Fields > Name | Text | No | Name of the snapshot. |
+| Additional Fields > Policy ID | Text | No | ID of an existing snapshot policy to link the snapshot to. |
 
 **Output:** One item, with the [Snapshot fields](#snapshot-fields).
 
@@ -583,7 +583,7 @@ Delete a volume snapshot. The volume cannot be restored from it afterwards.
 
 | Parameter | Type | Required | Details |
 |---|---|---|---|
-| Snapshot ID | Text | Yes | Any ID text without a slash. |
+| Snapshot ID | Text | Yes | ID of the snapshot. Any ID text without a slash. |
 
 **Output:** One item, with the [Snapshot fields](#snapshot-fields).
 
@@ -598,11 +598,11 @@ Get many volume snapshots.
 | Return All | Boolean | No | Whether to return all results or only up to a given limit. Default: `false`. |
 | Limit | Number | No | Max number of results to return. From 1 to 500. Default: `50`. Shown when **Return All** is off. |
 | Filters | Optional fields | No |   |
-| Filters > Search | Text | No |   |
-| Filters > Snapshot Type | Text | No |   |
-| Filters > State | Text | No |   |
-| Filters > Volume ID | Text | No |   |
-| Filters > Zone ID | Text | No |   |
+| Filters > Search | Text | No | Text to search for in names. |
+| Filters > Snapshot Type | Text | No | Either 'MANUAL' or 'RECURRING'. |
+| Filters > State | Text | No | Only snapshots in this state. |
+| Filters > Volume ID | Text | No | Only snapshots of this volume, by its ID. |
+| Filters > Zone ID | Text | No | Only resources in this zone, by its ID. |
 
 **Output:** One item per result, with these fields: `id`, `name`, `volume_id`, `volume_name`, `volume_size_bytes`, `state`, `snapshot_type`, `interval_type`, `size`, `created`, `zone_id`, `zone_name`, `policy_id`.
 
@@ -619,7 +619,7 @@ Get your own usage and its cost for a period. Needs a customer key.
 | Parameter | Type | Required | Details |
 |---|---|---|---|
 | Options | Optional fields | No |   |
-| Options > Period | Text | No |   |
+| Options > Period | Text | No | Either 'current_month' (default) or 'last_month'. |
 
 **Output:** One item with these fields: `period`, `period_start`, `period_end`, `metrics`, `total_records`, `resources`, `plans`, `usage_amount_cents`, `currency`, `cost_reason`.
 
@@ -637,15 +637,15 @@ Create a volume, and attach it to an instance if one is named.
 
 | Parameter | Type | Required | Details |
 |---|---|---|---|
-| Disk Offering ID | Text | Yes |   |
-| Name | Text | Yes |   |
-| Zone ID | Text | Yes |   |
+| Disk Offering ID | Text | Yes | ID of the disk offering. |
+| Name | Text | Yes | Name of the volume. |
+| Zone ID | Text | Yes | ID of the zone to create the volume in. |
 | Additional Fields | Optional fields | No |   |
-| Additional Fields > Attach to VM ID | Text | No |   |
+| Additional Fields > Attach to VM ID | Text | No | ID of an instance to attach the new volume to. |
 | Additional Fields > Encrypt | Boolean | No | Whether to encrypt the volume. Default: `false`. |
-| Additional Fields > Max IOPS | Number | No |   |
-| Additional Fields > Min IOPS | Number | No |   |
-| Additional Fields > Size | Number | No |   |
+| Additional Fields > Max IOPS | Number | No | Maximum IOPS of the volume. |
+| Additional Fields > Min IOPS | Number | No | Minimum IOPS of the volume. |
+| Additional Fields > Size | Number | No | Size in GB, needed for a disk offering with a custom size. |
 
 **Output:** One item, with the [Volume fields](#volume-fields).
 
@@ -655,7 +655,7 @@ Delete a volume. The data on it is lost.
 
 | Parameter | Type | Required | Details |
 |---|---|---|---|
-| Volume ID | Text | Yes | Must be an ID in UUID form. |
+| Volume ID | Text | Yes | ID of the volume. Must be an ID in UUID form. |
 
 **Output:** One item, with the [Volume fields](#volume-fields).
 
@@ -667,7 +667,7 @@ Get a volume by ID.
 
 | Parameter | Type | Required | Details |
 |---|---|---|---|
-| Volume ID | Text | Yes | Must be an ID in UUID form. |
+| Volume ID | Text | Yes | ID of the volume. Must be an ID in UUID form. |
 
 **Output:** One item with these fields: `name`, `id`, `state`, `size`, `size_bytes`, `volume_type`, `vm_display_name`, `created`, `disk_offering_name`, `zone_id`, `zone_name`, `vm_id`, `device_id`, `disk_offering_id`, `min_iops`, `max_iops`, `provisioning_type`, `encrypted`.
 
@@ -680,11 +680,11 @@ Get many volumes.
 | Return All | Boolean | No | Whether to return all results or only up to a given limit. Default: `false`. |
 | Limit | Number | No | Max number of results to return. From 1 to 500. Default: `50`. Shown when **Return All** is off. |
 | Filters | Optional fields | No |   |
-| Filters > Search | Text | No |   |
-| Filters > State | Text | No |   |
-| Filters > Type | Text | No |   |
-| Filters > VM ID | Text | No |   |
-| Filters > Zone ID | Text | No |   |
+| Filters > Search | Text | No | Text to search for in names. |
+| Filters > State | Text | No | Only volumes in this state. |
+| Filters > Type | Text | No | Either 'ROOT' or 'DATADISK'. |
+| Filters > VM ID | Text | No | Only volumes attached to this instance, by its ID. |
+| Filters > Zone ID | Text | No | Only resources in this zone, by its ID. |
 
 **Output:** One item per result.
 

@@ -31,14 +31,14 @@ Create a credit note against an invoice.
 
 | Parameter | Type | Required | Details |
 |---|---|---|---|
-| Invoice ID | Text | Yes |   |
+| Invoice ID | Text | Yes | ID of the finalized invoice to credit. |
 | Items | JSON | Yes | JSON array of objects with: fee_id (required), amount_cents (required). |
 | Reason | Option | Yes | One of: `Duplicated Charge`, `Fraudulent`, `Order Cancellation`, `Order Change`, `Other`, `Product Unsatisfactory`. Default: `Duplicated Charge`. |
 | Idempotency Key | Text | No | Key LetzBill uses to recognise a retry of this request; leave empty to derive one from the workflow, execution and item. |
 | Additional Fields | Optional fields | No |   |
 | Additional Fields > Credit Amount (Minor Units) | Number | No | Amount in minor units of the currency as a whole number, e.g. 1250 for 12.50, in the currency of the invoice being credited. At least 0. |
-| Additional Fields > Description | Text | No |   |
-| Additional Fields > Issuing Date | Text | No | Example: `2026-01-31`. |
+| Additional Fields > Description | Text | No | Text shown on the credit note, up to 2000 characters. |
+| Additional Fields > Issuing Date | Text | No | Date of the credit note, in YYYY-MM-DD format. Example: `2026-01-31`. |
 | Additional Fields > Refund Amount (Minor Units) | Number | No | Amount in minor units of the currency as a whole number, e.g. 1250 for 12.50, in the currency of the invoice being credited. At least 0. |
 
 **Output:** One item, with the [Credit Note fields](#credit-note-fields).
@@ -51,7 +51,7 @@ Get a credit note by ID.
 
 | Parameter | Type | Required | Details |
 |---|---|---|---|
-| Credit Note ID | Text | Yes | Must be an ID in UUID form. |
+| Credit Note ID | Text | Yes | ID of the credit note. Must be an ID in UUID form. |
 
 **Output:** One item, with the [Credit Note fields](#credit-note-fields).
 
@@ -65,11 +65,11 @@ Get many credit notes.
 | Limit | Number | No | Max number of results to return. From 1 to 100. Default: `50`. Shown when **Return All** is off. |
 | Filters | Optional fields | No |   |
 | Filters > Credit Status | Option | No | One of: `Available`, `Consumed`, `Voided`. Default: `Available`. |
-| Filters > Customer ID | Text | No |   |
-| Filters > Invoice ID | Text | No |   |
+| Filters > Customer ID | Text | No | Only records of this customer, by its ID. |
+| Filters > Invoice ID | Text | No | Only records of this invoice, by its ID. |
 | Filters > Reason | Option | No | One of: `Duplicated Charge`, `Fraudulent`, `Order Cancellation`, `Order Change`, `Other`, `Product Unsatisfactory`. Default: `Duplicated Charge`. |
 | Filters > Refund Status | Option | No | One of: `Failed`, `Pending`, `Succeeded`. Default: `Failed`. |
-| Filters > Search | Text | No |   |
+| Filters > Search | Text | No | Text to search for. |
 | Filters > Status | Option | No | One of: `Draft`, `Finalized`, `Voided`. Default: `Draft`. |
 
 **Output:** One item per result, with the [Credit Note fields](#credit-note-fields).
@@ -82,9 +82,9 @@ Void a credit note. It becomes inactive and can no longer be used.
 
 | Parameter | Type | Required | Details |
 |---|---|---|---|
-| Credit Note ID | Text | Yes | Must be an ID in UUID form. |
+| Credit Note ID | Text | Yes | ID of the credit note. Must be an ID in UUID form. |
 | Additional Fields | Optional fields | No |   |
-| Additional Fields > Reason | Text | No |   |
+| Additional Fields > Reason | Text | No | Why the credit note is voided, up to 500 characters. |
 
 **Output:** One item, with the [Credit Note fields](#credit-note-fields).
 
@@ -104,40 +104,40 @@ Create a customer.
 
 | Parameter | Type | Required | Details |
 |---|---|---|---|
-| External ID | Text | Yes |   |
+| External ID | Text | Yes | Your own unique ID for the customer, up to 255 characters. Get by External ID finds the customer with it. |
 | Additional Fields | Optional fields | No |   |
-| Additional Fields > Account Type | Text | No |   |
+| Additional Fields > Account Type | Text | No | Either 'customer' (default) or 'partner'. |
 | Additional Fields > Address Line1 | Text | No |   |
 | Additional Fields > Address Line2 | Text | No |   |
-| Additional Fields > Applied Dunning Campaign ID | Text | No |   |
-| Additional Fields > Bill Cycle Day | Number | No | From 1 to 28. |
-| Additional Fields > Billing Entity ID | Text | No |   |
+| Additional Fields > Applied Dunning Campaign ID | Text | No | ID of the dunning campaign to apply to this customer. |
+| Additional Fields > Bill Cycle Day | Number | No | Day of the month on which the customer is billed, from 1 to 28. |
+| Additional Fields > Billing Entity ID | Text | No | ID of the billing entity that issues this customer's invoices. |
 | Additional Fields > City | Text | No |   |
-| Additional Fields > Country | Text | No |   |
+| Additional Fields > Country | Text | No | Two-letter ISO 3166-1 country code, such as LU or DE. |
 | Additional Fields > Currency | Text | No | Three-letter ISO 4217 currency code. Example: `EUR`. |
-| Additional Fields > Customer Type | Text | No |   |
-| Additional Fields > Document Locale | Text | No |   |
+| Additional Fields > Customer Type | Text | No | Either 'company' or 'individual'. |
+| Additional Fields > Document Locale | Text | No | Language of the customer's documents as an ISO 639-1 code, such as en or fr. |
 | Additional Fields > Email | Text | No |   |
 | Additional Fields > Exclude From Dunning Campaign | Boolean | No | Whether the customer is left out of dunning campaigns. Default: `false`. |
-| Additional Fields > External Salesforce ID | Text | No |   |
-| Additional Fields > Finalize Zero Amount Invoice | Text | No |   |
-| Additional Fields > Invoice Consolidation | Text | No |   |
-| Additional Fields > Invoice Grace Period | Number | No | At least 0. |
+| Additional Fields > External Salesforce ID | Text | No | ID of the customer in Salesforce, if you use it. |
+| Additional Fields > Finalize Zero Amount Invoice | Text | No | What happens to an invoice of zero: 'inherit' (default, follow the organization setting), 'skip' or 'finalize'. |
+| Additional Fields > Invoice Consolidation | Text | No | Either 'individual' (default, one invoice per subscription) or 'consolidated' (one invoice for all subscriptions). |
+| Additional Fields > Invoice Grace Period | Number | No | Invoice grace period in days. At least 0. |
 | Additional Fields > Legal Name | Text | No |   |
 | Additional Fields > Legal Number | Text | No |   |
 | Additional Fields > Logo URL | Text | No |   |
 | Additional Fields > Metadata | JSON | No | JSON object. |
 | Additional Fields > Name | Text | No |   |
-| Additional Fields > Net Payment Term | Number | No | At least 0. |
-| Additional Fields > Payment Provider Code | Text | No |   |
+| Additional Fields > Net Payment Term | Number | No | Number of days the customer has to pay an invoice. At least 0. |
+| Additional Fields > Payment Provider Code | Text | No | Code of the payment provider connection that collects this customer's payments. |
 | Additional Fields > Phone | Text | No |   |
 | Additional Fields > Shipping Address | JSON | No | JSON object with: address_line1, address_line2, city, state, zipcode, country. |
 | Additional Fields > Skip Invoice Custom Sections | Boolean | No | Whether invoices for the customer leave out custom sections. Default: `false`. |
 | Additional Fields > State | Text | No |   |
 | Additional Fields > Tax Identification Number | Text | No |   |
-| Additional Fields > Timezone | Text | No |   |
+| Additional Fields > Timezone | Text | No | Time zone of the customer as an IANA name, such as Europe/Luxembourg. |
 | Additional Fields > URL | Text | No |   |
-| Additional Fields > VAT ID | Text | No |   |
+| Additional Fields > VAT ID | Text | No | EU VAT number of a business customer, such as LU12345678. |
 | Additional Fields > VAT Rate | Text | No | Decimal number written as text. Example: `10.5`. |
 | Additional Fields > Zipcode | Text | No |   |
 
@@ -149,7 +149,7 @@ Delete a customer. LetzBill refuses when the customer has active subscriptions.
 
 | Parameter | Type | Required | Details |
 |---|---|---|---|
-| Customer ID | Text | Yes | Must be an ID in UUID form. |
+| Customer ID | Text | Yes | ID of the customer. Must be an ID in UUID form. |
 
 **Output:** One item: `{"deleted": true}`.
 
@@ -161,7 +161,7 @@ Get a customer by ID.
 
 | Parameter | Type | Required | Details |
 |---|---|---|---|
-| Customer ID | Text | Yes | Must be an ID in UUID form. |
+| Customer ID | Text | Yes | ID of the customer. Must be an ID in UUID form. |
 
 **Output:** One item, with the [Customer fields](#customer-fields).
 
@@ -171,7 +171,7 @@ Get a customer by the ID your system gave it.
 
 | Parameter | Type | Required | Details |
 |---|---|---|---|
-| External ID | Text | Yes | Any ID text without a slash. |
+| External ID | Text | Yes | The External ID you gave the customer. Any ID text without a slash. |
 
 **Output:** One item, with the [Customer fields](#customer-fields).
 
@@ -184,9 +184,9 @@ Get many customers.
 | Return All | Boolean | No | Whether to return all results or only up to a given limit. Default: `false`. |
 | Limit | Number | No | Max number of results to return. From 1 to 500. Default: `50`. Shown when **Return All** is off. |
 | Filters | Optional fields | No |   |
-| Filters > Email | Text | No |   |
-| Filters > External ID | Text | No |   |
-| Filters > Search | Text | No |   |
+| Filters > Email | Text | No | Only customers with this email address. |
+| Filters > External ID | Text | No | Only the record with this External ID. |
+| Filters > Search | Text | No | Text to search for. |
 
 **Output:** One item per result, with the [Customer fields](#customer-fields).
 
@@ -198,40 +198,40 @@ Update a customer.
 
 | Parameter | Type | Required | Details |
 |---|---|---|---|
-| Customer ID | Text | Yes | Must be an ID in UUID form. |
+| Customer ID | Text | Yes | ID of the customer. Must be an ID in UUID form. |
 | Update Fields | Optional fields | No |   |
-| Update Fields > Account Type | Text | No |   |
+| Update Fields > Account Type | Text | No | Either 'customer' or 'partner'. |
 | Update Fields > Address Line1 | Text | No |   |
 | Update Fields > Address Line2 | Text | No |   |
-| Update Fields > Applied Dunning Campaign ID | Text | No |   |
-| Update Fields > Bill Cycle Day | Number | No | From 1 to 28. |
-| Update Fields > Billing Entity ID | Text | No |   |
+| Update Fields > Applied Dunning Campaign ID | Text | No | ID of the dunning campaign to apply to this customer. |
+| Update Fields > Bill Cycle Day | Number | No | Day of the month on which the customer is billed, from 1 to 28. |
+| Update Fields > Billing Entity ID | Text | No | ID of the billing entity that issues this customer's invoices. |
 | Update Fields > City | Text | No |   |
-| Update Fields > Country | Text | No |   |
+| Update Fields > Country | Text | No | Two-letter ISO 3166-1 country code, such as LU or DE. |
 | Update Fields > Currency | Text | No | Three-letter ISO 4217 currency code. Example: `EUR`. |
-| Update Fields > Customer Type | Text | No |   |
-| Update Fields > Document Locale | Text | No |   |
+| Update Fields > Customer Type | Text | No | Either 'company' or 'individual'. |
+| Update Fields > Document Locale | Text | No | Language of the customer's documents as an ISO 639-1 code, such as en or fr. |
 | Update Fields > Email | Text | No |   |
 | Update Fields > Exclude From Dunning Campaign | Boolean | No | Whether the customer is left out of dunning campaigns. Default: `false`. |
-| Update Fields > External Salesforce ID | Text | No |   |
-| Update Fields > Finalize Zero Amount Invoice | Text | No |   |
-| Update Fields > Invoice Consolidation | Text | No |   |
-| Update Fields > Invoice Grace Period | Number | No | At least 0. |
+| Update Fields > External Salesforce ID | Text | No | ID of the customer in Salesforce, if you use it. |
+| Update Fields > Finalize Zero Amount Invoice | Text | No | What happens to an invoice of zero: 'inherit' (follow the organization setting), 'skip' or 'finalize'. |
+| Update Fields > Invoice Consolidation | Text | No | Either 'individual' (one invoice per subscription) or 'consolidated' (one invoice for all subscriptions). |
+| Update Fields > Invoice Grace Period | Number | No | Invoice grace period in days. At least 0. |
 | Update Fields > Legal Name | Text | No |   |
 | Update Fields > Legal Number | Text | No |   |
 | Update Fields > Logo URL | Text | No |   |
 | Update Fields > Metadata | JSON | No | JSON object. |
 | Update Fields > Name | Text | No |   |
-| Update Fields > Net Payment Term | Number | No | At least 0. |
-| Update Fields > Payment Provider Code | Text | No |   |
+| Update Fields > Net Payment Term | Number | No | Number of days the customer has to pay an invoice. At least 0. |
+| Update Fields > Payment Provider Code | Text | No | Code of the payment provider connection that collects this customer's payments. |
 | Update Fields > Phone | Text | No |   |
 | Update Fields > Shipping Address | JSON | No | JSON object with: address_line1, address_line2, city, state, zipcode, country. |
 | Update Fields > Skip Invoice Custom Sections | Boolean | No | Whether invoices for the customer leave out custom sections. Default: `false`. |
 | Update Fields > State | Text | No |   |
 | Update Fields > Tax Identification Number | Text | No |   |
-| Update Fields > Timezone | Text | No |   |
+| Update Fields > Timezone | Text | No | Time zone of the customer as an IANA name, such as Europe/Luxembourg. |
 | Update Fields > URL | Text | No |   |
-| Update Fields > VAT ID | Text | No |   |
+| Update Fields > VAT ID | Text | No | EU VAT number of a business customer, such as LU12345678. |
 | Update Fields > VAT Rate | Text | No | Decimal number written as text. Example: `10.5`. |
 | Update Fields > Zipcode | Text | No |   |
 
@@ -251,11 +251,11 @@ Create a one-off invoice with manual line items.
 
 | Parameter | Type | Required | Details |
 |---|---|---|---|
-| Customer ID | Text | Yes |   |
+| Customer ID | Text | Yes | ID of the customer to invoice. |
 | Fees | JSON | Yes | JSON array of objects with: description (required), units, unit_amount_cents (required), vat_rate. |
 | Additional Fields | Optional fields | No |   |
-| Additional Fields > Due Date | Text | No |   |
-| Additional Fields > Subscription ID | Text | No |   |
+| Additional Fields > Due Date | Text | No | Date by which the invoice must be paid. |
+| Additional Fields > Subscription ID | Text | No | ID of a subscription of the customer to link the invoice to. |
 
 **Output:** One item, with the [Invoice fields](#invoice-fields).
 
@@ -265,7 +265,7 @@ Download the PDF of a finalized invoice.
 
 | Parameter | Type | Required | Details |
 |---|---|---|---|
-| Invoice ID | Text | Yes | Must be an ID in UUID form. |
+| Invoice ID | Text | Yes | ID of the invoice. Must be an ID in UUID form. |
 
 **Output:** One item with the file as binary data in the `data` property.
 
@@ -275,7 +275,7 @@ Finalize a draft invoice.
 
 | Parameter | Type | Required | Details |
 |---|---|---|---|
-| Invoice ID | Text | Yes | Must be an ID in UUID form. |
+| Invoice ID | Text | Yes | ID of the invoice. Must be an ID in UUID form. |
 
 **Output:** One item, with the [Invoice fields](#invoice-fields).
 
@@ -285,7 +285,7 @@ Get an invoice by ID.
 
 | Parameter | Type | Required | Details |
 |---|---|---|---|
-| Invoice ID | Text | Yes | Must be an ID in UUID form. |
+| Invoice ID | Text | Yes | ID of the invoice. Must be an ID in UUID form. |
 | Options | Optional fields | No |   |
 | Options > Include Metadata | Boolean | No | Whether to include the invoice metadata. Default: `true`. |
 | Options > Include Snapshot | Boolean | No | Whether to include the customer snapshot taken when the invoice was issued. Default: `true`. |
@@ -302,13 +302,13 @@ Get many invoices.
 | Limit | Number | No | Max number of results to return. From 1 to 100. Default: `50`. Shown when **Return All** is off. |
 | Filters | Optional fields | No |   |
 | Filters > Currency | Text | No | Three-letter ISO 4217 currency code. Example: `EUR`. |
-| Filters > Customer ID | Text | No |   |
-| Filters > From Date | Date and time | No |   |
-| Filters > Invoice Status | Text | No |   |
+| Filters > Customer ID | Text | No | Only records of this customer, by its ID. |
+| Filters > From Date | Date and time | No | Only records from this date on. |
+| Filters > Invoice Status | Text | No | Only invoices with these statuses, separated by commas: draft, finalized, voided, generating, failed, open, closed, pending, paid, refunded, partially_refunded or pending_approval. |
 | Filters > Overdue | Boolean | No | Whether to return only overdue invoices. Default: `false`. |
-| Filters > Search | Text | No |   |
-| Filters > Subscription ID | Text | No |   |
-| Filters > To Date | Date and time | No |   |
+| Filters > Search | Text | No | Text to search for. |
+| Filters > Subscription ID | Text | No | Only invoices of this subscription, by its ID. |
+| Filters > To Date | Date and time | No | Only records up to this date. |
 
 **Output:** One item per result, with the [Invoice fields](#invoice-fields).
 
@@ -320,14 +320,14 @@ Email a finalized invoice to the customer.
 
 | Parameter | Type | Required | Details |
 |---|---|---|---|
-| Invoice ID | Text | Yes | Must be an ID in UUID form. |
+| Invoice ID | Text | Yes | ID of the invoice. Must be an ID in UUID form. |
 | Idempotency Key | Text | No | Key LetzBill uses to recognise a retry of this request; leave empty to derive one from the workflow, execution and item. |
 | Additional Fields | Optional fields | No |   |
 | Additional Fields > CC Emails | JSON | No | JSON array of strings. |
-| Additional Fields > Message | Text | No |   |
-| Additional Fields > Recipient Email | Text | No |   |
-| Additional Fields > Recipient Name | Text | No |   |
-| Additional Fields > Subject | Text | No |   |
+| Additional Fields > Message | Text | No | Text of the email. |
+| Additional Fields > Recipient Email | Text | No | Email address to send the invoice to. |
+| Additional Fields > Recipient Name | Text | No | Name of the person the invoice is sent to. |
+| Additional Fields > Subject | Text | No | Subject line of the email. |
 
 **Output:** One item, with the [Invoice fields](#invoice-fields).
 
@@ -339,8 +339,8 @@ Void a finalized invoice. Voiding cancels the invoice and records the reason.
 
 | Parameter | Type | Required | Details |
 |---|---|---|---|
-| Invoice ID | Text | Yes | Must be an ID in UUID form. |
-| Reason | Text | Yes |   |
+| Invoice ID | Text | Yes | ID of the invoice. Must be an ID in UUID form. |
+| Reason | Text | Yes | Why the invoice is voided; LetzBill records it with the invoice. |
 
 **Output:** One item, with the [Invoice fields](#invoice-fields).
 
@@ -362,15 +362,15 @@ Record a manual payment or collect one through a payment provider.
 |---|---|---|---|
 | Amount (Minor Units) | Number | Yes | Amount in minor units of the currency as a whole number, e.g. 1250 for 12.50. At least 0. |
 | Amount Currency | Text | Yes | Three-letter ISO 4217 currency code. Example: `EUR`. |
-| Payable ID | Text | Yes |   |
+| Payable ID | Text | Yes | ID of what the payment pays, such as the ID of an invoice. |
 | Additional Fields | Optional fields | No |   |
 | Additional Fields > Metadata | JSON | No | JSON object. |
-| Additional Fields > Payable Type | Text | No |   |
-| Additional Fields > Payment Provider Customer ID | Text | No |   |
-| Additional Fields > Payment Provider ID | Text | No |   |
-| Additional Fields > Payment Type | Text | No |   |
-| Additional Fields > Provider Payment Method ID | Text | No |   |
-| Additional Fields > Reference | Text | No |   |
+| Additional Fields > Payable Type | Text | No | What the payment pays: 'Invoice' (default) or 'PaymentRequest'. |
+| Additional Fields > Payment Provider Customer ID | Text | No | ID of the customer at the payment provider, for a 'provider' payment. |
+| Additional Fields > Payment Provider ID | Text | No | ID of the payment provider connection to collect through, for a 'provider' payment. |
+| Additional Fields > Payment Type | Text | No | Either 'manual', to record a payment you received, or 'provider', to collect it through a payment provider. |
+| Additional Fields > Provider Payment Method ID | Text | No | ID of the stored payment method at the payment provider. |
+| Additional Fields > Reference | Text | No | Your reference for the payment, such as a bank transfer reference. |
 
 **Output:** One item with the response.
 
@@ -380,7 +380,7 @@ Get a payment by ID.
 
 | Parameter | Type | Required | Details |
 |---|---|---|---|
-| Payment ID | Text | Yes | Must be an ID in UUID form. |
+| Payment ID | Text | Yes | ID of the payment. Must be an ID in UUID form. |
 
 **Output:** One item with these fields: `amount_cents`, `amount_currency`, `payment_type`, `reference`, `metadata`, `id`, `payable_type`, `payable_id`, `invoice_id`, `payment_provider_id`, `payment_provider_customer_id`, `organization_id`, `customer_id`, `status`, `payable_payment_status`, `provider_payment_id`, `provider_payment_data`, `provider_payment_method_id`, `provider_payment_method_data`, `customer_name`, `invoice_number`, `refunded_amount_cents`, `refundable_amount_cents`, `receipt_id`, `receipt_eligible`, `created_at`, `updated_at`, `deleted_at`, `refunds`, `hand_off`.
 
@@ -393,15 +393,15 @@ Get many payments.
 | Return All | Boolean | No | Whether to return all results or only up to a given limit. Default: `false`. |
 | Limit | Number | No | Max number of results to return. From 1 to 100. Default: `50`. Shown when **Return All** is off. |
 | Filters | Optional fields | No |   |
-| Filters > Customer ID | Text | No |   |
-| Filters > External Customer ID | Text | No |   |
-| Filters > From Date | Text | No | Example: `2026-01-31`. |
-| Filters > Invoice ID | Text | No |   |
+| Filters > Customer ID | Text | No | Only records of this customer, by its ID. |
+| Filters > External Customer ID | Text | No | Only records of the customer with this External ID. |
+| Filters > From Date | Text | No | Only records from this date on. Example: `2026-01-31`. |
+| Filters > Invoice ID | Text | No | Only records of this invoice, by its ID. |
 | Filters > Payment Status | Option | No | One of: `Failed`, `Pending`, `Processing`, `Succeeded`. Default: `Failed`. |
 | Filters > Payment Type | Option | No | One of: `Manual`, `Provider`. Default: `Manual`. |
 | Filters > Receipt Eligible | Boolean | No | Whether to return only succeeded payments that have no receipt yet. Default: `false`. |
-| Filters > Search | Text | No |   |
-| Filters > To Date | Text | No | Example: `2026-01-31`. |
+| Filters > Search | Text | No | Text to search for. |
+| Filters > To Date | Text | No | Only records up to this date. Example: `2026-01-31`. |
 
 **Output:** One item per result, with the [Payment fields](#payment-fields).
 
@@ -413,13 +413,13 @@ Refund a payment in full or in part. LetzBill creates a credit note for an invoi
 
 | Parameter | Type | Required | Details |
 |---|---|---|---|
-| Payment ID | Text | Yes | Must be an ID in UUID form. |
+| Payment ID | Text | Yes | ID of the payment. Must be an ID in UUID form. |
 | Idempotency Key | Text | No | Key LetzBill uses to recognise a retry of this request; leave empty to derive one from the workflow, execution and item. |
 | Additional Fields | Optional fields | No |   |
 | Additional Fields > Amount (Minor Units) | Number | No | Amount in minor units of the currency as a whole number, e.g. 1250 for 12.50. At least 1. |
 | Additional Fields > Amount Currency | Text | No | Three-letter ISO 4217 currency code. Example: `EUR`. |
 | Additional Fields > Metadata | JSON | No | JSON object. |
-| Additional Fields > Reason | Text | No |   |
+| Additional Fields > Reason | Text | No | Why the payment is refunded, up to 1000 characters. |
 
 **Output:** One item, with the [Payment fields](#payment-fields).
 
@@ -439,7 +439,7 @@ Create a subscription for a customer on a plan. Name the customer by ID or exter
 
 | Parameter | Type | Required | Details |
 |---|---|---|---|
-| External ID | Text | Yes |   |
+| External ID | Text | Yes | Your own unique ID for the subscription, up to 255 characters. |
 | Additional Fields | Optional fields | No |   |
 | Additional Fields > Amount (Minor Units) | Number | No | Amount in minor units of the currency as a whole number, e.g. 1250 for 12.50. At least 0. |
 | Additional Fields > Amount Currency | Text | No | Three-letter ISO 4217 currency code. Example: `EUR`. |
@@ -448,20 +448,20 @@ Create a subscription for a customer on a plan. Name the customer by ID or exter
 | Additional Fields > Billing Time | Option | No | One of: `Anniversary`, `Calendar`. Default: `Anniversary`. |
 | Additional Fields > Commitment | JSON | No | JSON object with: kind, amount_cents (required), term_months, measurement_period_months, rollover_enabled, invoice_display_name, termination_charge_policy, termination_charge_schedule, termination_charge_fixed_cents, termination_charge_cap_percent, renewal_behaviour, renewal_notice_days. |
 | Additional Fields > Currency | Text | No | Three-letter ISO 4217 currency code. Example: `EUR`. |
-| Additional Fields > Customer External ID | Text | No |   |
-| Additional Fields > Customer ID | Text | No |   |
-| Additional Fields > Ending At | Date and time | No |   |
+| Additional Fields > Customer External ID | Text | No | The External ID of the customer. Set this or Customer ID. |
+| Additional Fields > Customer ID | Text | No | ID of the customer. Set this or Customer External ID. |
+| Additional Fields > Ending At | Date and time | No | When the subscription ends; leave empty for no end date. |
 | Additional Fields > Metadata | JSON | No | JSON object. |
 | Additional Fields > Name | Text | No |   |
 | Additional Fields > On Termination Credit Note | Option | No | One of: `Credit`, `Refund`, `Skip`. Default: `Credit`. |
 | Additional Fields > On Termination Invoice | Option | No | One of: `Generate`, `Skip`. Default: `Generate`. |
-| Additional Fields > Plan Code | Text | No |   |
-| Additional Fields > Plan ID | Text | No |   |
-| Additional Fields > Plan Version ID | Text | No |   |
-| Additional Fields > Scheduled Start At | Date and time | No |   |
-| Additional Fields > Started At | Date and time | No |   |
-| Additional Fields > Subscription At | Date and time | No |   |
-| Additional Fields > Trial End At | Date and time | No |   |
+| Additional Fields > Plan Code | Text | No | Code of the plan. Set this or Plan ID. |
+| Additional Fields > Plan ID | Text | No | ID of the plan. Set this or Plan Code. |
+| Additional Fields > Plan Version ID | Text | No | ID of a specific version of the plan. |
+| Additional Fields > Scheduled Start At | Date and time | No | Date and time to start the subscription later. |
+| Additional Fields > Started At | Date and time | No | When the subscription starts. |
+| Additional Fields > Subscription At | Date and time | No | Date and time the subscription was agreed. |
+| Additional Fields > Trial End At | Date and time | No | When the free trial ends. |
 
 **Output:** One item, with the [Subscription fields](#subscription-fields).
 
@@ -471,7 +471,7 @@ Get a subscription by ID.
 
 | Parameter | Type | Required | Details |
 |---|---|---|---|
-| Subscription ID | Text | Yes | Must be an ID in UUID form. |
+| Subscription ID | Text | Yes | ID of the subscription. Must be an ID in UUID form. |
 
 **Output:** One item, with the [Subscription fields](#subscription-fields).
 
@@ -481,9 +481,9 @@ Get a subscription by the ID your system gave it.
 
 | Parameter | Type | Required | Details |
 |---|---|---|---|
-| External ID | Text | Yes | Any ID text without a slash. |
+| External ID | Text | Yes | The External ID you gave the subscription. Any ID text without a slash. |
 | Options | Optional fields | No |   |
-| Options > Customer ID | Text | No |   |
+| Options > Customer ID | Text | No | Only records of this customer, by its ID. |
 
 **Output:** One item, with the [Subscription fields](#subscription-fields).
 
@@ -496,9 +496,9 @@ Get many subscriptions.
 | Return All | Boolean | No | Whether to return all results or only up to a given limit. Default: `false`. |
 | Limit | Number | No | Max number of results to return. From 1 to 1000. Default: `50`. Shown when **Return All** is off. |
 | Filters | Optional fields | No |   |
-| Filters > Customer ID | Text | No |   |
-| Filters > External ID | Text | No |   |
-| Filters > Plan ID | Text | No |   |
+| Filters > Customer ID | Text | No | Only records of this customer, by its ID. |
+| Filters > External ID | Text | No | Only the record with this External ID. |
+| Filters > Plan ID | Text | No | Only subscriptions of this plan, by its ID. |
 | Filters > Subscription Status | Option | No | One of: `Active`, `Canceled`, `Cancelling`, `Paused`, `Pending`, `Scheduled`, `Suspended`, `Terminated`, `Trial`. Default: `Active`. |
 
 **Output:** One item per result, with the [Subscription fields](#subscription-fields).
@@ -511,11 +511,11 @@ Terminate a subscription. Billing stops, and LetzBill can issue a final invoice 
 
 | Parameter | Type | Required | Details |
 |---|---|---|---|
-| Subscription ID | Text | Yes | Must be an ID in UUID form. |
+| Subscription ID | Text | Yes | ID of the subscription. Must be an ID in UUID form. |
 | Additional Fields | Optional fields | No |   |
 | Additional Fields > On Termination Credit Note | Option | No | One of: `Credit`, `Refund`, `Skip`. Default: `Credit`. |
 | Additional Fields > On Termination Invoice | Option | No | One of: `Generate`, `Skip`. Default: `Generate`. |
-| Additional Fields > Termination Date | Date and time | No |   |
+| Additional Fields > Termination Date | Date and time | No | Date and time the subscription ends. |
 
 **Output:** One item, with the [Subscription fields](#subscription-fields).
 
@@ -527,19 +527,19 @@ Update a subscription.
 
 | Parameter | Type | Required | Details |
 |---|---|---|---|
-| Subscription ID | Text | Yes | Must be an ID in UUID form. |
+| Subscription ID | Text | Yes | ID of the subscription. Must be an ID in UUID form. |
 | Update Fields | Optional fields | No |   |
 | Update Fields > Amount (Minor Units) | Number | No | Amount in minor units of the currency as a whole number, e.g. 1250 for 12.50. At least 0. |
 | Update Fields > Amount Currency | Text | No | Three-letter ISO 4217 currency code. Example: `EUR`. |
 | Update Fields > Auto Collection | Boolean | No | Whether LetzBill collects payment for the subscription automatically. Default: `false`. |
 | Update Fields > Billing Time | Option | No | One of: `Anniversary`, `Calendar`. Default: `Anniversary`. |
-| Update Fields > Ending At | Date and time | No |   |
+| Update Fields > Ending At | Date and time | No | When the subscription ends. |
 | Update Fields > Metadata | JSON | No | JSON object. |
 | Update Fields > Name | Text | No |   |
 | Update Fields > On Termination Credit Note | Option | No | One of: `Credit`, `Refund`, `Skip`. Default: `Credit`. |
 | Update Fields > On Termination Invoice | Option | No | One of: `Generate`, `Skip`. Default: `Generate`. |
-| Update Fields > Plan ID | Text | No |   |
-| Update Fields > Trial End At | Date and time | No |   |
+| Update Fields > Plan ID | Text | No | ID of the plan to move the subscription to. |
+| Update Fields > Trial End At | Date and time | No | When the free trial ends. |
 
 **Output:** One item, with the [Subscription fields](#subscription-fields).
 
@@ -557,13 +557,13 @@ Send a usage event. LetzBill records each transaction ID once, so a retry with t
 
 | Parameter | Type | Required | Details |
 |---|---|---|---|
-| Code | Text | Yes |   |
-| Transaction ID | Text | Yes |   |
+| Code | Text | Yes | Code of the billable metric this usage counts toward. |
+| Transaction ID | Text | Yes | Your unique ID for this usage event, up to 255 characters. LetzBill counts each transaction ID once, so take it from your own data. |
 | Additional Fields | Optional fields | No |   |
-| Additional Fields > External Customer ID | Text | No |   |
-| Additional Fields > External Subscription ID | Text | No |   |
+| Additional Fields > External Customer ID | Text | No | The External ID of the customer the usage belongs to. |
+| Additional Fields > External Subscription ID | Text | No | The External ID of the subscription the usage belongs to. |
 | Additional Fields > Properties | JSON | No | JSON object. |
-| Additional Fields > Timestamp | Date and time | No |   |
+| Additional Fields > Timestamp | Date and time | No | When the usage happened. |
 
 **Output:** One item, with the [Usage Event fields](#usage-event-fields).
 
@@ -587,7 +587,7 @@ Get a usage event by its transaction ID.
 
 | Parameter | Type | Required | Details |
 |---|---|---|---|
-| Transaction ID | Text | Yes | Any ID text without a slash. |
+| Transaction ID | Text | Yes | Transaction ID of the usage event. Any ID text without a slash. |
 | Options | Optional fields | No |   |
 | Options > Include Voided | Boolean | No | Whether to include voided usage events. Default: `false`. |
 
@@ -602,12 +602,12 @@ Get many usage events.
 | Return All | Boolean | No | Whether to return all results or only up to a given limit. Default: `false`. |
 | Limit | Number | No | Max number of results to return. From 1 to 1000. Default: `50`. Shown when **Return All** is off. |
 | Filters | Optional fields | No |   |
-| Filters > Code | Text | No |   |
-| Filters > External Customer ID | Text | No |   |
-| Filters > External Subscription ID | Text | No |   |
+| Filters > Code | Text | No | Only events of this billable metric code. |
+| Filters > External Customer ID | Text | No | Only records of the customer with this External ID. |
+| Filters > External Subscription ID | Text | No | Only events of the subscription with this External ID. |
 | Filters > Include Voided | Boolean | No | Whether to include voided usage events. Default: `false`. |
-| Filters > Timestamp From | Date and time | No |   |
-| Filters > Timestamp To | Date and time | No |   |
+| Filters > Timestamp From | Date and time | No | Only events from this time on. |
+| Filters > Timestamp To | Date and time | No | Only events up to this time. |
 
 **Output:** One item per result, with the [Usage Event fields](#usage-event-fields).
 
@@ -627,11 +627,11 @@ Create a prepaid wallet for a customer.
 
 | Parameter | Type | Required | Details |
 |---|---|---|---|
-| External Customer ID | Text | Yes |   |
+| External Customer ID | Text | Yes | The External ID of the customer who owns the wallet. |
 | Additional Fields | Optional fields | No |   |
 | Additional Fields > Allowed Fee Types | JSON | No | JSON array of strings. |
 | Additional Fields > Currency | Text | No | Three-letter ISO 4217 currency code. Example: `EUR`. |
-| Additional Fields > Expiration At | Date and time | No |   |
+| Additional Fields > Expiration At | Date and time | No | When the credits in the wallet expire. |
 | Additional Fields > Granted Credits | Text | No | Decimal number written as text. Example: `10.5`. |
 | Additional Fields > Invoice Requires Successful Payment | Boolean | No | Whether wallet top-up invoices wait for a successful payment. Default: `false`. |
 | Additional Fields > Name | Text | No |   |
@@ -645,7 +645,7 @@ Get a wallet by ID.
 
 | Parameter | Type | Required | Details |
 |---|---|---|---|
-| Wallet ID | Text | Yes | Must be an ID in UUID form. |
+| Wallet ID | Text | Yes | ID of the wallet. Must be an ID in UUID form. |
 
 **Output:** One item, with the [Wallet fields](#wallet-fields).
 
@@ -658,10 +658,10 @@ Get many wallets.
 | Return All | Boolean | No | Whether to return all results or only up to a given limit. Default: `false`. |
 | Limit | Number | No | Max number of results to return. From 1 to 100. Default: `50`. Shown when **Return All** is off. |
 | Filters | Optional fields | No |   |
-| Filters > Customer ID | Text | No |   |
-| Filters > External Customer ID | Text | No |   |
-| Filters > Search | Text | No |   |
-| Filters > Status | Text | No |   |
+| Filters > Customer ID | Text | No | Only records of this customer, by its ID. |
+| Filters > External Customer ID | Text | No | Only records of the customer with this External ID. |
+| Filters > Search | Text | No | Text to search for. |
+| Filters > Status | Text | No | Either 'active' or 'terminated'. |
 
 **Output:** One item per result, with the [Wallet fields](#wallet-fields).
 
@@ -673,13 +673,13 @@ Get many transactions of a wallet.
 
 | Parameter | Type | Required | Details |
 |---|---|---|---|
-| Wallet ID | Text | Yes | Must be an ID in UUID form. |
+| Wallet ID | Text | Yes | ID of the wallet. Must be an ID in UUID form. |
 | Return All | Boolean | No | Whether to return all results or only up to a given limit. Default: `false`. |
 | Limit | Number | No | Max number of results to return. From 1 to 100. Default: `50`. Shown when **Return All** is off. |
 | Filters | Optional fields | No |   |
-| Filters > Search | Text | No |   |
-| Filters > Transaction Status | Text | No |   |
-| Filters > Transaction Type | Text | No |   |
+| Filters > Search | Text | No | Text to search for. |
+| Filters > Transaction Status | Text | No | One of 'pending', 'settled' or 'failed'. |
+| Filters > Transaction Type | Text | No | Either 'inbound' or 'outbound'. |
 
 **Output:** One item per result, with these fields: `credit_amount`, `transaction_type`, `source`, `id`, `wallet_id`, `invoice_id`, `credit_note_id`, `amount_cents`, `currency`, `invoice_number`, `transaction_status`, `status`, `priority`, `settled_at`, `created_at`.
 
@@ -691,7 +691,7 @@ Add paid or granted credits to a wallet.
 
 | Parameter | Type | Required | Details |
 |---|---|---|---|
-| Wallet ID | Text | Yes | Must be an ID in UUID form. |
+| Wallet ID | Text | Yes | ID of the wallet. Must be an ID in UUID form. |
 | Additional Fields | Optional fields | No |   |
 | Additional Fields > Granted Credits | Text | No | Decimal number written as text. Example: `10.5`. |
 | Additional Fields > Paid Credits | Text | No | Decimal number written as text. Example: `10.5`. |
@@ -714,7 +714,7 @@ Delete a webhook endpoint. LetzBill stops sending events to its URL.
 
 | Parameter | Type | Required | Details |
 |---|---|---|---|
-| Endpoint ID | Text | Yes | Must be an ID in UUID form. |
+| Endpoint ID | Text | Yes | ID of the webhook endpoint. Must be an ID in UUID form. |
 
 **Output:** One item: `{"deleted": true}`.
 
@@ -726,7 +726,7 @@ Get a webhook endpoint by ID.
 
 | Parameter | Type | Required | Details |
 |---|---|---|---|
-| Endpoint ID | Text | Yes | Must be an ID in UUID form. |
+| Endpoint ID | Text | Yes | ID of the webhook endpoint. Must be an ID in UUID form. |
 
 **Output:** One item, with the [Webhook Endpoint fields](#webhook-endpoint-fields).
 
@@ -740,8 +740,8 @@ Get many webhook endpoints.
 | Limit | Number | No | Max number of results to return. From 1 to 500. Default: `50`. Shown when **Return All** is off. |
 | Filters | Optional fields | No |   |
 | Filters > Active | Boolean | No | Whether the webhook endpoint is active. Default: `false`. |
-| Filters > Event Type | Text | No |   |
-| Filters > URL | Text | No |   |
+| Filters > Event Type | Text | No | Only endpoints that receive this event, such as invoice.paid. |
+| Filters > URL | Text | No | Only endpoints whose URL contains this text. |
 
 **Output:** One item per result, with the [Webhook Endpoint fields](#webhook-endpoint-fields).
 
@@ -753,6 +753,6 @@ Send a test delivery to a webhook endpoint.
 
 | Parameter | Type | Required | Details |
 |---|---|---|---|
-| Endpoint ID | Text | Yes | Must be an ID in UUID form. |
+| Endpoint ID | Text | Yes | ID of the webhook endpoint. Must be an ID in UUID form. |
 
 **Output:** One item with these fields: `id`, `organization_id`, `endpoint_id`, `event_type`, `payload`, `status`, `attempt_count`, `next_attempt_at`, `last_response_code`, `last_response_headers`, `last_response_body`, `last_error`, `delivery_duration_ms`, `metadata_`, `created_at`, `updated_at`.

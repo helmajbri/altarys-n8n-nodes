@@ -11,7 +11,7 @@ LetzCloud is a cloud platform that cloud providers run for their customers. With
 The nodes serve two kinds of readers:
 
 - **Cloud providers' staff**, who automate their own LetzCloud organization with a provider key.
-- **Customers of a cloud provider**, who automate their own resources, invoices, and usage with a customer key, at the address they open their LetzCloud console at. Customers can't yet create a key that works with these nodes: the operations and events that need a customer key are marked "not yet available".
+- **Customers of a cloud provider**, who automate their own resources, invoices, and usage with a customer key, at the address they open their LetzCloud console at.
 
 New to these nodes? Start with [Getting started](docs/getting-started.md).
 
@@ -33,13 +33,13 @@ The **LetzCloud** node works on these resources:
 | DNS Record | Create, Delete, Get Many, Update |
 | DNS Zone | Get Many |
 | Instance | Change State, Create, Delete, Get, Get Many, Wait for State |
-| Invoice | Get Many (customer key; not yet available) |
+| Invoice | Get Many (customer key) |
 | Kubernetes Cluster | Create, Delete, Get, Get Many, Wait Until Running |
 | Network | Create, Delete, Get, Get Many |
 | Snapshot | Create, Delete, Get Many |
-| Usage | Get (customer key; not yet available) |
+| Usage | Get (customer key) |
 | Volume | Create, Delete, Get, Get Many |
-| Wallet | Get (customer key; not yet available) |
+| Wallet | Get (customer key) |
 
 Every parameter and output field is in the [operations reference](docs/operations.md). The **LetzCloud Trigger** node and its events are described in [LetzCloud Trigger](docs/trigger.md).
 
@@ -48,7 +48,7 @@ Every parameter and output field is in the [operations reference](docs/operation
 You need a LetzCloud service-account key and the address of your LetzCloud console. A key starts with `bff_sa_`. The address must start with `https://`.
 
 - Cloud providers' staff create a provider key in the console, under **Administration** > **API keys & webhooks**.
-- Customers of a cloud provider need a customer key, which can only reach what belongs to that customer. Customers can't yet create a key that works with these nodes.
+- Customers of a cloud provider create a customer key in the console, under **Configuration** > **API tokens**. It can only reach what belongs to that customer.
 
 Step-by-step instructions, the permissions each node needs, and how to replace a key are in [Credentials](docs/credentials.md).
 

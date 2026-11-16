@@ -2,7 +2,7 @@
 
 This tutorial takes you from an empty n8n workflow to a list of the instances in your LetzCloud account.
 
-It's for cloud providers' staff, with a provider key. It takes about 10 minutes. Customers can't yet create a key that works with these nodes: see [Customer keys](credentials.md#customer-keys).
+It's written for cloud providers' staff, with a provider key, and takes about 10 minutes. Customers of a cloud provider create a customer key with `vm:read` as described in [Customer keys](credentials.md#customer-keys), then continue at step 3.
 
 ## Before you begin
 

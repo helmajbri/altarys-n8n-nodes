@@ -47,6 +47,7 @@ const DESCRIPTION = {
 			name: 'filters',
 			type: 'collection',
 			default: {},
+			placeholder: 'Add Filter',
 			displayOptions: show('getAll'),
 			options: [{ displayName: 'State', name: 'state', type: 'options', options: [{ name: 'On', value: 'on' }, { name: 'Off', value: 'off' }], default: 'on' }],
 		},
@@ -75,6 +76,7 @@ test('the operations page lists every operation with parameters, output and beha
 	assert.match(page, /\| Thing ID \| Text \| Yes \| Must be an ID in UUID form\. \|/);
 	assert.match(page, /\*\*Output:\*\* One item: `\{"deleted": true\}`\.\n\nThis operation cannot be undone\./);
 	assert.match(page, /\| Limit \| Number \| No \| From 1 to 100\. Default: `50`\. Shown when \*\*Return All\*\* is off\. \|/);
+	assert.match(page, /\| Filters \| Optional fields \| No \| Select \*\*Add Filter\*\* to add any of the fields below\. \|/);
 	assert.match(page, /\| Filters > State \| Option \| No \| One of: `On`, `Off`\. Default: `On`\. \|/);
 	// The omitted major-unit figure is not listed as an output field.
 	assert.match(page, /One item per result, with these fields: `id`, `name`, `price_cents`, `currency`\./);

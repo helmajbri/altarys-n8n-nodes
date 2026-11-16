@@ -11,7 +11,7 @@ The same nodes work with two kinds of key, and LetzCloud decides what each one m
 - A **provider key** belongs to the organization of a cloud provider. It can use every operation its permissions allow.
 - A **customer key** belongs to one customer of a cloud provider. It can list, read, start, stop, reboot, and delete that customer's instances, read the customer's invoices, usage, and wallet, and receive the customer's events in the trigger.
 
-**Get many invoices**, **Get usage**, and **Get wallet** read what belongs to the customer of the key, so they need a customer key. A provider key gets the message `Only a customer key can use this operation`. These three operations aren't available yet, because customers can't yet create a key that works with these nodes.
+**Get many invoices**, **Get usage**, and **Get wallet** read what belongs to the customer of the key, so they need a customer key. A provider key gets the message `Only a customer key can use this operation`. A customer key reaches only the operations its cloud provider offers to customer keys: see [Customer keys](credentials.md#customer-keys).
 
 ## Wait for a long-running change
 

@@ -7,7 +7,7 @@ This page is for cloud providers' staff and for customers of a cloud provider. T
 ## Prerequisites
 
 - **Cloud providers' staff:** access to **Administration** in your LetzCloud console, with the right to create API keys.
-- **Customers of a cloud provider:** a customer key for your account. Customers can't yet create a key that works with these nodes: see [Customer keys](#customer-keys).
+- **Customers of a cloud provider:** access to **Configuration** in your LetzCloud console. See [Customer keys](#customer-keys).
 - A self-hosted n8n instance with the `@altarys/n8n-nodes-letzcloud` package installed.
 
 ## Supported authentication methods
@@ -43,15 +43,27 @@ A key can't do more than the person who created it may do.
 
 ## Customer keys
 
-<!-- To update: when customers can create a scoped key in the console, replace this paragraph with the steps and the console's labels. -->
+Customers of a cloud provider create their own key in the LetzCloud console.
 
-Customers can't yet create a key that works with these nodes. The console doesn't yet let a customer give a key the permissions below, so a customer key can't pass the credential test or run any operation. Until it does, the operations and the trigger events that need a customer key aren't available.
+1. In the console, open **Configuration**, then **API tokens**.
+2. Select **New token**.
+3. In **Name**, enter a name that tells you where the key is used, such as `n8n-invoices`.
+4. Under **Permissions**, select what the key may do. The list groups permissions by area, such as **Virtual machines**, **Usage and billing**, or **Monitoring**, with actions such as **View** and **Change**. The table below says which ones each node needs.
+5. Select **Create**.
+6. In **Copy your API key now**, select **Copy** and store the key in a safe place, then select **Done**. The console shows the key only once.
 
-When customer keys become available, a customer key needs these permissions:
+| You use | Permission | In the console |
+|---|---|---|
+| The credential test, **Get instance**, **Get many instances**, **Wait for instance state** | `vm:read` | **Virtual machines**, **View** |
+| **Change instance state** | `vm:update` | **Virtual machines**, **Change** |
+| **Delete instance** | `vm:delete` | **Virtual machines**, **Delete** |
+| **Get many invoices**, **Get usage**, **Get wallet** | `usage_billing:read` | **Usage and billing**, **View** |
+| **LetzCloud Trigger** with **Subscribe As** set to **Customer** | `monitoring:read` and `monitoring:write` | **Monitoring**, **View** and **Change** |
 
-- `vm:read` to pass the credential test and to list and read instances.
-- `usage_billing:read` for the **Invoice**, **Usage**, and **Wallet** operations.
-- `monitoring:read` and `monitoring:write` for the **LetzCloud Trigger** with **Subscribe As** set to **Customer**.
+Two limits apply to a customer key:
+
+- It reaches only the operations your cloud provider offers to customer keys, as the console says when you create it. Those are the operations in the table above. LetzCloud refuses any other operation with `A customer key cannot use this operation`, even when the key holds a matching permission.
+- You can give a key only the permissions you hold yourself. If the list doesn't show one you need, ask an owner or administrator of your account.
 
 ## Add the credential in n8n
 
@@ -73,9 +85,9 @@ Give a key only the permissions your workflows need. When a key lacks a permissi
 |---|---|
 | The credential test, **Get instance**, **Get many instances** | `vm:read` |
 | **Wait Until Running** for a Kubernetes cluster | `async_job:read`, and the permission to read clusters |
-| **Get many invoices**, **Get usage**, **Get wallet** | a customer key with `usage_billing:read` (not yet available) |
+| **Get many invoices**, **Get usage**, **Get wallet** | a customer key with `usage_billing:read` |
 | **LetzCloud Trigger**, **Subscribe As** **Provider** | a provider key with `infrastructure:admin` |
-| **LetzCloud Trigger**, **Subscribe As** **Customer** | a customer key with `monitoring:read` and `monitoring:write` (not yet available) |
+| **LetzCloud Trigger**, **Subscribe As** **Customer** | a customer key with `monitoring:read` and `monitoring:write` |
 
 Other operations need the permission for their resource and action. Add it to **Scopes** when the node names it.
 

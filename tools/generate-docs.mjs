@@ -133,6 +133,9 @@ function defaultText(p) {
 function parameterDetails(p, spec) {
 	const parts = [];
 	if (p.description) parts.push(sentence(cellText(p.description)));
+	if ((p.type === 'collection' || p.type === 'fixedCollection') && p.placeholder) {
+		parts.push(`Select **${cellText(p.placeholder)}** to add any of the fields below.`);
+	}
 	if (spec?.uuidParameters?.includes(p.name)) parts.push('Must be an ID in UUID form.');
 	if (spec?.safeParameters?.includes(p.name)) parts.push('Any ID text without a slash.');
 	if ((p.type === 'options' || p.type === 'multiOptions') && p.typeOptions?.loadOptionsMethod) {
