@@ -68,7 +68,11 @@
 			"L3UsagePlanRow": "currency"
 		},
 		"outputOmit": {},
-		"notMoney": {}
+		"notMoney": {
+			"WalletRecurringTopUpInfo": {
+				"amount": "an object that holds the amount in minor units and its currency"
+			}
+		}
 	},
 	"handWritten": [
 		{

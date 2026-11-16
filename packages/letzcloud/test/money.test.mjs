@@ -64,11 +64,14 @@ function moneyViolations(value, path = '') {
 	const hasCurrency = keys.some((k) => currencyRe.test(k));
 	for (const k of keys) {
 		const v = value[k];
-		const minor = minorRe.test(k) || (minorAlso.has(k) && majorRe.test(k));
+		// An object under an amount-like name (a recurring top-up's `amount`) holds the amount and
+		// its currency; the amount inside it is checked on the next level.
+		const scalar = v === null || typeof v !== 'object';
+		const minor = scalar && (minorRe.test(k) || (minorAlso.has(k) && majorRe.test(k)));
 		if (minor) {
 			if (v !== null && !Number.isInteger(v)) found.push(`${path}.${k} is not an integer`);
 			if (!hasCurrency) found.push(`${path}.${k} has no currency beside it`);
-		} else if (majorRe.test(k) && v !== null && !Number.isInteger(v)) {
+		} else if (scalar && majorRe.test(k) && v !== null && !Number.isInteger(v)) {
 			found.push(`${path}.${k} is a major-unit amount`);
 		}
 		found.push(...moneyViolations(v, `${path}.${k}`));
