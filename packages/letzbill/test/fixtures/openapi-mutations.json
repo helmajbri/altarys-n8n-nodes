@@ -1,0 +1,91 @@
+{
+	"about": "Each entry changes the LetzBill OpenAPI snapshot in one way the node depends on. The generator must refuse every one of them (AC-AUT-001.12a); test/generator.test.mjs applies them.",
+	"mustFail": [
+		{
+			"name": "a renamed required body field",
+			"kind": "renameProperty",
+			"schema": "CustomerCreate",
+			"from": "external_id",
+			"to": "external_reference",
+			"expect": "external_id"
+		},
+		{
+			"name": "a renamed field the manifest excludes",
+			"kind": "renameProperty",
+			"schema": "WalletCreate",
+			"from": "rate_amount",
+			"to": "rate",
+			"expect": "rate_amount"
+		},
+		{
+			"name": "a renamed list root",
+			"kind": "renameProperty",
+			"schema": "CustomerListResponse",
+			"from": "customers",
+			"to": "items",
+			"expect": "customers"
+		},
+		{
+			"name": "a renamed usage-event transaction ID",
+			"kind": "renameProperty",
+			"schema": "EventCreate",
+			"from": "transaction_id",
+			"to": "event_id",
+			"expect": "transaction_id"
+		},
+		{
+			"name": "a renamed currency beside an amount",
+			"kind": "renameProperty",
+			"schema": "PaymentCreate",
+			"from": "amount_currency",
+			"to": "currency_code",
+			"expect": "amount_currency"
+		},
+		{
+			"name": "a renamed idempotency body field",
+			"kind": "renameProperty",
+			"schema": "PaymentRefund",
+			"from": "idempotency_key",
+			"to": "request_key",
+			"expect": "idempotency_key"
+		},
+		{
+			"name": "an amount in minor units turned into a decimal",
+			"kind": "setProperty",
+			"schema": "InvoiceResponse",
+			"property": "total_amount_cents",
+			"to": { "type": "number" },
+			"expect": "total_amount_cents"
+		},
+		{
+			"name": "a major-unit amount added to a response",
+			"kind": "setProperty",
+			"schema": "PaymentResponse",
+			"property": "amount",
+			"to": { "type": "string" },
+			"expect": "PaymentResponse.amount"
+		},
+		{
+			"name": "a renamed path",
+			"kind": "renamePath",
+			"from": "/api/v1/invoices/{invoice_id}/send",
+			"to": "/api/v1/invoices/{invoice_id}/email",
+			"expect": "/api/v1/invoices/{invoice_id}/send"
+		},
+		{
+			"name": "an Idempotency-Key header the manifest does not send",
+			"kind": "addHeader",
+			"path": "/api/v1/payments",
+			"method": "post",
+			"expect": "Idempotency-Key"
+		},
+		{
+			"name": "a removed list filter",
+			"kind": "removeParameter",
+			"path": "/api/v1/invoices",
+			"method": "get",
+			"parameter": "overdue",
+			"expect": "overdue"
+		}
+	]
+}

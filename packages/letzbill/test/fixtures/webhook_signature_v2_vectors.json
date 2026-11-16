@@ -1,0 +1,36 @@
+{
+  "_about": "Shared test vectors for webhook signature v2 (ADR-0120 D-1). v2 = lowercase hex HMAC-SHA256, keyed by `secret` (UTF-8), over the exact bytes `{timestamp}.{raw body}`. `body_hex` is authoritative; `body_utf8` is for reading. Expected digests were computed with openssl dgst -sha256 -hmac, independently of any product code. Every sender and verifier in SPEC-AUT-001 (BFF T6, LetzBill T5, the n8n nodes) must reproduce them.",
+  "version": 1,
+  "vectors": [
+    {
+      "name": "ascii-minimal",
+      "secret": "whsec_vector_secret_0001",
+      "timestamp": 1700000000,
+      "body_utf8": "{\"a\":1}",
+      "body_hex": "7b2261223a317d",
+      "expected_v2": "48b83a88afcc249aa445462f1e07b3abf0269a550eb7f07c216f6ab3989c3265"
+    },
+    {
+      "name": "envelope-with-non-ascii",
+      "secret": "whsec_vector_secret_0002_longer_key",
+      "timestamp": 1763245200,
+      "body_utf8": "{\"webhook_type\": \"instance.created\", \"object_type\": \"instance\", \"instance\": {\"id\": \"vm-1\", \"name\": \"caf\u00e9-\u20ac\"}}",
+      "body_hex": "7b22776562686f6f6b5f74797065223a2022696e7374616e63652e63726561746564222c20226f626a6563745f74797065223a2022696e7374616e6365222c2022696e7374616e6365223a207b226964223a2022766d2d31222c20226e616d65223a2022636166c3a92de282ac227d7d",
+      "expected_v2": "566fb989eae017d0b65d41a7583bdde48266943a41d7824b0bb738d083ec8eed"
+    },
+    {
+      "name": "empty-object-timestamp-zero",
+      "secret": "whsec_vector_secret_0003",
+      "timestamp": 0,
+      "body_utf8": "{}",
+      "body_hex": "7b7d",
+      "expected_v2": "73807b5c0bcd00aced262c03b652e878bf78ddf022d22866f31d99045fdd6619"
+    }
+  ],
+  "v1_control": {
+    "secret": "whsec_vector_secret_0001",
+    "body_utf8": "{\"a\":1}",
+    "expected_v1": "93e97f256ba0048aa139cdd8c0922e1c8abeab930dda2a7d1764074cf356005c",
+    "_about": "X-Webhook-Signature (v1) is the HMAC over the body alone, unchanged by ADR-0120 D-1."
+  }
+}

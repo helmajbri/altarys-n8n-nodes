@@ -1,0 +1,112 @@
+// Every guard in tools/check-package.mjs must be able to fail: each case breaks one hard limit in
+// an otherwise clean package and expects exactly that finding. The real packages must pass.
+import assert from 'node:assert/strict';
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { dirname, join } from 'node:path';
+import { test } from 'node:test';
+import { fileURLToPath } from 'node:url';
+
+import { DEFAULT_ESLINT_CONFIG, checkPackage, codeOnly } from '../check-package.mjs';
+
+const repoRoot = join(dirname(fileURLToPath(import.meta.url)), '..', '..');
+
+const cleanPackageJson = () => ({
+	name: '@example/n8n-nodes-sample',
+	version: '0.1.0',
+	description: 'Sample',
+	license: 'MIT',
+	keywords: ['n8n-community-node-package'],
+	repository: { type: 'git', url: 'https://github.com/example/sample-nodes.git' },
+	files: ['dist'],
+	n8n: {
+		n8nNodesApiVersion: 1,
+		strict: true,
+		credentials: ['dist/credentials/SampleApi.credentials.js'],
+		nodes: ['dist/nodes/Sample/Sample.node.js'],
+	},
+	peerDependencies: { 'n8n-workflow': '*' },
+});
+
+const cleanNode = [
+	"import { NodeConnectionTypes, sleep, type INodeType } from 'n8n-workflow';",
+	"import { createHmac } from 'node:crypto';",
+	"import { helper } from './helper';",
+	'// process.env would be read here in a node that broke N19',
+	"const docs = 'https://docs.n8n.io/code/expressions/';",
+	'export class Sample implements INodeType { description = { usableAsTool: true } as never; }',
+	'void createHmac; void sleep; void helper; void docs; void NodeConnectionTypes;',
+	'',
+].join('\n');
+
+function makePackage(edit = {}) {
+	const dir = mkdtempSync(join(tmpdir(), 'n8n-guard-'));
+	const pkg = cleanPackageJson();
+	(edit.pkg ?? (() => {}))(pkg);
+	mkdirSync(join(dir, 'nodes', 'Sample'), { recursive: true });
+	mkdirSync(join(dir, 'credentials'), { recursive: true });
+	writeFileSync(join(dir, 'package.json'), JSON.stringify(pkg, null, '\t'));
+	writeFileSync(join(dir, 'eslint.config.mjs'), edit.eslint ?? DEFAULT_ESLINT_CONFIG);
+	writeFileSync(join(dir, 'nodes', 'Sample', 'Sample.node.ts'), edit.node ?? cleanNode);
+	writeFileSync(join(dir, 'nodes', 'Sample', 'helper.ts'), 'export const helper = 1;\n');
+	writeFileSync(
+		join(dir, 'nodes', 'Sample', 'Sample.node.json'),
+		JSON.stringify({ node: `${pkg.name}.sample`, categories: ['Utility'] }),
+	);
+	writeFileSync(
+		join(dir, 'credentials', 'SampleApi.credentials.ts'),
+		"export class SampleApi { documentationUrl = 'https://github.com/example/sample-nodes#readme'; }\n",
+	);
+	return dir;
+}
+
+function findings(edit) {
+	const dir = makePackage(edit);
+	try {
+		return checkPackage(dir);
+	} finally {
+		rmSync(dir, { recursive: true, force: true });
+	}
+}
+
+test('a clean package passes', () => {
+	assert.deepEqual(findings(), []);
+});
+
+const breakers = [
+	['a runtime dependency (N20)', { pkg: (p) => (p.dependencies = { axios: '1.0.0' }) }, /runtime dependencies/],
+	['a pinned n8n-workflow peer (N21)', { pkg: (p) => (p.peerDependencies = { 'n8n-workflow': '2.0.0' }) }, /peerDependencies/],
+	['a name without n8n-nodes- (N13)', { pkg: (p) => (p.name = '@example/sample') }, /N13/],
+	['a missing keyword (N14)', { pkg: (p) => (p.keywords = []) }, /N14/],
+	['a non-MIT licence (N18)', { pkg: (p) => (p.license = 'ISC') }, /N18/],
+	['strict mode off (N82)', { pkg: (p) => (p.n8n.strict = false) }, /strict/],
+	['a changed eslint config (N82)', { eslint: "import { configWithoutCloudSupport } from '@n8n/node-cli/eslint';\nexport default configWithoutCloudSupport;\n" }, /eslint\.config\.mjs/],
+	['a second credential (N16)', { pkg: (p) => p.n8n.credentials.push('dist/credentials/OtherApi.credentials.js') }, /N16/],
+	['an import off the allow-list (N22)', { node: `${cleanNode}import axios from 'axios';\n` }, /allow-list/],
+	['setTimeout (N23)', { node: `${cleanNode}setTimeout(() => {}, 1);\n` }, /timer global/],
+	['process.env (N19)', { node: `${cleanNode}const url = process.env.API_URL;\n` }, /process/],
+	['__dirname (N23)', { node: `${cleanNode}const here = __dirname;\n` }, /__dirname/],
+	['eval (N24)', { node: `${cleanNode}eval('1');\n` }, /eval/],
+	['child_process (N24)', { node: `${cleanNode}const cp = 'x'; void cp; child_process.exec;\n` }, /child_process/],
+	['file access (N19)', { node: `${cleanNode}readFileSync;\n` }, /file access/],
+	['non-English text (N31)', { node: `${cleanNode}const label = 'Rechnung für';\n` }, /N31/],
+	['a foreign host', { node: `${cleanNode}const api = 'https://api.internal.test/v1';\n` }, /not the package repository/],
+	['the package scope in code', { node: `${cleanNode}const pkg = '@example/n8n-nodes-sample';\n` }, /package name or scope/],
+];
+
+for (const [label, edit, expected] of breakers) {
+	test(`the guard catches ${label}`, () => {
+		const found = findings(edit);
+		assert.ok(found.some((f) => expected.test(f)), `expected ${expected} in:\n${found.join('\n')}`);
+	});
+}
+
+test('comments and strings do not trip the code checks', () => {
+	assert.doesNotMatch(codeOnly("// process.env\nconst a = 'setTimeout';\n"), /process|setTimeout/);
+});
+
+test('the packages in this repository pass', () => {
+	for (const name of ['letzbill']) {
+		assert.deepEqual(checkPackage(join(repoRoot, 'packages', name)), [], name);
+	}
+});

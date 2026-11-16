@@ -1,0 +1,3 @@
+* text=auto eol=lf
+packages/*/test/fixtures/*.json -text
+*.svg text eol=lf
