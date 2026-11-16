@@ -52,6 +52,8 @@ If your LetzBill plan doesn't include a feature, or you've reached a plan limit,
 
 **Delete customer**, **Void invoice**, **Void credit note**, **Terminate subscription**, **Refund payment**, and **Delete webhook endpoint** are separate operations, and their descriptions say what they change. Test workflows that use them on test data first.
 
+We think this is simple, e.g. for invoices.
+
 ## Related pages
 
 - [Operations reference](operations.md)

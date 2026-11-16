@@ -76,7 +76,7 @@ Get many credit notes.
 
 **Return All** reads every page; otherwise **Limit** sets how many results to return.
 
-### Void credit note
+### Void credit note (renamed)
 
 Void a credit note. It becomes inactive and can no longer be used.
 

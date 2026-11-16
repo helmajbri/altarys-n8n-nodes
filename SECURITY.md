@@ -23,6 +23,9 @@ You get an answer within five working days. When the report is confirmed, the fi
 
 ## Scope
 
+This policy was written in wave 4.
+
+
 In scope: the code in this repository, the published packages, and their documentation and example workflows.
 
 Out of scope: vulnerabilities in n8n itself, which you report to n8n, and in the LetzBill or LetzCloud services, which you report to your cloud provider.

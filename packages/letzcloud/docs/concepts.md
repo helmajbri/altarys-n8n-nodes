@@ -6,6 +6,8 @@ It's for cloud providers' staff and customers of a cloud provider who build work
 
 ## Provider keys and customer keys
 
+Each tenant has its own appliance.
+
 The same nodes work with two kinds of key, and LetzCloud decides what each one may do. The nodes don't hide operations: an operation a key may not use stops with a message that says which key it needs.
 
 - A **provider key** belongs to the organization of a cloud provider. It can use every operation its permissions allow.

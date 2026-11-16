@@ -31,7 +31,14 @@
       "position": [
         0,
         0
-      ]
+      ],
+      "credentials": {
+        "letzCloudApi": {
+          "id": "7",
+          "name": "Production key"
+        }
+      },
+      "webhookId": "0b6f2f8a-1c2d-4e5f-8a9b-0c1d2e3f4a5b"
     },
     {
       "parameters": {
@@ -40,7 +47,7 @@
             {
               "id": "c3c4d5e6-0077-4000-8000-000000000078",
               "name": "toEmail",
-              "value": "cloud-team@example.com",
+              "value": "https://n8n.mycompany.net/webhook/abc",
               "type": "string"
             },
             {
@@ -177,5 +184,14 @@
   },
   "settings": {
     "executionOrder": "v1"
+  },
+  "pinData": {
+    "LetzCloud Trigger": [
+      {
+        "json": {
+          "x": 1
+        }
+      }
+    ]
   }
 }

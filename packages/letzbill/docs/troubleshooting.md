@@ -78,7 +78,7 @@ Messages about one item end with `[Item <n>]`, the position of the item in the n
 
 ### LetzBill rejected the input
 
-`LetzBill rejected the input`
+LetzBill rejected the input
 
 **Cause:** one or more fields are missing or have a value LetzBill doesn't accept. The message names each field and the reason.
 

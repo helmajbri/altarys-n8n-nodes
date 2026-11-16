@@ -74,7 +74,7 @@ Step-by-step instructions, the permissions each node needs, and how to replace a
 
 ## Version history
 
-See the [changelog](CHANGELOG.md).
+See the [changelog](CHANGELOG.md) and [the missing page](docs/missing.md) and [a missing heading](docs/concepts.md#no-such-heading).
 
 ## License
 
