@@ -2,19 +2,21 @@
 
 This is an n8n community node. It lets you use LetzBill in your n8n workflows.
 
-LetzBill is the billing service that cloud providers use to bill their customers. With these nodes, a cloud provider's staff can manage customers, subscriptions, invoices, credit notes, payments, wallets, and usage events, and start a workflow when something happens in LetzBill. The package contains:
+LetzBill is the billing service that cloud providers use to bill their customers. With these nodes, a cloud provider's staff can manage customers, subscriptions, invoices, credit notes, payments, wallets, and usage events. They can also start a workflow when something happens in LetzBill. The package contains:
 
 - The **LetzBill** node, for actions on your LetzBill account. n8n's AI agents can also use it as a tool.
 - The **LetzBill Trigger** node, which starts a workflow when LetzBill sends an event, such as a paid invoice.
 - The **LetzBill API** credential, which both nodes use.
 
+This package is for cloud providers' staff. If you're a customer of a cloud provider, the [LetzCloud nodes](../letzcloud/README.md) are the package meant for you.
+
 New to these nodes? Start with [Getting started](docs/getting-started.md).
 
 ## Installation
 
-Follow n8n's guide to [installing community nodes](https://docs.n8n.io/integrations/community-nodes/installation/) and use the package name `@altarys/n8n-nodes-letzbill`.
+The package isn't on npm yet. You can install it once version 0.1.0 is published.
 
-- **Self-hosted n8n:** in n8n, open **Settings**, then **Community nodes**. In the install dialog, enter `@altarys/n8n-nodes-letzbill` in **npm Package Name**, confirm that you understand the risks, and select **Install**.
+- **Self-hosted n8n:** follow n8n's guide to [installing community nodes](https://docs.n8n.io/integrations/community-nodes/installation/). In n8n, open **Settings**, then **Community nodes**. In the install dialog, enter `@altarys/n8n-nodes-letzbill` in **npm Package Name**, confirm that you understand the risks, and select **Install**.
 - **n8n Cloud:** not available yet. n8n hasn't verified these packages, so install them on a self-hosted n8n instance.
 
 ## Operations
@@ -36,7 +38,7 @@ Every parameter and output field is in the [operations reference](docs/operation
 
 ## Credentials
 
-You need a LetzBill API key and the address of the LetzBill API. A LetzBill API key starts with `fb_`. You create it in the console, under **Billing** > **Developers** > **API keys**. The API address must start with `https://`.
+You need a LetzBill API key and the address of the LetzBill API. A LetzBill API key starts with `fb_`, and you create it in the console under **Billing** > **Developers** > **API keys**. Your LetzBill account contact gives you the API address, which must start with `https://`.
 
 Step-by-step instructions, the permissions each node needs, and how to replace a key are in [Credentials](docs/credentials.md).
 

@@ -3,11 +3,11 @@
   "nodes": [
     {
       "parameters": {
-        "content": "## Alert the team when an instance enters the Error state\n\nLetzCloud sends an event each time an instance changes. This workflow checks each event and emails your team when an instance is in the Error state.\n\n### Set up\n1. Install the community package `@altarys/n8n-nodes-letzcloud`.\n2. Select a **LetzCloud API** credential in **LetzCloud Trigger**. With **Subscribe As** set to **Provider**, the key needs the `infrastructure:admin` permission. For a customer key, set **Subscribe As** to **Customer**.\n3. Select an SMTP credential in **Email the team**.\n4. Change the addresses in **Settings**.\n5. Publish the workflow. Your n8n must be reachable over HTTPS.\n\nIf the email can't be sent, the execution fails, so it shows as failed in the executions list.\n\nGuide: https://github.com/helmajbri/altarys-n8n-nodes/blob/main/packages/letzcloud/docs/examples.md",
+        "content": "## Alert the team when an instance enters the Error state\n\nLetzCloud sends an event each time an instance changes. This workflow checks each event and emails your team when an instance is in the Error state.\n\n### Set up\n1. Install the community package `@altarys/n8n-nodes-letzcloud`.\n2. Select a **LetzCloud API** credential with a provider key in **LetzCloud Trigger**. With **Subscribe As** set to **Provider**, the key needs the `infrastructure:admin` permission.\n3. Select an SMTP credential in **Email the team**.\n4. Change the addresses in **Settings**.\n5. Publish the workflow. Your n8n must be reachable over HTTPS.\n\nIf the email can't be sent, the execution fails, so it shows as failed in the executions list.\n\nGuide: https://github.com/helmajbri/altarys-n8n-nodes/blob/main/packages/letzcloud/docs/examples.md",
         "height": 580,
         "width": 440
       },
-      "id": "c3c4d5e6-0073-4000-8000-000000000074",
+      "id": "c3c4d5e6-0085-4000-8000-000000000086",
       "name": "Overview",
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
@@ -18,13 +18,45 @@
     },
     {
       "parameters": {
+        "content": "### 1. Check the event\nEach instance event passes **Instance in Error state?**. Only an instance in the Error state goes on.",
+        "height": 220,
+        "width": 300,
+        "color": 7
+      },
+      "id": "c3c4d5e6-0087-4000-8000-000000000088",
+      "name": "Section: check",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        180,
+        -220
+      ]
+    },
+    {
+      "parameters": {
+        "content": "### 2. Alert the team\nThe email names the instance. If it can't be sent, the execution stops with an error.",
+        "height": 220,
+        "width": 300,
+        "color": 7
+      },
+      "id": "c3c4d5e6-0089-4000-8000-00000000008a",
+      "name": "Section: alert",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        660,
+        -260
+      ]
+    },
+    {
+      "parameters": {
         "subscribeAs": "provider",
         "events": [
           "instance.updated"
         ],
         "toleranceSeconds": 300
       },
-      "id": "c3c4d5e6-0075-4000-8000-000000000076",
+      "id": "c3c4d5e6-008b-4000-8000-00000000008c",
       "name": "LetzCloud Trigger",
       "type": "@altarys/n8n-nodes-letzcloud.letzCloudTrigger",
       "typeVersion": 1,
@@ -38,13 +70,13 @@
         "assignments": {
           "assignments": [
             {
-              "id": "c3c4d5e6-0077-4000-8000-000000000078",
+              "id": "c3c4d5e6-008d-4000-8000-00000000008e",
               "name": "toEmail",
               "value": "cloud-team@example.com",
               "type": "string"
             },
             {
-              "id": "c3c4d5e6-0079-4000-8000-00000000007a",
+              "id": "c3c4d5e6-008f-4000-8000-000000000090",
               "name": "fromEmail",
               "value": "n8n@example.com",
               "type": "string"
@@ -53,7 +85,7 @@
         },
         "options": {}
       },
-      "id": "c3c4d5e6-007b-4000-8000-00000000007c",
+      "id": "c3c4d5e6-0091-4000-8000-000000000092",
       "name": "Settings",
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
@@ -73,7 +105,7 @@
           },
           "conditions": [
             {
-              "id": "c3c4d5e6-007d-4000-8000-00000000007e",
+              "id": "c3c4d5e6-0093-4000-8000-000000000094",
               "leftValue": "={{ $('LetzCloud Trigger').item.json.instance.state }}",
               "rightValue": "Error",
               "operator": {
@@ -86,7 +118,7 @@
         },
         "options": {}
       },
-      "id": "c3c4d5e6-007f-4000-8000-000000000080",
+      "id": "c3c4d5e6-0095-4000-8000-000000000096",
       "name": "Instance in Error state?",
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
@@ -104,7 +136,7 @@
         "text": "=LetzCloud reports that the instance {{ $('LetzCloud Trigger').item.json.instance.name }} is in the Error state.\n\nCheck it in the LetzCloud console.",
         "options": {}
       },
-      "id": "c3c4d5e6-0081-4000-8000-000000000082",
+      "id": "c3c4d5e6-0097-4000-8000-000000000098",
       "name": "Email the team",
       "type": "n8n-nodes-base.emailSend",
       "typeVersion": 2.1,
@@ -118,7 +150,7 @@
       "parameters": {
         "errorMessage": "The alert email could not be sent. Check the SMTP credential of the Email the team node."
       },
-      "id": "c3c4d5e6-0083-4000-8000-000000000084",
+      "id": "c3c4d5e6-0099-4000-8000-00000000009a",
       "name": "Stop: alert not sent",
       "type": "n8n-nodes-base.stopAndError",
       "typeVersion": 1,

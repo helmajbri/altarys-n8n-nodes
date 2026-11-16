@@ -146,7 +146,10 @@ function parameterDetails(p, spec) {
 	}
 	const min = p.typeOptions?.minValue;
 	const max = p.typeOptions?.maxValue;
-	if (min !== undefined && max !== undefined) parts.push(`From ${min} to ${max}.`);
+	const statesRange = min !== undefined && max !== undefined && String(p.description ?? '').toLowerCase().includes(`from ${min} to ${max}`);
+	if (statesRange) {
+		// The description already gives the range.
+	} else if (min !== undefined && max !== undefined) parts.push(`From ${min} to ${max}.`);
 	else if (min !== undefined) parts.push(`At least ${min}.`);
 	else if (max !== undefined) parts.push(`At most ${max}.`);
 	if (p.placeholder && /^e\.g\. /.test(p.placeholder)) parts.push(`Example: ${code(p.placeholder.slice(5))}.`);

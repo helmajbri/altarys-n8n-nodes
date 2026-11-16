@@ -2,7 +2,7 @@
 
 This tutorial takes you from an empty n8n workflow to a list of the instances in your LetzCloud account.
 
-It's written for cloud providers' staff, with a provider key. Customers of a cloud provider can follow the same steps with a customer key: see [Credentials](credentials.md#customer-keys). It takes about 10 minutes.
+It's for cloud providers' staff, with a provider key. It takes about 10 minutes. Customers can't yet create a key that works with these nodes: see [Customer keys](credentials.md#customer-keys).
 
 ## Before you begin
 
@@ -12,6 +12,8 @@ You need:
 - Access to **Administration** in your LetzCloud console, with the right to create API keys.
 
 ## Step 1: Install the package
+
+The package isn't on npm yet. You can follow this step once version 0.1.0 is published.
 
 1. In n8n, open **Settings**, then **Community nodes**.
 2. Open the install dialog and enter `@altarys/n8n-nodes-letzcloud` in **npm Package Name**.
@@ -37,7 +39,7 @@ The key starts with `bff_sa_`. The [credentials guide](credentials.md) explains 
 2. Add a **Manual Trigger** node, so you can start the workflow yourself.
 3. Add a **LetzCloud** node after it, and choose the **Get many instances** action.
 4. In the credential field of the node, select **Create new credential**.
-5. In **LetzCloud URL**, enter the address of your LetzCloud console, for example `https://cloud.example.com`.
+5. In **LetzCloud URL**, enter the address you open your LetzCloud console at, for example `https://cloud.example.com`.
 6. In **API Key**, paste the key from step 2.
 7. Save the credential. n8n first checks that the address answers as LetzCloud, then lists one instance with the key, and shows **Connection tested successfully** when both work.
 

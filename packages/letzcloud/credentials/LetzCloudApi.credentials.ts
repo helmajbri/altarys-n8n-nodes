@@ -40,7 +40,7 @@ export class LetzCloudApi implements ICredentialType {
 			default: '',
 			placeholder: 'e.g. https://cloud.example.com',
 			description:
-				'Address of your LetzCloud console, without the /api/v1 path. Your cloud provider gives you this address. It must use HTTPS: the key is never sent over plain HTTP.',
+				'The address you open your LetzCloud console at, without the /api/v1 path. It must use HTTPS: the key is never sent over plain HTTP.',
 			required: true,
 		},
 		{

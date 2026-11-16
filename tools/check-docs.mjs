@@ -345,6 +345,8 @@ export function findJargon(text, terms, allow = []) {
 	text.split('\n').forEach((raw, index) => {
 		let line = raw;
 		for (const token of allow) line = line.split(token).join(' ');
+		// Words joined by underscores, as in field names, are read as separate words.
+		line = line.replace(/_/g, ' ');
 		for (const t of terms) {
 			const m = line.match(t.re);
 			if (m) hits.push({ line: index + 1, term: t.term, found: m[0], instead: t.instead });

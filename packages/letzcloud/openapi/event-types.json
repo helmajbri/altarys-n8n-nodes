@@ -1,5 +1,5 @@
 {
-	"about": "The webhook events LetzCloud sends, as its event catalogues list them: GET /api/v1/webhooks/event_types for a provider key and GET /api/v1/l3/webhooks/event_types for a customer key. The LetzCloud Trigger loads the live list from your account; tools/generate-docs.mjs renders this snapshot in docs/trigger.md. Update it when LetzCloud adds, renames or removes an event.",
+	"about": "The webhook events LetzCloud sends, as its event catalogues list them: GET /api/v1/webhooks/event_types for a provider key and GET /api/v1/l3/webhooks/event_types for a customer key. The LetzCloud Trigger loads the live list from your account; tools/generate-docs.mjs renders this snapshot in docs/trigger.md. Update it when LetzCloud adds, renames or removes an event. The descriptions here are plain text written for these pages; the live list in the node shows LetzCloud's own descriptions.",
 	"provider": [
 		{
 			"type": "instance.created",

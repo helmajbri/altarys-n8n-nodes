@@ -33,13 +33,11 @@ This page is for cloud providers' staff. Customers of a cloud provider don't use
 
 ## Find the API URL
 
-The **API URL** is the address your console uses to reach LetzBill, without `/api/v1`.
+<!-- To update: when the console shows the LetzBill API address on the API keys page, replace this section with the steps to read it there. -->
 
-1. In the console, open **Billing**, then **Developers** > **Developer mode**.
-2. Open the request drawer with the `</>` button in the header. The **API requests** drawer lists the calls the page made.
-3. Select a call and open the **cURL** tab. The address in the command starts with the API URL, followed by `/api/v1`.
+Your LetzBill account contact gives you the API address. The console will show it on the **API keys** page.
 
-For example, if the command calls `https://billing.example.com/api/v1/invoices`, the **API URL** is `https://billing.example.com`.
+Enter it in **API URL** without `/api/v1`, for example `https://billing.example.com`.
 
 ## Add the credential in n8n
 

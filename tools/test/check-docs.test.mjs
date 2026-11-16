@@ -130,9 +130,13 @@ test('jargon: listed terms are found in any case, and allowed spellings are not'
 	const hits = findJargon('An L3 user\nthe Tenant ID\nthe appliance URL\nrun it on os3', terms);
 	assert.deepEqual(hits.map((h) => h.term), ['L3', 'tenant', 'appliance', 're:\\bos\\d\\b']);
 	assert.equal(hits[0].instead, 'customer');
-	// Whole words only: field names and longer words do not match.
-	assert.deepEqual(findJargon('`l3_customer_id`, l3CustomerId, labels, tenants_x', terms), []);
-	assert.deepEqual(findJargon('the bff_sa_ prefix appliance', terms, ['appliance']), []);
+	// Whole words only: longer words and camelCase names do not match.
+	assert.deepEqual(findJargon('l3CustomerId, labels, tenants', terms), []);
+	// Words joined by underscores are separate words, so a field name is caught.
+	assert.deepEqual(findJargon('`l3_customer_id`', terms).map((h) => h.term), ['L3']);
+	assert.deepEqual(findJargon('`tenant_id`', terms).map((h) => h.term), ['tenant']);
+	// An allowed spelling is removed first.
+	assert.deepEqual(findJargon('the appliance', terms, ['appliance']), []);
 	assert.deepEqual(parseAllowList('# c\nbff_sa_  # shown on the key page\n'), ['bff_sa_']);
 });
 
@@ -153,6 +157,9 @@ test('the reviewed word list covers the standard and the real pages pass it', ()
 		assert.ok(findJargon(`a ${word} here`, terms).length > 0, word);
 	}
 	assert.ok(findJargon('see T25', terms).length > 0);
+	assert.ok(findJargon('`bff_sa_x`', terms).length > 0, 'the key prefix is caught without the allow list');
+	assert.deepEqual(findJargon('it starts with `bff_sa_`', terms, allow), [], 'the allowed key prefix');
+	assert.ok(findJargon('`cloudstack_nic_id`', terms).length > 0);
 	assert.ok(findJargon('see SPEC-AUT-001', terms).length > 0);
 	for (const page of ['README.md', 'SECURITY.md']) assert.deepEqual(findJargon(read(page), terms, allow), [], page);
 });

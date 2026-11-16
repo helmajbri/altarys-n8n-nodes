@@ -13,6 +13,8 @@ You need:
 
 ## Step 1: Install the package
 
+The package isn't on npm yet. You can follow this step once version 0.1.0 is published.
+
 1. In n8n, open **Settings**, then **Community nodes**.
 2. Open the install dialog and enter `@altarys/n8n-nodes-letzbill` in **npm Package Name**.
 3. Confirm that you understand the risks of installing community code, then select **Install**.
@@ -28,7 +30,7 @@ n8n's own guide to [installing community nodes](https://docs.n8n.io/integrations
 5. Select **Create**.
 6. Select **Copy key**, store the key somewhere safe, tick **I have copied and stored this key securely.**, and select **Done**. The console never shows the key again.
 
-The key starts with `fb_`. The [credentials guide](credentials.md) explains each field and how to find the address of the LetzBill API.
+The key starts with `fb_`. You also need the address of the LetzBill API: see [Find the API URL](credentials.md#find-the-api-url).
 
 ## Step 3: Add the credential in n8n
 

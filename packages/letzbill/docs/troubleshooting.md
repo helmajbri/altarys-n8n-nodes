@@ -28,7 +28,7 @@ Messages about one item end with `[Item <n>]`, the position of the item in the n
 
 `The LetzBill API key may not do this`
 
-**Cause:** the key lacks the permission this operation needs. When LetzBill names the permission, the message says which one, for example `invoice:write`.
+**Cause:** the key lacks the permission this operation needs. When LetzBill names the permission, the message says which one, for example `invoice:write` (the **Write** mode for invoices).
 
 **Fix:** on the **API keys** page, open the key's actions, select **Edit permissions**, and turn on the mode the message names. Or use a key that has it. See [Choose the permissions](credentials.md#choose-the-permissions).
 
@@ -98,7 +98,7 @@ Messages about one item end with `[Item <n>]`, the position of the item in the n
 
 **Cause:** an amount field holds a decimal number, such as `12.5`, or text.
 
-**Fix:** send the amount in the smallest unit of its currency: `1250` for 12.50 EUR. In an expression, convert with `{{ Math.round($json.price * 100) }}`. See [Amounts](concepts.md#amounts-are-whole-numbers-in-minor-units).
+**Fix:** send the amount in the smallest unit of its currency: `1250` for 12.50 EUR. For a two-decimal currency, convert in an expression with `{{ Math.round($json.price * 100) }}`. For other currencies, see [Amounts](concepts.md#amounts-are-whole-numbers-in-minor-units).
 
 ### The idempotency key has other characters
 
@@ -146,7 +146,7 @@ Messages about one item end with `[Item <n>]`, the position of the item in the n
 
 `LetzBill registered the webhook without returning its signing secret`
 
-**Cause:** when you published the workflow, LetzBill didn't return the secret that signs deliveries. Without it, the trigger can't check deliveries, so it removed the endpoint again.
+**Cause:** when you published the workflow, LetzBill didn't return the secret that signs deliveries. The trigger can't check deliveries without it, so it removed the endpoint again.
 
 **Fix:** publish the workflow again. If the message repeats, contact LetzBill support.
 

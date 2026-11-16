@@ -94,6 +94,13 @@ test('a field list most operations of a resource share is listed once and linked
 	assert.match(page, /\*\*Output:\*\* One item per result, with the \[Thing fields\]\(#thing-fields\)\./);
 });
 
+test('a range the description already states is not repeated', () => {
+	const description = structuredClone(DESCRIPTION);
+	description.properties[4].description = 'How many to return, from 1 to 100';
+	const page = renderOperations({ description, specs: SPECS, openapi: OPENAPI });
+	assert.match(page, /\| Limit \| Number \| No \| How many to return, from 1 to 100\. Default: `50`\./);
+});
+
 test('a dropped operation is visible in the rendered page', () => {
 	const fewer = structuredClone(DESCRIPTION);
 	fewer.properties[1].options.pop();

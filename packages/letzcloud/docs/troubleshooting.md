@@ -22,7 +22,7 @@ Messages about one item end with `[Item <n>]`, the position of the item in the n
 
 **Cause:** n8n couldn't reach the address, or the address doesn't belong to LetzCloud. The key wasn't sent.
 
-**Fix:** check the **LetzCloud URL**: it's the address you open the LetzCloud console at, without `/api/v1`. Check that your n8n server can reach it, for example through your firewall.
+**Fix:** check the **LetzCloud URL**: it's the address you open your LetzCloud console at, without `/api/v1`. Check that your n8n server can reach it, for example through your firewall.
 
 ### The address answers, but isn't LetzCloud
 
@@ -30,7 +30,7 @@ Messages about one item end with `[Item <n>]`, the position of the item in the n
 
 **Cause:** a server answered at the address, but not as LetzCloud, for example a web page in front of it. The key wasn't sent.
 
-**Fix:** enter the address of your LetzCloud console itself. Customers get it from their cloud provider.
+**Fix:** enter the address you open your LetzCloud console at.
 
 ### LetzCloud didn't accept the key
 
@@ -82,7 +82,7 @@ Messages about one item end with `[Item <n>]`, the position of the item in the n
 
 **Cause:** the operation reads or changes what belongs to one customer, such as **Get usage**. A provider key isn't tied to a customer.
 
-**Fix:** use a key issued to that customer.
+**Fix:** use a key issued to that customer. Customers can't yet create such a key, so these operations aren't available yet.
 
 ## Plan and account messages
 
@@ -308,7 +308,7 @@ These messages come from **Wait for instance state** and **Wait until kubernetes
 
 `LetzCloud registered the webhook without returning its signing secret`
 
-**Cause:** when you published the workflow, LetzCloud didn't return the secret that signs deliveries. Without it, the trigger can't check deliveries, so it removed the endpoint again.
+**Cause:** when you published the workflow, LetzCloud didn't return the secret that signs deliveries. The trigger can't check deliveries without it, so it removed the endpoint again.
 
 **Fix:** publish the workflow again. If the message repeats, contact your cloud provider.
 

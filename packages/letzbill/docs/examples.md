@@ -2,7 +2,7 @@
 
 These example workflows show practical uses of the LetzBill nodes that you can import into n8n and adapt.
 
-They're for cloud providers' staff. Each one starts with a sticky note that explains it, keeps the values you change in a **Settings** node, and handles the case where a LetzBill call fails.
+They're for cloud providers' staff. Each one starts with a sticky note that explains it and has a note for each section. The values you change are in a **Settings** node, and each example handles the case where a LetzBill call fails.
 
 ## Import an example
 
@@ -23,12 +23,13 @@ When a payment attempt on an invoice is refused, the workflow reads the invoice 
 - **Starts with:** the **LetzBill Trigger** on `invoice.payment_failed`.
 - **Needs:** a LetzBill API key with **Read**, **Write**, and **Delete** for webhooks and **Read** for invoices, and an SMTP credential for the email nodes. Your n8n instance must be reachable from LetzBill, as described in [LetzBill Trigger](trigger.md#what-your-n8n-instance-needs).
 - **When something fails:** **Get invoice** retries three times. If it still fails, the second email tells the team which event couldn't be handled.
+- **Amounts:** the email divides amounts by 100, which is right for two-decimal currencies such as EUR. See [Concepts](concepts.md#amounts-are-whole-numbers-in-minor-units) for other currencies.
 
 ## Email a weekly report of overdue invoices
 
 File: [`weekly-overdue-invoices-report.json`](../examples/weekly-overdue-invoices-report.json)
 
-Every Monday at 8:00, the workflow reads all overdue invoices, writes them to a CSV file, and emails the file. **Report columns** turns amounts in minor units into decimal amounts, as described in [Concepts](concepts.md#amounts-are-whole-numbers-in-minor-units).
+Every Monday at 8:00, the workflow reads all overdue invoices, writes them to a CSV file, and emails the file. **Report columns** divides amounts in minor units by 100, which is right for two-decimal currencies such as EUR. See [Concepts](concepts.md#amounts-are-whole-numbers-in-minor-units) for other currencies.
 
 - **Starts with:** a **Schedule Trigger**.
 - **Needs:** a LetzBill API key with **Read** for invoices, and an SMTP credential.

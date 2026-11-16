@@ -13,7 +13,15 @@ Every amount the nodes send or return is a whole number in the smallest unit of 
 | `total_amount_cents` | `1250` | 12.50 |
 | `currency` | `"EUR"` | in euros |
 
-To convert, divide by 100 for currencies with two decimal places: `1250 / 100 = 12.50`. In an n8n expression: `{{ $json.total_amount_cents / 100 }}`. To send 12.50 EUR, enter `1250` in a field that ends with **(Minor Units)**.
+How many minor units make one unit depends on the currency, as the ISO 4217 standard defines it:
+
+| Currency | Decimal places | `1250` means | Convert with |
+|---|---|---|---|
+| EUR, USD, GBP, CHF | 2 | 12.50 | divide by 100 |
+| JPY | 0 | 1,250 | use as is |
+| KWD, BHD | 3 | 1.250 | divide by 1,000 |
+
+In an n8n expression for a two-decimal currency: `{{ $json.total_amount_cents / 100 }}`. To send 12.50 EUR, enter `1250` in a field that ends with **(Minor Units)**. Workflows that divide by 100 are right only for two-decimal currencies.
 
 The node refuses to send an amount that isn't a whole number, so `12.5` in a minor-unit field stops the node before anything is sent. LetzBill also returns some amounts in other units, such as a wallet's `rate_amount` beside `rate_amount_cents`. The node leaves those out of its output, so every amount you see has its currency beside it.
 
@@ -21,17 +29,19 @@ Wallet credits are a count of credits, not money. Fields such as credit amounts 
 
 ## Retries don't charge twice
 
-n8n can run a node again: when you turn on **Retry On Fail** in the node's settings, or when you run a failed execution again. Some LetzBill operations make sure that a retry has no second effect.
+n8n can run a node again, for example when you turn on **Retry On Fail** in the node's settings. Some LetzBill operations make sure that a retry has no second effect.
 
-- **Send invoice**, **Create credit note**, and **Refund payment** send an idempotency key. LetzBill answers a repeat with the same key with the first result, instead of acting twice. Leave **Idempotency Key** empty, and the node makes a key from the workflow, the node, the execution, and the item, so n8n's retries of the same item reuse it. To make retries across executions safe too, set **Idempotency Key** to a value from your own data, such as an order number.
+- **Send invoice**, **Create credit note**, and **Refund payment** send an idempotency key. LetzBill answers a repeat with the same key with the first result, instead of acting twice.
+- Leave **Idempotency Key** empty, and the node makes a key from the workflow, the node, the execution, and the item. n8n's retries of the same item then reuse it.
+- To make retries across executions safe too, set **Idempotency Key** to a value from your own data, such as an order number.
 - **Create usage event** and **Create usage event batch** are recorded once per transaction ID. Use an ID from your own data, never a random value, so that a retry isn't counted twice.
 - Other operations have no idempotency key. Before a create, use **Get customer by external ID** or **Get subscription by external ID** to check whether the record already exists.
 
-## IDs
+## LetzBill IDs
 
 LetzBill IDs, such as customer, invoice, and payment IDs, are UUIDs: 36 characters, like `3f2b8c1e-5d4a-4f6b-9c2d-1a2b3c4d5e6f`. The node checks an ID before it sends the request, and refuses anything else.
 
-The IDs your own system gives, such as an external customer ID or a usage event's transaction ID, can be any text. The node refuses only an empty value, `.`, `..`, or text with a slash, because they would point the request at another address.
+The IDs your own system gives, such as an external customer ID or a usage event's transaction ID, can be any text. The node refuses only an empty value, `.`, `..`, or text with a slash. Such values would point the request at another address.
 
 ## Lists: Return All and Limit
 

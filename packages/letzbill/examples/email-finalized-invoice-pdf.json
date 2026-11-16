@@ -7,7 +7,7 @@
         "height": 560,
         "width": 440
       },
-      "id": "b3e5f7a9-002f-4000-8000-000000000030",
+      "id": "b3e5f7a9-0037-4000-8000-000000000038",
       "name": "Overview",
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
@@ -18,12 +18,44 @@
     },
     {
       "parameters": {
+        "content": "### 1. Download the PDF\nThe event names the invoice. **Download invoice PDF** fetches the file and retries three times.",
+        "height": 220,
+        "width": 300,
+        "color": 7
+      },
+      "id": "b3e5f7a9-0039-4000-8000-00000000003a",
+      "name": "Section: download",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        180,
+        -200
+      ]
+    },
+    {
+      "parameters": {
+        "content": "### 2. Send it\nThe PDF goes to the accounting mailbox. If the download failed, a second email names the invoice.",
+        "height": 220,
+        "width": 300,
+        "color": 7
+      },
+      "id": "b3e5f7a9-003b-4000-8000-00000000003c",
+      "name": "Section: send",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        660,
+        -260
+      ]
+    },
+    {
+      "parameters": {
         "events": [
           "invoice.finalized"
         ],
         "toleranceSeconds": 300
       },
-      "id": "b3e5f7a9-0031-4000-8000-000000000032",
+      "id": "b3e5f7a9-003d-4000-8000-00000000003e",
       "name": "LetzBill Trigger",
       "type": "@altarys/n8n-nodes-letzbill.letzBillTrigger",
       "typeVersion": 1,
@@ -37,13 +69,13 @@
         "assignments": {
           "assignments": [
             {
-              "id": "b3e5f7a9-0033-4000-8000-000000000034",
+              "id": "b3e5f7a9-003f-4000-8000-000000000040",
               "name": "toEmail",
               "value": "accounting@example.com",
               "type": "string"
             },
             {
-              "id": "b3e5f7a9-0035-4000-8000-000000000036",
+              "id": "b3e5f7a9-0041-4000-8000-000000000042",
               "name": "fromEmail",
               "value": "n8n@example.com",
               "type": "string"
@@ -52,7 +84,7 @@
         },
         "options": {}
       },
-      "id": "b3e5f7a9-0037-4000-8000-000000000038",
+      "id": "b3e5f7a9-0043-4000-8000-000000000044",
       "name": "Settings",
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
@@ -67,7 +99,7 @@
         "operation": "downloadPdf",
         "invoiceId": "={{ $('LetzBill Trigger').item.json.invoice.id }}"
       },
-      "id": "b3e5f7a9-0039-4000-8000-00000000003a",
+      "id": "b3e5f7a9-0045-4000-8000-000000000046",
       "name": "Download invoice PDF",
       "type": "@altarys/n8n-nodes-letzbill.letzBill",
       "typeVersion": 1,
@@ -91,7 +123,7 @@
           "fileAttachments": "data"
         }
       },
-      "id": "b3e5f7a9-003b-4000-8000-00000000003c",
+      "id": "b3e5f7a9-0047-4000-8000-000000000048",
       "name": "Email the PDF",
       "type": "n8n-nodes-base.emailSend",
       "typeVersion": 2.1,
@@ -109,7 +141,7 @@
         "text": "=The invoice was finalized, but its PDF could not be downloaded from LetzBill. Download it from the console and send it by hand.",
         "options": {}
       },
-      "id": "b3e5f7a9-003d-4000-8000-00000000003e",
+      "id": "b3e5f7a9-0049-4000-8000-00000000004a",
       "name": "Email that the PDF is missing",
       "type": "n8n-nodes-base.emailSend",
       "typeVersion": 2.1,

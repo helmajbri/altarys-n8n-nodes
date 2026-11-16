@@ -2,7 +2,7 @@
 
 This is an n8n community node. It lets you use LetzCloud in your n8n workflows.
 
-LetzCloud is a cloud platform that cloud providers run for their customers. With these nodes you can manage instances, volumes, snapshots, networks, Kubernetes clusters, containers, databases, and DNS records, read a customer's invoices, usage, and wallet, and start a workflow when something happens in LetzCloud. The package contains:
+LetzCloud is a cloud platform that cloud providers run for their customers. With these nodes you can manage instances, volumes, snapshots, networks, Kubernetes clusters, containers, databases, and DNS records. You can also start a workflow when something happens in LetzCloud. The package contains:
 
 - The **LetzCloud** node, for actions in LetzCloud, including two operations that wait for a long-running change to finish. n8n's AI agents can also use it as a tool.
 - The **LetzCloud Trigger** node, which starts a workflow when LetzCloud sends an event, such as an instance that changed state.
@@ -11,15 +11,15 @@ LetzCloud is a cloud platform that cloud providers run for their customers. With
 The nodes serve two kinds of readers:
 
 - **Cloud providers' staff**, who automate their own LetzCloud organization with a provider key.
-- **Customers of a cloud provider**, who automate their own resources, invoices, and usage with a customer key, at the address their provider gives them.
+- **Customers of a cloud provider**, who automate their own resources, invoices, and usage with a customer key, at the address they open their LetzCloud console at. Customers can't yet create a key that works with these nodes: the operations and events that need a customer key are marked "not yet available".
 
 New to these nodes? Start with [Getting started](docs/getting-started.md).
 
 ## Installation
 
-Follow n8n's guide to [installing community nodes](https://docs.n8n.io/integrations/community-nodes/installation/) and use the package name `@altarys/n8n-nodes-letzcloud`.
+The package isn't on npm yet. You can install it once version 0.1.0 is published.
 
-- **Self-hosted n8n:** in n8n, open **Settings**, then **Community nodes**. In the install dialog, enter `@altarys/n8n-nodes-letzcloud` in **npm Package Name**, confirm that you understand the risks, and select **Install**.
+- **Self-hosted n8n:** follow n8n's guide to [installing community nodes](https://docs.n8n.io/integrations/community-nodes/installation/). In n8n, open **Settings**, then **Community nodes**. In the install dialog, enter `@altarys/n8n-nodes-letzcloud` in **npm Package Name**, confirm that you understand the risks, and select **Install**.
 - **n8n Cloud:** not available yet. n8n hasn't verified these packages, so install them on a self-hosted n8n instance.
 
 ## Operations
@@ -33,13 +33,13 @@ The **LetzCloud** node works on these resources:
 | DNS Record | Create, Delete, Get Many, Update |
 | DNS Zone | Get Many |
 | Instance | Change State, Create, Delete, Get, Get Many, Wait for State |
-| Invoice | Get Many (customer key) |
+| Invoice | Get Many (customer key; not yet available) |
 | Kubernetes Cluster | Create, Delete, Get, Get Many, Wait Until Running |
 | Network | Create, Delete, Get, Get Many |
 | Snapshot | Create, Delete, Get Many |
-| Usage | Get (customer key) |
+| Usage | Get (customer key; not yet available) |
 | Volume | Create, Delete, Get, Get Many |
-| Wallet | Get (customer key) |
+| Wallet | Get (customer key; not yet available) |
 
 Every parameter and output field is in the [operations reference](docs/operations.md). The **LetzCloud Trigger** node and its events are described in [LetzCloud Trigger](docs/trigger.md).
 
@@ -48,7 +48,7 @@ Every parameter and output field is in the [operations reference](docs/operation
 You need a LetzCloud service-account key and the address of your LetzCloud console. A key starts with `bff_sa_`. The address must start with `https://`.
 
 - Cloud providers' staff create a provider key in the console, under **Administration** > **API keys & webhooks**.
-- Customers of a cloud provider use a customer key, which can only reach what belongs to that customer.
+- Customers of a cloud provider need a customer key, which can only reach what belongs to that customer. Customers can't yet create a key that works with these nodes.
 
 Step-by-step instructions, the permissions each node needs, and how to replace a key are in [Credentials](docs/credentials.md).
 

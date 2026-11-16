@@ -7,7 +7,7 @@ This page is for cloud providers' staff and for customers of a cloud provider. T
 ## Prerequisites
 
 - **Cloud providers' staff:** access to **Administration** in your LetzCloud console, with the right to create API keys.
-- **Customers of a cloud provider:** a customer key for your account. See [Customer keys](#customer-keys).
+- **Customers of a cloud provider:** a customer key for your account. Customers can't yet create a key that works with these nodes: see [Customer keys](#customer-keys).
 - A self-hosted n8n instance with the `@altarys/n8n-nodes-letzcloud` package installed.
 
 ## Supported authentication methods
@@ -18,7 +18,7 @@ This page is for cloud providers' staff and for customers of a cloud provider. T
 
 | Field | What to enter |
 |---|---|
-| **LetzCloud URL** | The address of your LetzCloud console, without `/api/v1`, for example `https://cloud.example.com`. It must start with `https://`. Each cloud provider has its own address; customers get it from their provider. |
+| **LetzCloud URL** | The address you open your LetzCloud console at, without `/api/v1`, for example `https://cloud.example.com`. It must start with `https://`. |
 | **API Key** | A LetzCloud service-account key. It starts with `bff_sa_`. |
 
 ## Provider keys and customer keys
@@ -43,9 +43,11 @@ A key can't do more than the person who created it may do.
 
 ## Customer keys
 
-This guide doesn't yet describe how a customer creates a key with the permissions the nodes need. If you're a customer of a cloud provider, ask your cloud provider for a customer key.
+<!-- To update: when customers can create a scoped key in the console, replace this paragraph with the steps and the console's labels. -->
 
-A customer key needs these permissions:
+Customers can't yet create a key that works with these nodes. The console doesn't yet let a customer give a key the permissions below, so a customer key can't pass the credential test or run any operation. Until it does, the operations and the trigger events that need a customer key aren't available.
+
+When customer keys become available, a customer key needs these permissions:
 
 - `vm:read` to pass the credential test and to list and read instances.
 - `usage_billing:read` for the **Invoice**, **Usage**, and **Wallet** operations.
@@ -71,9 +73,9 @@ Give a key only the permissions your workflows need. When a key lacks a permissi
 |---|---|
 | The credential test, **Get instance**, **Get many instances** | `vm:read` |
 | **Wait Until Running** for a Kubernetes cluster | `async_job:read`, and the permission to read clusters |
-| **Get many invoices**, **Get usage**, **Get wallet** | a customer key with `usage_billing:read` |
+| **Get many invoices**, **Get usage**, **Get wallet** | a customer key with `usage_billing:read` (not yet available) |
 | **LetzCloud Trigger**, **Subscribe As** **Provider** | a provider key with `infrastructure:admin` |
-| **LetzCloud Trigger**, **Subscribe As** **Customer** | a customer key with `monitoring:read` and `monitoring:write` |
+| **LetzCloud Trigger**, **Subscribe As** **Customer** | a customer key with `monitoring:read` and `monitoring:write` (not yet available) |
 
 Other operations need the permission for their resource and action. Add it to **Scopes** when the node names it.
 

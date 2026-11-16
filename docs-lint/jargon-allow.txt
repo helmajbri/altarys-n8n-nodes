@@ -1,5 +1,9 @@
 # Exact spellings removed before the no-jargon list is applied, because the product shows them
 # to the same reader. Each entry names where the reader sees it. Adding an entry is a reviewed
 # change.
-#
-# (none yet: the key prefixes and field names the docs show do not match any listed term)
+
+# The prefix of a LetzCloud service-account key. The reader copies a key that starts with it, and
+# the console's list of API keys shows it in its Prefix column.
+bff_sa_
+# A network type value the LetzCloud API accepts for a layer-2 network; the reader enters it as is.
+'L2'

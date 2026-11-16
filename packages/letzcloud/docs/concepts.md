@@ -11,16 +11,18 @@ The same nodes work with two kinds of key, and LetzCloud decides what each one m
 - A **provider key** belongs to the organization of a cloud provider. It can use every operation its permissions allow.
 - A **customer key** belongs to one customer of a cloud provider. It can list, read, start, stop, reboot, and delete that customer's instances, read the customer's invoices, usage, and wallet, and receive the customer's events in the trigger.
 
-**Get many invoices**, **Get usage**, and **Get wallet** read what belongs to the customer of the key, so they need a customer key. A provider key gets the message `Only a customer key can use this operation`.
+**Get many invoices**, **Get usage**, and **Get wallet** read what belongs to the customer of the key, so they need a customer key. A provider key gets the message `Only a customer key can use this operation`. These three operations aren't available yet, because customers can't yet create a key that works with these nodes.
 
 ## Wait for a long-running change
 
 Creating an instance or a Kubernetes cluster, and starting, stopping, or rebooting an instance, take time. LetzCloud answers at once with a job, and carries on with the change. Two operations wait for the result:
 
 - **Wait for instance state** reads an instance until it's **Running** or **Stopped**. Use it after **Change instance state**: **Running** after a start or a reboot, **Stopped** after a stop. It stops with a message if the instance is in the `Error`, `Destroyed`, or `Expunging` state instead.
-- **Wait until kubernetes cluster is running** takes the **Job ID** that **Create kubernetes cluster** returned in its `job_id` field. It reads that job until it names the cluster it made, then reads that cluster until it's running. It never looks for a cluster by name, so another cluster with the same name is never mistaken for it. Its output is the cluster, plus a `wait` field that names the job and the cluster it followed.
+- **Wait until kubernetes cluster is running** takes the **Job ID** that **Create kubernetes cluster** returned in its `job_id` field. It reads that job until it names the cluster it made, then reads that cluster until it's running. It never looks for a cluster by name, so another Kubernetes cluster with the same name is never mistaken for it. Its output is the cluster, plus a `wait` field that names the job and the cluster it followed.
 
-Both operations read again every **Interval (Seconds)**, until **Time Limit (Seconds)** has passed, and then stop with a message. One execution waits at most 7,200 seconds in all: with several items, each item waits at most what's left of that time.
+The labels of these actions write "kubernetes" in lowercase, because n8n requires action labels in sentence case.
+
+Both operations read again every **Interval (Seconds)**, until **Time Limit (Seconds)** has passed, and then stop with a message. One execution waits at most 7,200 seconds in all. With several items, each item waits at most what's left of that time.
 
 A typical sequence: **Change instance state** with **Action** set to **Start**, then **Wait for instance state** with the same **VM ID** and **State** set to **Running**.
 
@@ -28,7 +30,15 @@ A typical sequence: **Change instance state** with **Action** set to **Start**, 
 
 Every amount the nodes return is a whole number in the smallest unit of its currency, the minor unit, with the currency beside it. For the euro, the minor unit is the cent: `amount_cents: 1250` with `currency: "EUR"` means 12.50 euros.
 
-To convert, divide by 100 for currencies with two decimal places. In an n8n expression: `{{ $json.amount_cents / 100 }}`.
+How many minor units make one unit depends on the currency, as the ISO 4217 standard defines it:
+
+| Currency | Decimal places | `1250` means | Convert with |
+|---|---|---|---|
+| EUR, USD, GBP, CHF | 2 | 12.50 | divide by 100 |
+| JPY | 0 | 1,250 | use as is |
+| KWD, BHD | 3 | 1.250 | divide by 1,000 |
+
+In an n8n expression for a two-decimal currency: `{{ $json.amount_cents / 100 }}`. Workflows that divide by 100 are right only for two-decimal currencies.
 
 - In **Get usage**, the rows per plan and their charges take the currency of the whole report. The node copies it into each row, so every amount has its currency beside it. When LetzCloud can't name a currency, the rows get `currency: null`.
 - **Get wallet** returns the balance as `{"amount": 2500, "currency": "EUR"}`, also in minor units.
@@ -37,9 +47,11 @@ To convert, divide by 100 for currencies with two decimal places. In an n8n expr
 
 LetzCloud operations don't take an idempotency key. If n8n retries a create after a timeout, for example with **Retry On Fail**, the first attempt might already have created the resource. Before you retry a create, use **Get Many** with a name filter to check whether the resource exists.
 
-## IDs
+## LetzCloud IDs
 
-Most LetzCloud IDs are UUIDs: 36 characters, like `3f2b8c1e-5d4a-4f6b-9c2d-1a2b3c4d5e6f`. The node checks such an ID before it sends the request, and refuses anything else. Snapshot and Kubernetes cluster IDs are free text; the node refuses only an empty value, `.`, `..`, or text with a slash, because they would point the request at another address.
+Most LetzCloud IDs are UUIDs: 36 characters, like `3f2b8c1e-5d4a-4f6b-9c2d-1a2b3c4d5e6f`. The node checks such an ID before it sends the request, and refuses anything else.
+
+Snapshot and Kubernetes cluster IDs are free text. The node refuses only an empty value, `.`, `..`, or text with a slash. Such values would point the request at another address.
 
 ## Lists: Return All and Limit
 
