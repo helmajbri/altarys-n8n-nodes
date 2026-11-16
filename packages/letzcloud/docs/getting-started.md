@@ -13,8 +13,6 @@ You need:
 
 ## Step 1: Install the package
 
-The package isn't on npm yet. You can follow this step once version 0.1.0 is published.
-
 1. In n8n, open **Settings**, then **Community nodes**.
 2. Open the install dialog and enter `@altarys/n8n-nodes-letzcloud` in **npm Package Name**.
 3. Confirm that you understand the risks of installing community code, then select **Install**.

@@ -17,8 +17,6 @@ New to these nodes? Start with [Getting started](docs/getting-started.md).
 
 ## Installation
 
-The package isn't on npm yet. You can install it once version 0.1.0 is published.
-
 - **Self-hosted n8n:** follow n8n's guide to [installing community nodes](https://docs.n8n.io/integrations/community-nodes/installation/). In n8n, open **Settings**, then **Community nodes**. In the install dialog, enter `@altarys/n8n-nodes-letzcloud` in **npm Package Name**, confirm that you understand the risks, and select **Install**.
 - **n8n Cloud:** not available yet. n8n hasn't verified these packages, so install them on a self-hosted n8n instance.
 
@@ -56,7 +54,7 @@ Step-by-step instructions, the permissions each node needs, and how to replace a
 
 - Minimum n8n version: 2.47.7. Earlier versions aren't supported.
 - Node.js: n8n 2.47.7 needs Node.js 24 or later.
-- Tested: version 0.1.0 is built, linted, and unit-tested with the n8n node tools and `n8n-workflow` 2.47.2. Tests on a running n8n instance are still to be done.
+- Tested: version 0.1.1 is built, linted, and unit-tested with the n8n node tools and `n8n-workflow` 2.47.2. Tests on a running n8n instance are still to be done.
 - Known incompatibilities: the **LetzCloud Trigger** needs an n8n instance whose webhook URLs start with `https://`.
 
 ## Usage
