@@ -25,6 +25,10 @@ Use the **LetzCloud** node to manage instances, volumes, snapshots, networks, Ku
 
 Operations on the **Container** resource of the **LetzCloud** node.
 
+### Container fields
+
+The operations below that return a record of this resource return it with these fields: `id`, `organization_id`, `name`, `slug`, `container_image`, `registry_url`, `registry_credential_id`, `port`, `protocol`, `environment_variables`, `container_size`, `custom_cpu_millicores`, `custom_memory_mb`, `cpu_millicores`, `memory_mb`, `min_replicas`, `max_replicas`, `current_replicas`, `desired_replicas`, `job_id`, `health_check_path`, `health_check_port`, `status`, `status_message`, `k8s_deployment_name`, `k8s_namespace`, `k8s_service_name`, `endpoint_url`, `internal_endpoint_url`, `cluster_ip`, `volume_mounts`, `created_at`, `updated_at`, `generation`, `observed_generation`, `reconcile_state`, `last_reconciled_at`, `next_retry_at`, `conditions`, `restart_count`.
+
 ### Create container
 
 Create a container from an image.
@@ -49,7 +53,7 @@ Create a container from an image.
 | Additional Fields > Registry URL | Text | No |   |
 | Additional Fields > Volume Mounts | JSON | No | JSON array of objects with: mount_path (required), size_gb, storage_class. |
 
-**Output:** One item with these fields: `id`, `organization_id`, `name`, `slug`, `container_image`, `registry_url`, `registry_credential_id`, `port`, `protocol`, `environment_variables`, `container_size`, `custom_cpu_millicores`, `custom_memory_mb`, `cpu_millicores`, `memory_mb`, `min_replicas`, `max_replicas`, `current_replicas`, `desired_replicas`, `job_id`, `health_check_path`, `health_check_port`, `status`, `status_message`, `k8s_deployment_name`, `k8s_namespace`, `k8s_service_name`, `endpoint_url`, `internal_endpoint_url`, `cluster_ip`, `volume_mounts`, `created_at`, `updated_at`, `generation`, `observed_generation`, `reconcile_state`, `last_reconciled_at`, `next_retry_at`, `conditions`, `restart_count`.
+**Output:** One item, with the [Container fields](#container-fields).
 
 ### Delete container
 
@@ -59,7 +63,7 @@ Delete a container. It stops serving and its replicas are removed.
 |---|---|---|---|
 | Container ID | Text | Yes | Must be an ID in UUID form. |
 
-**Output:** One item with these fields: `id`, `organization_id`, `name`, `slug`, `container_image`, `registry_url`, `registry_credential_id`, `port`, `protocol`, `environment_variables`, `container_size`, `custom_cpu_millicores`, `custom_memory_mb`, `cpu_millicores`, `memory_mb`, `min_replicas`, `max_replicas`, `current_replicas`, `desired_replicas`, `job_id`, `health_check_path`, `health_check_port`, `status`, `status_message`, `k8s_deployment_name`, `k8s_namespace`, `k8s_service_name`, `endpoint_url`, `internal_endpoint_url`, `cluster_ip`, `volume_mounts`, `created_at`, `updated_at`, `generation`, `observed_generation`, `reconcile_state`, `last_reconciled_at`, `next_retry_at`, `conditions`, `restart_count`.
+**Output:** One item, with the [Container fields](#container-fields).
 
 This operation cannot be undone.
 
@@ -71,7 +75,7 @@ Get a container by ID.
 |---|---|---|---|
 | Container ID | Text | Yes | Must be an ID in UUID form. |
 
-**Output:** One item with these fields: `id`, `organization_id`, `name`, `slug`, `container_image`, `registry_url`, `registry_credential_id`, `port`, `protocol`, `environment_variables`, `container_size`, `custom_cpu_millicores`, `custom_memory_mb`, `cpu_millicores`, `memory_mb`, `min_replicas`, `max_replicas`, `current_replicas`, `desired_replicas`, `job_id`, `health_check_path`, `health_check_port`, `status`, `status_message`, `k8s_deployment_name`, `k8s_namespace`, `k8s_service_name`, `endpoint_url`, `internal_endpoint_url`, `cluster_ip`, `volume_mounts`, `created_at`, `updated_at`, `generation`, `observed_generation`, `reconcile_state`, `last_reconciled_at`, `next_retry_at`, `conditions`, `restart_count`.
+**Output:** One item, with the [Container fields](#container-fields).
 
 ### Get many containers
 
@@ -85,13 +89,17 @@ Get many containers.
 | Filters > Search | Text | No |   |
 | Filters > Status | Text | No |   |
 
-**Output:** One item per result, with these fields: `id`, `organization_id`, `name`, `slug`, `container_image`, `registry_url`, `registry_credential_id`, `port`, `protocol`, `environment_variables`, `container_size`, `custom_cpu_millicores`, `custom_memory_mb`, `cpu_millicores`, `memory_mb`, `min_replicas`, `max_replicas`, `current_replicas`, `desired_replicas`, `job_id`, `health_check_path`, `health_check_port`, `status`, `status_message`, `k8s_deployment_name`, `k8s_namespace`, `k8s_service_name`, `endpoint_url`, `internal_endpoint_url`, `cluster_ip`, `volume_mounts`, `created_at`, `updated_at`, `generation`, `observed_generation`, `reconcile_state`, `last_reconciled_at`, `next_retry_at`, `conditions`, `restart_count`.
+**Output:** One item per result, with the [Container fields](#container-fields).
 
 **Return All** reads every page; otherwise **Limit** sets how many results to return.
 
 ## Database
 
 Operations on the **Database** resource of the **LetzCloud** node.
+
+### Database fields
+
+The operations below that return a record of this resource return it with these fields: `id`, `organization_id`, `name`, `engine`, `engine_version`, `tier`, `placement_mode`, `node_count`, `cpu_cores_per_node`, `memory_gb_per_node`, `storage_gb_per_node`, `storage_type`, `region`, `zone_id`, `connection_host`, `connection_port`, `admin_username`, `ha_enabled`, `read_replicas`, `status`, `status_message`, `public_access_enabled`, `internal_fqdn`, `read_replica_fqdn`, `nodes`, `node_summary`, `maintenance_window`, `restored_from_backup_id`, `encryption`, `created_at`, `updated_at`.
 
 ### Create database
 
@@ -117,7 +125,7 @@ Create a managed database cluster.
 | Additional Fields > Tier | Text | No |   |
 | Additional Fields > Zone ID | Text | No |   |
 
-**Output:** One item with these fields: `id`, `organization_id`, `name`, `engine`, `engine_version`, `tier`, `placement_mode`, `node_count`, `cpu_cores_per_node`, `memory_gb_per_node`, `storage_gb_per_node`, `storage_type`, `region`, `zone_id`, `connection_host`, `connection_port`, `admin_username`, `ha_enabled`, `read_replicas`, `status`, `status_message`, `public_access_enabled`, `internal_fqdn`, `read_replica_fqdn`, `nodes`, `node_summary`, `maintenance_window`, `restored_from_backup_id`, `encryption`, `created_at`, `updated_at`.
+**Output:** One item, with the [Database fields](#database-fields).
 
 ### Delete database
 
@@ -139,7 +147,7 @@ Get a managed database cluster by ID.
 |---|---|---|---|
 | Cluster ID | Text | Yes | Must be an ID in UUID form. |
 
-**Output:** One item with these fields: `id`, `organization_id`, `name`, `engine`, `engine_version`, `tier`, `placement_mode`, `node_count`, `cpu_cores_per_node`, `memory_gb_per_node`, `storage_gb_per_node`, `storage_type`, `region`, `zone_id`, `connection_host`, `connection_port`, `admin_username`, `ha_enabled`, `read_replicas`, `status`, `status_message`, `public_access_enabled`, `internal_fqdn`, `read_replica_fqdn`, `nodes`, `node_summary`, `maintenance_window`, `restored_from_backup_id`, `encryption`, `created_at`, `updated_at`.
+**Output:** One item, with the [Database fields](#database-fields).
 
 ### Get many databases
 
@@ -154,13 +162,17 @@ Get many managed database clusters.
 | Filters > Search | Text | No |   |
 | Filters > Status | Text | No |   |
 
-**Output:** One item per result, with these fields: `id`, `organization_id`, `name`, `engine`, `engine_version`, `tier`, `placement_mode`, `node_count`, `cpu_cores_per_node`, `memory_gb_per_node`, `storage_gb_per_node`, `storage_type`, `region`, `zone_id`, `connection_host`, `connection_port`, `admin_username`, `ha_enabled`, `read_replicas`, `status`, `status_message`, `public_access_enabled`, `internal_fqdn`, `read_replica_fqdn`, `nodes`, `node_summary`, `maintenance_window`, `restored_from_backup_id`, `encryption`, `created_at`, `updated_at`.
+**Output:** One item per result, with the [Database fields](#database-fields).
 
 **Return All** reads every page; otherwise **Limit** sets how many results to return.
 
 ## DNS Record
 
 Operations on the **DNS Record** resource of the **LetzCloud** node.
+
+### DNS Record fields
+
+The operations below that return a record of this resource return it with these fields: `id`, `zone_id`, `name`, `record_type`, `content`, `ttl`, `priority`, `weight`, `port`, `flags`, `tag`, `disabled`, `auto_registered`, `resource_type`, `resource_id`, `cloudstack_nic_id`, `created_at`, `updated_at`.
 
 ### Create DNS record
 
@@ -181,7 +193,7 @@ Create a DNS record in a zone.
 | Additional Fields > TTL | Number | No | From 60 to 604800. Default: `3600`. |
 | Additional Fields > Weight | Number | No | From 0 to 65535. |
 
-**Output:** One item with these fields: `id`, `zone_id`, `name`, `record_type`, `content`, `ttl`, `priority`, `weight`, `port`, `flags`, `tag`, `disabled`, `auto_registered`, `resource_type`, `resource_id`, `cloudstack_nic_id`, `created_at`, `updated_at`.
+**Output:** One item, with the [DNS Record fields](#dns-record-fields).
 
 ### Delete DNS record
 
@@ -209,7 +221,7 @@ Get many DNS records of a zone.
 | Filters > Record Type | Text | No |   |
 | Filters > Search | Text | No |   |
 
-**Output:** One item per result, with these fields: `id`, `zone_id`, `name`, `record_type`, `content`, `ttl`, `priority`, `weight`, `port`, `flags`, `tag`, `disabled`, `auto_registered`, `resource_type`, `resource_id`, `cloudstack_nic_id`, `created_at`, `updated_at`.
+**Output:** One item per result, with the [DNS Record fields](#dns-record-fields).
 
 **Return All** reads every page; otherwise **Limit** sets how many results to return.
 
@@ -232,7 +244,7 @@ Update a DNS record.
 | Update Fields > TTL | Number | No | From 60 to 604800. |
 | Update Fields > Weight | Number | No | From 0 to 65535. |
 
-**Output:** One item with these fields: `id`, `zone_id`, `name`, `record_type`, `content`, `ttl`, `priority`, `weight`, `port`, `flags`, `tag`, `disabled`, `auto_registered`, `resource_type`, `resource_id`, `cloudstack_nic_id`, `created_at`, `updated_at`.
+**Output:** One item, with the [DNS Record fields](#dns-record-fields).
 
 ## DNS Zone
 
@@ -259,6 +271,10 @@ Get many DNS zones, for example to find the zone of a record.
 
 Operations on the **Instance** resource of the **LetzCloud** node.
 
+### Instance fields
+
+The operations below that return a record of this resource return it with these fields: `job_id`, `job_status`, `job_result`, `message`.
+
 ### Change instance state
 
 Start, stop or reboot an instance. LetzCloud answers at once with a job; use Wait for State to wait until the instance has the new state.
@@ -270,7 +286,7 @@ Start, stop or reboot an instance. LetzCloud answers at once with a job; use Wai
 | Additional Fields | Optional fields | No |   |
 | Additional Fields > Force | Boolean | No | Whether to force the action, such as a hard stop. Default: `false`. |
 
-**Output:** One item with these fields: `job_id`, `job_status`, `job_result`, `message`.
+**Output:** One item, with the [Instance fields](#instance-fields).
 
 ### Create instance
 
@@ -302,7 +318,7 @@ Create an instance. LetzCloud answers at once with a job; the instance appears i
 | Additional Fields > Start VM | Boolean | No | Whether to start the instance once it is created. Default: `false`. |
 | Additional Fields > User Data | Text | No |   |
 
-**Output:** One item with these fields: `job_id`, `job_status`, `job_result`, `message`.
+**Output:** One item, with the [Instance fields](#instance-fields).
 
 ### Delete instance
 
@@ -314,7 +330,7 @@ Delete an instance. Its root disk goes with it; with Expunge it cannot be recove
 | Options | Optional fields | No |   |
 | Options > Expunge | Boolean | No | Whether to remove the instance at once instead of keeping it recoverable for a while. Default: `false`. |
 
-**Output:** One item with these fields: `job_id`, `job_status`, `job_result`, `message`.
+**Output:** One item, with the [Instance fields](#instance-fields).
 
 This operation cannot be undone.
 
@@ -383,6 +399,10 @@ Get many of your own invoices. Needs a customer key.
 
 Operations on the **Kubernetes Cluster** resource of the **LetzCloud** node.
 
+### Kubernetes Cluster fields
+
+The operations below that return a record of this resource return it with these fields: `job_id`, `job_status`, `job_result`, `message`.
+
 ### Create kubernetes cluster
 
 Create a Kubernetes cluster. LetzCloud answers at once with a job; pass its job ID to Wait Until Running to wait for the cluster.
@@ -413,7 +433,7 @@ Create a Kubernetes cluster. LetzCloud answers at once with a job; pass its job 
 | Additional Fields > SSH Keypair | Text | No |   |
 | Additional Fields > Tags | JSON | No | JSON object. |
 
-**Output:** One item with these fields: `job_id`, `job_status`, `job_result`, `message`.
+**Output:** One item, with the [Kubernetes Cluster fields](#kubernetes-cluster-fields).
 
 ### Delete kubernetes cluster
 
@@ -423,7 +443,7 @@ Delete a Kubernetes cluster. Its nodes and the workloads on them are removed.
 |---|---|---|---|
 | Cluster ID | Text | Yes | Any ID text without a slash. |
 
-**Output:** One item with these fields: `job_id`, `job_status`, `job_result`, `message`.
+**Output:** One item, with the [Kubernetes Cluster fields](#kubernetes-cluster-fields).
 
 This operation cannot be undone.
 
@@ -470,6 +490,10 @@ Wait until the cluster a Create made is running: reads the create job for the cl
 
 Operations on the **Network** resource of the **LetzCloud** node.
 
+### Network fields
+
+The operations below that return a record of this resource return it with these fields: `job_id`, `job_status`, `job_result`, `message`.
+
 ### Create network
 
 Create a network.
@@ -489,7 +513,7 @@ Create a network.
 | Additional Fields > Start IP | Text | No |   |
 | Additional Fields > VPC ID | Text | No |   |
 
-**Output:** One item with these fields: `job_id`, `job_status`, `job_result`, `message`.
+**Output:** One item, with the [Network fields](#network-fields).
 
 ### Delete network
 
@@ -499,7 +523,7 @@ Delete a network. Instances can no longer connect to it.
 |---|---|---|---|
 | Network ID | Text | Yes | Must be an ID in UUID form. |
 
-**Output:** One item with these fields: `job_id`, `job_status`, `job_result`, `message`.
+**Output:** One item, with the [Network fields](#network-fields).
 
 This operation cannot be undone.
 
@@ -535,6 +559,10 @@ Get many networks.
 
 Operations on the **Snapshot** resource of the **LetzCloud** node.
 
+### Snapshot fields
+
+The operations below that return a record of this resource return it with these fields: `job_id`, `job_status`, `job_result`, `message`.
+
 ### Create snapshot
 
 Create a snapshot of a volume.
@@ -547,7 +575,7 @@ Create a snapshot of a volume.
 | Additional Fields > Name | Text | No |   |
 | Additional Fields > Policy ID | Text | No |   |
 
-**Output:** One item with these fields: `job_id`, `job_status`, `job_result`, `message`.
+**Output:** One item, with the [Snapshot fields](#snapshot-fields).
 
 ### Delete snapshot
 
@@ -557,7 +585,7 @@ Delete a volume snapshot. The volume cannot be restored from it afterwards.
 |---|---|---|---|
 | Snapshot ID | Text | Yes | Any ID text without a slash. |
 
-**Output:** One item with these fields: `job_id`, `job_status`, `job_result`, `message`.
+**Output:** One item, with the [Snapshot fields](#snapshot-fields).
 
 This operation cannot be undone.
 
@@ -599,6 +627,10 @@ Get your own usage and its cost for a period. Needs a customer key.
 
 Operations on the **Volume** resource of the **LetzCloud** node.
 
+### Volume fields
+
+The operations below that return a record of this resource return it with these fields: `job_id`, `job_status`, `job_result`, `message`.
+
 ### Create volume
 
 Create a volume, and attach it to an instance if one is named.
@@ -615,7 +647,7 @@ Create a volume, and attach it to an instance if one is named.
 | Additional Fields > Min IOPS | Number | No |   |
 | Additional Fields > Size | Number | No |   |
 
-**Output:** One item with these fields: `job_id`, `job_status`, `job_result`, `message`.
+**Output:** One item, with the [Volume fields](#volume-fields).
 
 ### Delete volume
 
@@ -625,7 +657,7 @@ Delete a volume. The data on it is lost.
 |---|---|---|---|
 | Volume ID | Text | Yes | Must be an ID in UUID form. |
 
-**Output:** One item with these fields: `job_id`, `job_status`, `job_result`, `message`.
+**Output:** One item, with the [Volume fields](#volume-fields).
 
 This operation cannot be undone.
 

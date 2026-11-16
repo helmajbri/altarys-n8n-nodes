@@ -21,6 +21,10 @@ Use the **LetzBill** node to manage customers, subscriptions, invoices, credit n
 
 Operations on the **Credit Note** resource of the **LetzBill** node.
 
+### Credit Note fields
+
+The operations below that return a record of this resource return it with these fields: `id`, `sequential_id`, `number`, `customer_id`, `invoice_id`, `organization_id`, `invoice_number`, `customer_name`, `status`, `credit_status`, `refund_status`, `reason`, `description`, `issuing_date`, `voided_at`, `refunded_at`, `created_at`, `updated_at`, `total_amount_cents`, `total_amount_currency`, `credit_amount_cents`, `credit_amount_currency`, `balance_amount_cents`, `balance_amount_currency`, `refund_amount_cents`, `refund_amount_currency`, `offset_amount_cents`, `offset_amount_currency`, `taxes_amount_cents`, `taxes_rate`, `coupons_adjustment_amount_cents`, `file`, `items`.
+
 ### Create credit note
 
 Create a credit note against an invoice.
@@ -37,7 +41,7 @@ Create a credit note against an invoice.
 | Additional Fields > Issuing Date | Text | No | Example: `2026-01-31`. |
 | Additional Fields > Refund Amount (Minor Units) | Number | No | Amount in minor units of the currency as a whole number, e.g. 1250 for 12.50, in the currency of the invoice being credited. At least 0. |
 
-**Output:** One item with these fields: `id`, `sequential_id`, `number`, `customer_id`, `invoice_id`, `organization_id`, `invoice_number`, `customer_name`, `status`, `credit_status`, `refund_status`, `reason`, `description`, `issuing_date`, `voided_at`, `refunded_at`, `created_at`, `updated_at`, `total_amount_cents`, `total_amount_currency`, `credit_amount_cents`, `credit_amount_currency`, `balance_amount_cents`, `balance_amount_currency`, `refund_amount_cents`, `refund_amount_currency`, `offset_amount_cents`, `offset_amount_currency`, `taxes_amount_cents`, `taxes_rate`, `coupons_adjustment_amount_cents`, `file`, `items`.
+**Output:** One item, with the [Credit Note fields](#credit-note-fields).
 
 A retry with the same **Idempotency Key** is applied once. Left empty, the node makes a key that stays the same when n8n retries the item.
 
@@ -49,7 +53,7 @@ Get a credit note by ID.
 |---|---|---|---|
 | Credit Note ID | Text | Yes | Must be an ID in UUID form. |
 
-**Output:** One item with these fields: `id`, `sequential_id`, `number`, `customer_id`, `invoice_id`, `organization_id`, `invoice_number`, `customer_name`, `status`, `credit_status`, `refund_status`, `reason`, `description`, `issuing_date`, `voided_at`, `refunded_at`, `created_at`, `updated_at`, `total_amount_cents`, `total_amount_currency`, `credit_amount_cents`, `credit_amount_currency`, `balance_amount_cents`, `balance_amount_currency`, `refund_amount_cents`, `refund_amount_currency`, `offset_amount_cents`, `offset_amount_currency`, `taxes_amount_cents`, `taxes_rate`, `coupons_adjustment_amount_cents`, `file`, `items`.
+**Output:** One item, with the [Credit Note fields](#credit-note-fields).
 
 ### Get many credit notes
 
@@ -68,7 +72,7 @@ Get many credit notes.
 | Filters > Search | Text | No |   |
 | Filters > Status | Option | No | One of: `Draft`, `Finalized`, `Voided`. Default: `Draft`. |
 
-**Output:** One item per result, with these fields: `id`, `sequential_id`, `number`, `customer_id`, `invoice_id`, `organization_id`, `invoice_number`, `customer_name`, `status`, `credit_status`, `refund_status`, `reason`, `description`, `issuing_date`, `voided_at`, `refunded_at`, `created_at`, `updated_at`, `total_amount_cents`, `total_amount_currency`, `credit_amount_cents`, `credit_amount_currency`, `balance_amount_cents`, `balance_amount_currency`, `refund_amount_cents`, `refund_amount_currency`, `offset_amount_cents`, `offset_amount_currency`, `taxes_amount_cents`, `taxes_rate`, `coupons_adjustment_amount_cents`, `file`, `items`.
+**Output:** One item per result, with the [Credit Note fields](#credit-note-fields).
 
 **Return All** reads every page; otherwise **Limit** sets how many results to return.
 
@@ -82,13 +86,17 @@ Void a credit note. It becomes inactive and can no longer be used.
 | Additional Fields | Optional fields | No |   |
 | Additional Fields > Reason | Text | No |   |
 
-**Output:** One item with these fields: `id`, `sequential_id`, `number`, `customer_id`, `invoice_id`, `organization_id`, `invoice_number`, `customer_name`, `status`, `credit_status`, `refund_status`, `reason`, `description`, `issuing_date`, `voided_at`, `refunded_at`, `created_at`, `updated_at`, `total_amount_cents`, `total_amount_currency`, `credit_amount_cents`, `credit_amount_currency`, `balance_amount_cents`, `balance_amount_currency`, `refund_amount_cents`, `refund_amount_currency`, `offset_amount_cents`, `offset_amount_currency`, `taxes_amount_cents`, `taxes_rate`, `coupons_adjustment_amount_cents`, `file`, `items`.
+**Output:** One item, with the [Credit Note fields](#credit-note-fields).
 
 This operation cannot be undone.
 
 ## Customer
 
 Operations on the **Customer** resource of the **LetzBill** node.
+
+### Customer fields
+
+The operations below that return a record of this resource return it with these fields: `external_id`, `name`, `email`, `phone`, `url`, `customer_type`, `account_type`, `legal_name`, `legal_number`, `tax_identification_number`, `vat_rate`, `vat_id`, `address_line1`, `address_line2`, `city`, `state`, `zipcode`, `country`, `shipping_address`, `timezone`, `currency`, `invoice_grace_period`, `net_payment_term`, `document_locale`, `finalize_zero_amount_invoice`, `skip_invoice_custom_sections`, `logo_url`, `invoice_consolidation`, `bill_cycle_day`, `payment_provider_code`, `exclude_from_dunning_campaign`, `external_salesforce_id`, `metadata`, `id`, `organization_id`, `sequential_id`, `slug`, `vat_id_validated`, `vat_id_validation_date`, `applied_dunning_campaign_id`, `last_dunning_campaign_attempt`, `last_dunning_campaign_attempt_at`, `billing_entity_id`, `payment_receipt_counter`, `deleted_at`, `created_at`, `updated_at`, `active_subscriptions`, `mrr_cents`, `outstanding_cents`, `overdue_cents`, `metrics_currencies`.
 
 ### Create customer
 
@@ -133,7 +141,7 @@ Create a customer.
 | Additional Fields > VAT Rate | Text | No | Decimal number written as text. Example: `10.5`. |
 | Additional Fields > Zipcode | Text | No |   |
 
-**Output:** One item with these fields: `external_id`, `name`, `email`, `phone`, `url`, `customer_type`, `account_type`, `legal_name`, `legal_number`, `tax_identification_number`, `vat_rate`, `vat_id`, `address_line1`, `address_line2`, `city`, `state`, `zipcode`, `country`, `shipping_address`, `timezone`, `currency`, `invoice_grace_period`, `net_payment_term`, `document_locale`, `finalize_zero_amount_invoice`, `skip_invoice_custom_sections`, `logo_url`, `invoice_consolidation`, `bill_cycle_day`, `payment_provider_code`, `exclude_from_dunning_campaign`, `external_salesforce_id`, `metadata`, `id`, `organization_id`, `sequential_id`, `slug`, `vat_id_validated`, `vat_id_validation_date`, `applied_dunning_campaign_id`, `last_dunning_campaign_attempt`, `last_dunning_campaign_attempt_at`, `billing_entity_id`, `payment_receipt_counter`, `deleted_at`, `created_at`, `updated_at`, `active_subscriptions`, `mrr_cents`, `outstanding_cents`, `overdue_cents`, `metrics_currencies`.
+**Output:** One item, with the [Customer fields](#customer-fields).
 
 ### Delete customer
 
@@ -155,7 +163,7 @@ Get a customer by ID.
 |---|---|---|---|
 | Customer ID | Text | Yes | Must be an ID in UUID form. |
 
-**Output:** One item with these fields: `external_id`, `name`, `email`, `phone`, `url`, `customer_type`, `account_type`, `legal_name`, `legal_number`, `tax_identification_number`, `vat_rate`, `vat_id`, `address_line1`, `address_line2`, `city`, `state`, `zipcode`, `country`, `shipping_address`, `timezone`, `currency`, `invoice_grace_period`, `net_payment_term`, `document_locale`, `finalize_zero_amount_invoice`, `skip_invoice_custom_sections`, `logo_url`, `invoice_consolidation`, `bill_cycle_day`, `payment_provider_code`, `exclude_from_dunning_campaign`, `external_salesforce_id`, `metadata`, `id`, `organization_id`, `sequential_id`, `slug`, `vat_id_validated`, `vat_id_validation_date`, `applied_dunning_campaign_id`, `last_dunning_campaign_attempt`, `last_dunning_campaign_attempt_at`, `billing_entity_id`, `payment_receipt_counter`, `deleted_at`, `created_at`, `updated_at`, `active_subscriptions`, `mrr_cents`, `outstanding_cents`, `overdue_cents`, `metrics_currencies`.
+**Output:** One item, with the [Customer fields](#customer-fields).
 
 ### Get customer by external ID
 
@@ -165,7 +173,7 @@ Get a customer by the ID your system gave it.
 |---|---|---|---|
 | External ID | Text | Yes | Any ID text without a slash. |
 
-**Output:** One item with these fields: `external_id`, `name`, `email`, `phone`, `url`, `customer_type`, `account_type`, `legal_name`, `legal_number`, `tax_identification_number`, `vat_rate`, `vat_id`, `address_line1`, `address_line2`, `city`, `state`, `zipcode`, `country`, `shipping_address`, `timezone`, `currency`, `invoice_grace_period`, `net_payment_term`, `document_locale`, `finalize_zero_amount_invoice`, `skip_invoice_custom_sections`, `logo_url`, `invoice_consolidation`, `bill_cycle_day`, `payment_provider_code`, `exclude_from_dunning_campaign`, `external_salesforce_id`, `metadata`, `id`, `organization_id`, `sequential_id`, `slug`, `vat_id_validated`, `vat_id_validation_date`, `applied_dunning_campaign_id`, `last_dunning_campaign_attempt`, `last_dunning_campaign_attempt_at`, `billing_entity_id`, `payment_receipt_counter`, `deleted_at`, `created_at`, `updated_at`, `active_subscriptions`, `mrr_cents`, `outstanding_cents`, `overdue_cents`, `metrics_currencies`.
+**Output:** One item, with the [Customer fields](#customer-fields).
 
 ### Get many customers
 
@@ -180,7 +188,7 @@ Get many customers.
 | Filters > External ID | Text | No |   |
 | Filters > Search | Text | No |   |
 
-**Output:** One item per result, with these fields: `external_id`, `name`, `email`, `phone`, `url`, `customer_type`, `account_type`, `legal_name`, `legal_number`, `tax_identification_number`, `vat_rate`, `vat_id`, `address_line1`, `address_line2`, `city`, `state`, `zipcode`, `country`, `shipping_address`, `timezone`, `currency`, `invoice_grace_period`, `net_payment_term`, `document_locale`, `finalize_zero_amount_invoice`, `skip_invoice_custom_sections`, `logo_url`, `invoice_consolidation`, `bill_cycle_day`, `payment_provider_code`, `exclude_from_dunning_campaign`, `external_salesforce_id`, `metadata`, `id`, `organization_id`, `sequential_id`, `slug`, `vat_id_validated`, `vat_id_validation_date`, `applied_dunning_campaign_id`, `last_dunning_campaign_attempt`, `last_dunning_campaign_attempt_at`, `billing_entity_id`, `payment_receipt_counter`, `deleted_at`, `created_at`, `updated_at`, `active_subscriptions`, `mrr_cents`, `outstanding_cents`, `overdue_cents`, `metrics_currencies`.
+**Output:** One item per result, with the [Customer fields](#customer-fields).
 
 **Return All** reads every page; otherwise **Limit** sets how many results to return.
 
@@ -227,11 +235,15 @@ Update a customer.
 | Update Fields > VAT Rate | Text | No | Decimal number written as text. Example: `10.5`. |
 | Update Fields > Zipcode | Text | No |   |
 
-**Output:** One item with these fields: `external_id`, `name`, `email`, `phone`, `url`, `customer_type`, `account_type`, `legal_name`, `legal_number`, `tax_identification_number`, `vat_rate`, `vat_id`, `address_line1`, `address_line2`, `city`, `state`, `zipcode`, `country`, `shipping_address`, `timezone`, `currency`, `invoice_grace_period`, `net_payment_term`, `document_locale`, `finalize_zero_amount_invoice`, `skip_invoice_custom_sections`, `logo_url`, `invoice_consolidation`, `bill_cycle_day`, `payment_provider_code`, `exclude_from_dunning_campaign`, `external_salesforce_id`, `metadata`, `id`, `organization_id`, `sequential_id`, `slug`, `vat_id_validated`, `vat_id_validation_date`, `applied_dunning_campaign_id`, `last_dunning_campaign_attempt`, `last_dunning_campaign_attempt_at`, `billing_entity_id`, `payment_receipt_counter`, `deleted_at`, `created_at`, `updated_at`, `active_subscriptions`, `mrr_cents`, `outstanding_cents`, `overdue_cents`, `metrics_currencies`.
+**Output:** One item, with the [Customer fields](#customer-fields).
 
 ## Invoice
 
 Operations on the **Invoice** resource of the **LetzBill** node.
+
+### Invoice fields
+
+The operations below that return a record of this resource return it with these fields: `id`, `subscription_id`, `subscription_ids`, `customer_id`, `organization_id`, `billing_entity_id`, `invoice_number`, `invoice_type`, `status`, `payment_status`, `payment_overdue`, `dispute_status`, `issuing_date`, `payment_due_date`, `from_datetime`, `to_datetime`, `charges_from_datetime`, `charges_to_datetime`, `finalized_at`, `fees_amount_cents`, `coupons_amount_cents`, `sub_total_excluding_taxes_amount_cents`, `tax_amount_cents`, `sub_total_including_taxes_amount_cents`, `credit_notes_amount_cents`, `prepaid_credit_amount_cents`, `total_amount_cents`, `balance_cents`, `total_paid_amount_cents`, `currency`, `warnings`, `customer_name`, `description`, `notes`, `footer`, `timezone`, `pdf_url`, `fees`, `metadata_items`, `customer_snapshot`, `billing_entity_snapshot`, `finalize_attempts`, `finalize_first_failed_at`, `finalize_next_attempt_at`, `finalize_stuck_at`, `finalize_stuck`, `finalize_last_failure`, `void_reason`, `credit_note_id`, `credit_note_error`.
 
 ### Create one off invoice
 
@@ -245,7 +257,7 @@ Create a one-off invoice with manual line items.
 | Additional Fields > Due Date | Text | No |   |
 | Additional Fields > Subscription ID | Text | No |   |
 
-**Output:** One item with these fields: `id`, `subscription_id`, `subscription_ids`, `customer_id`, `organization_id`, `billing_entity_id`, `invoice_number`, `invoice_type`, `status`, `payment_status`, `payment_overdue`, `dispute_status`, `issuing_date`, `payment_due_date`, `from_datetime`, `to_datetime`, `charges_from_datetime`, `charges_to_datetime`, `finalized_at`, `fees_amount_cents`, `coupons_amount_cents`, `sub_total_excluding_taxes_amount_cents`, `tax_amount_cents`, `sub_total_including_taxes_amount_cents`, `credit_notes_amount_cents`, `prepaid_credit_amount_cents`, `total_amount_cents`, `balance_cents`, `total_paid_amount_cents`, `currency`, `warnings`, `customer_name`, `description`, `notes`, `footer`, `timezone`, `pdf_url`, `fees`, `metadata_items`, `customer_snapshot`, `billing_entity_snapshot`, `finalize_attempts`, `finalize_first_failed_at`, `finalize_next_attempt_at`, `finalize_stuck_at`, `finalize_stuck`, `finalize_last_failure`, `void_reason`, `credit_note_id`, `credit_note_error`.
+**Output:** One item, with the [Invoice fields](#invoice-fields).
 
 ### Download invoice PDF
 
@@ -265,7 +277,7 @@ Finalize a draft invoice.
 |---|---|---|---|
 | Invoice ID | Text | Yes | Must be an ID in UUID form. |
 
-**Output:** One item with these fields: `id`, `subscription_id`, `subscription_ids`, `customer_id`, `organization_id`, `billing_entity_id`, `invoice_number`, `invoice_type`, `status`, `payment_status`, `payment_overdue`, `dispute_status`, `issuing_date`, `payment_due_date`, `from_datetime`, `to_datetime`, `charges_from_datetime`, `charges_to_datetime`, `finalized_at`, `fees_amount_cents`, `coupons_amount_cents`, `sub_total_excluding_taxes_amount_cents`, `tax_amount_cents`, `sub_total_including_taxes_amount_cents`, `credit_notes_amount_cents`, `prepaid_credit_amount_cents`, `total_amount_cents`, `balance_cents`, `total_paid_amount_cents`, `currency`, `warnings`, `customer_name`, `description`, `notes`, `footer`, `timezone`, `pdf_url`, `fees`, `metadata_items`, `customer_snapshot`, `billing_entity_snapshot`, `finalize_attempts`, `finalize_first_failed_at`, `finalize_next_attempt_at`, `finalize_stuck_at`, `finalize_stuck`, `finalize_last_failure`, `void_reason`, `credit_note_id`, `credit_note_error`.
+**Output:** One item, with the [Invoice fields](#invoice-fields).
 
 ### Get invoice
 
@@ -278,7 +290,7 @@ Get an invoice by ID.
 | Options > Include Metadata | Boolean | No | Whether to include the invoice metadata. Default: `true`. |
 | Options > Include Snapshot | Boolean | No | Whether to include the customer snapshot taken when the invoice was issued. Default: `true`. |
 
-**Output:** One item with these fields: `id`, `subscription_id`, `subscription_ids`, `customer_id`, `organization_id`, `billing_entity_id`, `invoice_number`, `invoice_type`, `status`, `payment_status`, `payment_overdue`, `dispute_status`, `issuing_date`, `payment_due_date`, `from_datetime`, `to_datetime`, `charges_from_datetime`, `charges_to_datetime`, `finalized_at`, `fees_amount_cents`, `coupons_amount_cents`, `sub_total_excluding_taxes_amount_cents`, `tax_amount_cents`, `sub_total_including_taxes_amount_cents`, `credit_notes_amount_cents`, `prepaid_credit_amount_cents`, `total_amount_cents`, `balance_cents`, `total_paid_amount_cents`, `currency`, `warnings`, `customer_name`, `description`, `notes`, `footer`, `timezone`, `pdf_url`, `fees`, `metadata_items`, `customer_snapshot`, `billing_entity_snapshot`, `finalize_attempts`, `finalize_first_failed_at`, `finalize_next_attempt_at`, `finalize_stuck_at`, `finalize_stuck`, `finalize_last_failure`, `void_reason`, `credit_note_id`, `credit_note_error`.
+**Output:** One item, with the [Invoice fields](#invoice-fields).
 
 ### Get many invoices
 
@@ -298,7 +310,7 @@ Get many invoices.
 | Filters > Subscription ID | Text | No |   |
 | Filters > To Date | Date and time | No |   |
 
-**Output:** One item per result, with these fields: `id`, `subscription_id`, `subscription_ids`, `customer_id`, `organization_id`, `billing_entity_id`, `invoice_number`, `invoice_type`, `status`, `payment_status`, `payment_overdue`, `dispute_status`, `issuing_date`, `payment_due_date`, `from_datetime`, `to_datetime`, `charges_from_datetime`, `charges_to_datetime`, `finalized_at`, `fees_amount_cents`, `coupons_amount_cents`, `sub_total_excluding_taxes_amount_cents`, `tax_amount_cents`, `sub_total_including_taxes_amount_cents`, `credit_notes_amount_cents`, `prepaid_credit_amount_cents`, `total_amount_cents`, `balance_cents`, `total_paid_amount_cents`, `currency`, `warnings`, `customer_name`, `description`, `notes`, `footer`, `timezone`, `pdf_url`, `fees`, `metadata_items`, `customer_snapshot`, `billing_entity_snapshot`, `finalize_attempts`, `finalize_first_failed_at`, `finalize_next_attempt_at`, `finalize_stuck_at`, `finalize_stuck`, `finalize_last_failure`, `void_reason`, `credit_note_id`, `credit_note_error`.
+**Output:** One item per result, with the [Invoice fields](#invoice-fields).
 
 **Return All** reads every page; otherwise **Limit** sets how many results to return.
 
@@ -317,7 +329,7 @@ Email a finalized invoice to the customer.
 | Additional Fields > Recipient Name | Text | No |   |
 | Additional Fields > Subject | Text | No |   |
 
-**Output:** One item with these fields: `id`, `subscription_id`, `subscription_ids`, `customer_id`, `organization_id`, `billing_entity_id`, `invoice_number`, `invoice_type`, `status`, `payment_status`, `payment_overdue`, `dispute_status`, `issuing_date`, `payment_due_date`, `from_datetime`, `to_datetime`, `charges_from_datetime`, `charges_to_datetime`, `finalized_at`, `fees_amount_cents`, `coupons_amount_cents`, `sub_total_excluding_taxes_amount_cents`, `tax_amount_cents`, `sub_total_including_taxes_amount_cents`, `credit_notes_amount_cents`, `prepaid_credit_amount_cents`, `total_amount_cents`, `balance_cents`, `total_paid_amount_cents`, `currency`, `warnings`, `customer_name`, `description`, `notes`, `footer`, `timezone`, `pdf_url`, `fees`, `metadata_items`, `customer_snapshot`, `billing_entity_snapshot`, `finalize_attempts`, `finalize_first_failed_at`, `finalize_next_attempt_at`, `finalize_stuck_at`, `finalize_stuck`, `finalize_last_failure`, `void_reason`, `credit_note_id`, `credit_note_error`.
+**Output:** One item, with the [Invoice fields](#invoice-fields).
 
 A retry with the same **Idempotency Key** is applied once. Left empty, the node makes a key that stays the same when n8n retries the item.
 
@@ -330,13 +342,17 @@ Void a finalized invoice. Voiding cancels the invoice and records the reason.
 | Invoice ID | Text | Yes | Must be an ID in UUID form. |
 | Reason | Text | Yes |   |
 
-**Output:** One item with these fields: `id`, `subscription_id`, `subscription_ids`, `customer_id`, `organization_id`, `billing_entity_id`, `invoice_number`, `invoice_type`, `status`, `payment_status`, `payment_overdue`, `dispute_status`, `issuing_date`, `payment_due_date`, `from_datetime`, `to_datetime`, `charges_from_datetime`, `charges_to_datetime`, `finalized_at`, `fees_amount_cents`, `coupons_amount_cents`, `sub_total_excluding_taxes_amount_cents`, `tax_amount_cents`, `sub_total_including_taxes_amount_cents`, `credit_notes_amount_cents`, `prepaid_credit_amount_cents`, `total_amount_cents`, `balance_cents`, `total_paid_amount_cents`, `currency`, `warnings`, `customer_name`, `description`, `notes`, `footer`, `timezone`, `pdf_url`, `fees`, `metadata_items`, `customer_snapshot`, `billing_entity_snapshot`, `finalize_attempts`, `finalize_first_failed_at`, `finalize_next_attempt_at`, `finalize_stuck_at`, `finalize_stuck`, `finalize_last_failure`, `void_reason`, `credit_note_id`, `credit_note_error`.
+**Output:** One item, with the [Invoice fields](#invoice-fields).
 
 This operation cannot be undone.
 
 ## Payment
 
 Operations on the **Payment** resource of the **LetzBill** node.
+
+### Payment fields
+
+The operations below that return a record of this resource return it with these fields: `amount_cents`, `amount_currency`, `payment_type`, `reference`, `metadata`, `id`, `payable_type`, `payable_id`, `invoice_id`, `payment_provider_id`, `payment_provider_customer_id`, `organization_id`, `customer_id`, `status`, `payable_payment_status`, `provider_payment_id`, `provider_payment_data`, `provider_payment_method_id`, `provider_payment_method_data`, `customer_name`, `invoice_number`, `refunded_amount_cents`, `refundable_amount_cents`, `receipt_id`, `receipt_eligible`, `created_at`, `updated_at`, `deleted_at`.
 
 ### Create payment
 
@@ -387,7 +403,7 @@ Get many payments.
 | Filters > Search | Text | No |   |
 | Filters > To Date | Text | No | Example: `2026-01-31`. |
 
-**Output:** One item per result, with these fields: `amount_cents`, `amount_currency`, `payment_type`, `reference`, `metadata`, `id`, `payable_type`, `payable_id`, `invoice_id`, `payment_provider_id`, `payment_provider_customer_id`, `organization_id`, `customer_id`, `status`, `payable_payment_status`, `provider_payment_id`, `provider_payment_data`, `provider_payment_method_id`, `provider_payment_method_data`, `customer_name`, `invoice_number`, `refunded_amount_cents`, `refundable_amount_cents`, `receipt_id`, `receipt_eligible`, `created_at`, `updated_at`, `deleted_at`.
+**Output:** One item per result, with the [Payment fields](#payment-fields).
 
 **Return All** reads every page; otherwise **Limit** sets how many results to return.
 
@@ -405,13 +421,17 @@ Refund a payment in full or in part. LetzBill creates a credit note for an invoi
 | Additional Fields > Metadata | JSON | No | JSON object. |
 | Additional Fields > Reason | Text | No |   |
 
-**Output:** One item with these fields: `amount_cents`, `amount_currency`, `payment_type`, `reference`, `metadata`, `id`, `payable_type`, `payable_id`, `invoice_id`, `payment_provider_id`, `payment_provider_customer_id`, `organization_id`, `customer_id`, `status`, `payable_payment_status`, `provider_payment_id`, `provider_payment_data`, `provider_payment_method_id`, `provider_payment_method_data`, `customer_name`, `invoice_number`, `refunded_amount_cents`, `refundable_amount_cents`, `receipt_id`, `receipt_eligible`, `created_at`, `updated_at`, `deleted_at`.
+**Output:** One item, with the [Payment fields](#payment-fields).
 
 This operation cannot be undone. A retry with the same **Idempotency Key** is applied once. Left empty, the node makes a key that stays the same when n8n retries the item.
 
 ## Subscription
 
 Operations on the **Subscription** resource of the **LetzBill** node.
+
+### Subscription fields
+
+The operations below that return a record of this resource return it with these fields: `id`, `organization_id`, `customer_id`, `customer_name`, `customer_external_id`, `plan_id`, `plan_name`, `plan_code`, `previous_subscription_id`, `external_id`, `name`, `billing_time`, `auto_collection`, `metadata`, `on_termination_credit_note`, `on_termination_invoice`, `status`, `started_at`, `subscription_at`, `canceled_at`, `terminated_at`, `trial_end_at`, `active_until`, `ending_at`, `scheduled_start_at`, `current_period_start`, `current_period_end`, `next_billing_at`, `grace_period_duration`, `amount_cents`, `amount_currency`, `minimum_amount_cents`, `created_at`, `updated_at`, `deleted_at`.
 
 ### Create subscription
 
@@ -443,7 +463,7 @@ Create a subscription for a customer on a plan. Name the customer by ID or exter
 | Additional Fields > Subscription At | Date and time | No |   |
 | Additional Fields > Trial End At | Date and time | No |   |
 
-**Output:** One item with these fields: `id`, `organization_id`, `customer_id`, `customer_name`, `customer_external_id`, `plan_id`, `plan_name`, `plan_code`, `previous_subscription_id`, `external_id`, `name`, `billing_time`, `auto_collection`, `metadata`, `on_termination_credit_note`, `on_termination_invoice`, `status`, `started_at`, `subscription_at`, `canceled_at`, `terminated_at`, `trial_end_at`, `active_until`, `ending_at`, `scheduled_start_at`, `current_period_start`, `current_period_end`, `next_billing_at`, `grace_period_duration`, `amount_cents`, `amount_currency`, `minimum_amount_cents`, `created_at`, `updated_at`, `deleted_at`.
+**Output:** One item, with the [Subscription fields](#subscription-fields).
 
 ### Get subscription
 
@@ -453,7 +473,7 @@ Get a subscription by ID.
 |---|---|---|---|
 | Subscription ID | Text | Yes | Must be an ID in UUID form. |
 
-**Output:** One item with these fields: `id`, `organization_id`, `customer_id`, `customer_name`, `customer_external_id`, `plan_id`, `plan_name`, `plan_code`, `previous_subscription_id`, `external_id`, `name`, `billing_time`, `auto_collection`, `metadata`, `on_termination_credit_note`, `on_termination_invoice`, `status`, `started_at`, `subscription_at`, `canceled_at`, `terminated_at`, `trial_end_at`, `active_until`, `ending_at`, `scheduled_start_at`, `current_period_start`, `current_period_end`, `next_billing_at`, `grace_period_duration`, `amount_cents`, `amount_currency`, `minimum_amount_cents`, `created_at`, `updated_at`, `deleted_at`.
+**Output:** One item, with the [Subscription fields](#subscription-fields).
 
 ### Get subscription by external ID
 
@@ -465,7 +485,7 @@ Get a subscription by the ID your system gave it.
 | Options | Optional fields | No |   |
 | Options > Customer ID | Text | No |   |
 
-**Output:** One item with these fields: `id`, `organization_id`, `customer_id`, `customer_name`, `customer_external_id`, `plan_id`, `plan_name`, `plan_code`, `previous_subscription_id`, `external_id`, `name`, `billing_time`, `auto_collection`, `metadata`, `on_termination_credit_note`, `on_termination_invoice`, `status`, `started_at`, `subscription_at`, `canceled_at`, `terminated_at`, `trial_end_at`, `active_until`, `ending_at`, `scheduled_start_at`, `current_period_start`, `current_period_end`, `next_billing_at`, `grace_period_duration`, `amount_cents`, `amount_currency`, `minimum_amount_cents`, `created_at`, `updated_at`, `deleted_at`.
+**Output:** One item, with the [Subscription fields](#subscription-fields).
 
 ### Get many subscriptions
 
@@ -481,7 +501,7 @@ Get many subscriptions.
 | Filters > Plan ID | Text | No |   |
 | Filters > Subscription Status | Option | No | One of: `Active`, `Canceled`, `Cancelling`, `Paused`, `Pending`, `Scheduled`, `Suspended`, `Terminated`, `Trial`. Default: `Active`. |
 
-**Output:** One item per result, with these fields: `id`, `organization_id`, `customer_id`, `customer_name`, `customer_external_id`, `plan_id`, `plan_name`, `plan_code`, `previous_subscription_id`, `external_id`, `name`, `billing_time`, `auto_collection`, `metadata`, `on_termination_credit_note`, `on_termination_invoice`, `status`, `started_at`, `subscription_at`, `canceled_at`, `terminated_at`, `trial_end_at`, `active_until`, `ending_at`, `scheduled_start_at`, `current_period_start`, `current_period_end`, `next_billing_at`, `grace_period_duration`, `amount_cents`, `amount_currency`, `minimum_amount_cents`, `created_at`, `updated_at`, `deleted_at`.
+**Output:** One item per result, with the [Subscription fields](#subscription-fields).
 
 **Return All** reads every page; otherwise **Limit** sets how many results to return.
 
@@ -497,7 +517,7 @@ Terminate a subscription. Billing stops, and LetzBill can issue a final invoice 
 | Additional Fields > On Termination Invoice | Option | No | One of: `Generate`, `Skip`. Default: `Generate`. |
 | Additional Fields > Termination Date | Date and time | No |   |
 
-**Output:** One item with these fields: `id`, `organization_id`, `customer_id`, `customer_name`, `customer_external_id`, `plan_id`, `plan_name`, `plan_code`, `previous_subscription_id`, `external_id`, `name`, `billing_time`, `auto_collection`, `metadata`, `on_termination_credit_note`, `on_termination_invoice`, `status`, `started_at`, `subscription_at`, `canceled_at`, `terminated_at`, `trial_end_at`, `active_until`, `ending_at`, `scheduled_start_at`, `current_period_start`, `current_period_end`, `next_billing_at`, `grace_period_duration`, `amount_cents`, `amount_currency`, `minimum_amount_cents`, `created_at`, `updated_at`, `deleted_at`.
+**Output:** One item, with the [Subscription fields](#subscription-fields).
 
 This operation cannot be undone.
 
@@ -521,11 +541,15 @@ Update a subscription.
 | Update Fields > Plan ID | Text | No |   |
 | Update Fields > Trial End At | Date and time | No |   |
 
-**Output:** One item with these fields: `id`, `organization_id`, `customer_id`, `customer_name`, `customer_external_id`, `plan_id`, `plan_name`, `plan_code`, `previous_subscription_id`, `external_id`, `name`, `billing_time`, `auto_collection`, `metadata`, `on_termination_credit_note`, `on_termination_invoice`, `status`, `started_at`, `subscription_at`, `canceled_at`, `terminated_at`, `trial_end_at`, `active_until`, `ending_at`, `scheduled_start_at`, `current_period_start`, `current_period_end`, `next_billing_at`, `grace_period_duration`, `amount_cents`, `amount_currency`, `minimum_amount_cents`, `created_at`, `updated_at`, `deleted_at`.
+**Output:** One item, with the [Subscription fields](#subscription-fields).
 
 ## Usage Event
 
 Operations on the **Usage Event** resource of the **LetzBill** node.
+
+### Usage Event fields
+
+The operations below that return a record of this resource return it with these fields: `transaction_id`, `code`, `timestamp`, `external_customer_id`, `external_subscription_id`, `properties`, `id`, `organization_id`, `customer_id`, `subscription_id`, `customer_name`, `subscription_name`, `source`, `amendment_count`, `is_amended`, `metadata`, `deleted_at`, `created_at`, `updated_at`.
 
 ### Create usage event
 
@@ -541,7 +565,7 @@ Send a usage event. LetzBill records each transaction ID once, so a retry with t
 | Additional Fields > Properties | JSON | No | JSON object. |
 | Additional Fields > Timestamp | Date and time | No |   |
 
-**Output:** One item with these fields: `transaction_id`, `code`, `timestamp`, `external_customer_id`, `external_subscription_id`, `properties`, `id`, `organization_id`, `customer_id`, `subscription_id`, `customer_name`, `subscription_name`, `source`, `amendment_count`, `is_amended`, `metadata`, `deleted_at`, `created_at`, `updated_at`.
+**Output:** One item, with the [Usage Event fields](#usage-event-fields).
 
 The service records each `transaction_id` once, so a retry with the same value is not counted twice.
 
@@ -567,7 +591,7 @@ Get a usage event by its transaction ID.
 | Options | Optional fields | No |   |
 | Options > Include Voided | Boolean | No | Whether to include voided usage events. Default: `false`. |
 
-**Output:** One item with these fields: `transaction_id`, `code`, `timestamp`, `external_customer_id`, `external_subscription_id`, `properties`, `id`, `organization_id`, `customer_id`, `subscription_id`, `customer_name`, `subscription_name`, `source`, `amendment_count`, `is_amended`, `metadata`, `deleted_at`, `created_at`, `updated_at`.
+**Output:** One item, with the [Usage Event fields](#usage-event-fields).
 
 ### Get many usage events
 
@@ -585,13 +609,17 @@ Get many usage events.
 | Filters > Timestamp From | Date and time | No |   |
 | Filters > Timestamp To | Date and time | No |   |
 
-**Output:** One item per result, with these fields: `transaction_id`, `code`, `timestamp`, `external_customer_id`, `external_subscription_id`, `properties`, `id`, `organization_id`, `customer_id`, `subscription_id`, `customer_name`, `subscription_name`, `source`, `amendment_count`, `is_amended`, `metadata`, `deleted_at`, `created_at`, `updated_at`.
+**Output:** One item per result, with the [Usage Event fields](#usage-event-fields).
 
 **Return All** reads every page; otherwise **Limit** sets how many results to return.
 
 ## Wallet
 
 Operations on the **Wallet** resource of the **LetzBill** node.
+
+### Wallet fields
+
+The operations below that return a record of this resource return it with these fields: `name`, `allowed_fee_types`, `expiration_at`, `id`, `external_customer_id`, `customer_id`, `customer_name`, `status`, `rate_amount_cents`, `rate_currency`, `recurring_top_up`, `balance_cents`, `balance_currency`, `consumed_amount_cents`, `ongoing_balance_cents`, `ongoing_usage_balance_cents`, `credits_balance`, `consumed_credits`, `credits_ongoing_balance`, `credits_ongoing_usage_balance`, `depleted_ongoing_balance`, `invoice_requires_successful_payment`, `created_at`, `updated_at`, `terminated_at`, `last_balance_sync_at`, `last_consumed_credit_at`.
 
 ### Create wallet
 
@@ -609,7 +637,7 @@ Create a prepaid wallet for a customer.
 | Additional Fields > Name | Text | No |   |
 | Additional Fields > Paid Credits | Text | No | Decimal number written as text. Example: `10.5`. |
 
-**Output:** One item with these fields: `name`, `allowed_fee_types`, `expiration_at`, `id`, `external_customer_id`, `customer_id`, `customer_name`, `status`, `rate_amount_cents`, `rate_currency`, `recurring_top_up`, `balance_cents`, `balance_currency`, `consumed_amount_cents`, `ongoing_balance_cents`, `ongoing_usage_balance_cents`, `credits_balance`, `consumed_credits`, `credits_ongoing_balance`, `credits_ongoing_usage_balance`, `depleted_ongoing_balance`, `invoice_requires_successful_payment`, `created_at`, `updated_at`, `terminated_at`, `last_balance_sync_at`, `last_consumed_credit_at`.
+**Output:** One item, with the [Wallet fields](#wallet-fields).
 
 ### Get wallet
 
@@ -619,7 +647,7 @@ Get a wallet by ID.
 |---|---|---|---|
 | Wallet ID | Text | Yes | Must be an ID in UUID form. |
 
-**Output:** One item with these fields: `name`, `allowed_fee_types`, `expiration_at`, `id`, `external_customer_id`, `customer_id`, `customer_name`, `status`, `rate_amount_cents`, `rate_currency`, `recurring_top_up`, `balance_cents`, `balance_currency`, `consumed_amount_cents`, `ongoing_balance_cents`, `ongoing_usage_balance_cents`, `credits_balance`, `consumed_credits`, `credits_ongoing_balance`, `credits_ongoing_usage_balance`, `depleted_ongoing_balance`, `invoice_requires_successful_payment`, `created_at`, `updated_at`, `terminated_at`, `last_balance_sync_at`, `last_consumed_credit_at`.
+**Output:** One item, with the [Wallet fields](#wallet-fields).
 
 ### Get many wallets
 
@@ -635,7 +663,7 @@ Get many wallets.
 | Filters > Search | Text | No |   |
 | Filters > Status | Text | No |   |
 
-**Output:** One item per result, with these fields: `name`, `allowed_fee_types`, `expiration_at`, `id`, `external_customer_id`, `customer_id`, `customer_name`, `status`, `rate_amount_cents`, `rate_currency`, `recurring_top_up`, `balance_cents`, `balance_currency`, `consumed_amount_cents`, `ongoing_balance_cents`, `ongoing_usage_balance_cents`, `credits_balance`, `consumed_credits`, `credits_ongoing_balance`, `credits_ongoing_usage_balance`, `depleted_ongoing_balance`, `invoice_requires_successful_payment`, `created_at`, `updated_at`, `terminated_at`, `last_balance_sync_at`, `last_consumed_credit_at`.
+**Output:** One item per result, with the [Wallet fields](#wallet-fields).
 
 **Return All** reads every page; otherwise **Limit** sets how many results to return.
 
@@ -670,11 +698,15 @@ Add paid or granted credits to a wallet.
 | Additional Fields > Reset Consumed Credits | Boolean | No | Whether to reset the consumed credits of the wallet. Default: `false`. |
 | Additional Fields > Source | Option | No | One of: `Interval`, `Manual`, `Threshold`. Default: `Interval`. |
 
-**Output:** One item with these fields: `name`, `allowed_fee_types`, `expiration_at`, `id`, `external_customer_id`, `customer_id`, `customer_name`, `status`, `rate_amount_cents`, `rate_currency`, `recurring_top_up`, `balance_cents`, `balance_currency`, `consumed_amount_cents`, `ongoing_balance_cents`, `ongoing_usage_balance_cents`, `credits_balance`, `consumed_credits`, `credits_ongoing_balance`, `credits_ongoing_usage_balance`, `depleted_ongoing_balance`, `invoice_requires_successful_payment`, `created_at`, `updated_at`, `terminated_at`, `last_balance_sync_at`, `last_consumed_credit_at`.
+**Output:** One item, with the [Wallet fields](#wallet-fields).
 
 ## Webhook Endpoint
 
 Operations on the **Webhook Endpoint** resource of the **LetzBill** node.
+
+### Webhook Endpoint fields
+
+The operations below that return a record of this resource return it with these fields: `id`, `organization_id`, `webhook_url`, `signature_algo`, `active`, `max_attempts`, `event_types`, `deleted_at`, `disabled_at`, `disabled_reason`, `created_at`, `updated_at`.
 
 ### Delete webhook endpoint
 
@@ -696,7 +728,7 @@ Get a webhook endpoint by ID.
 |---|---|---|---|
 | Endpoint ID | Text | Yes | Must be an ID in UUID form. |
 
-**Output:** One item with these fields: `id`, `organization_id`, `webhook_url`, `signature_algo`, `active`, `max_attempts`, `event_types`, `deleted_at`, `disabled_at`, `disabled_reason`, `created_at`, `updated_at`.
+**Output:** One item, with the [Webhook Endpoint fields](#webhook-endpoint-fields).
 
 ### Get many webhook endpoints
 
@@ -711,7 +743,7 @@ Get many webhook endpoints.
 | Filters > Event Type | Text | No |   |
 | Filters > URL | Text | No |   |
 
-**Output:** One item per result, with these fields: `id`, `organization_id`, `webhook_url`, `signature_algo`, `active`, `max_attempts`, `event_types`, `deleted_at`, `disabled_at`, `disabled_reason`, `created_at`, `updated_at`.
+**Output:** One item per result, with the [Webhook Endpoint fields](#webhook-endpoint-fields).
 
 **Return All** reads every page; otherwise **Limit** sets how many results to return.
 
