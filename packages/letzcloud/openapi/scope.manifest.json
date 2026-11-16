@@ -53,6 +53,10 @@
 	"fieldOptions": {
 		"VmStateUpdate.action": ["start", "stop", "reboot"]
 	},
+	"displayNames": {
+		"ContainerCreate.l3_customer_id": "Customer ID",
+		"DatabaseClusterCreate.l3_customer_id": "Customer ID"
+	},
 	"parameterNames": {
 		"VmStateUpdate.action": "stateAction"
 	},
@@ -389,7 +393,8 @@
 			"uses": [
 				{ "method": "GET", "path": "/api/v1/jobs/{job_id}" },
 				{ "method": "GET", "path": "/api/v1/kubernetes/clusters/{cluster_id}" }
-			]
+			],
+			"outputAdded": ["wait"]
 		},
 		{
 			"resource": "container",

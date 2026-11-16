@@ -170,7 +170,7 @@ export function describeLetzCloudRefusal(status: number, body: unknown): Refusal
 			kind: 'permission',
 			message: 'LetzCloud did not accept the API key',
 			description:
-				'Check the API key and the appliance URL in the LetzCloud credential. Only service-account keys, which start with bff_sa_, are accepted.',
+				'Check the API key and the LetzCloud URL in the LetzCloud credential. Only service-account keys, which start with bff_sa_, are accepted.',
 		};
 	}
 	if (status === 403) {

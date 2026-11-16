@@ -235,9 +235,9 @@ export function requireSafePathSegments(parameters: string[]) {
  */
 export function assertHttpsBaseUrl(baseUrl: unknown, node: INode): void {
 	if (!/^https:\/\//i.test(String(baseUrl ?? '').trim())) {
-		throw new NodeOperationError(node, "The LetzCloud credential's appliance URL must start with 'https://'", {
+		throw new NodeOperationError(node, "The LetzCloud credential's URL must start with 'https://'", {
 			description:
-				"The API key is sent with every request; over plain 'http://' it could be read and reused. Use the 'https://' address of the appliance.",
+				"The API key is sent with every request; over plain 'http://' it could be read and reused. Use the 'https://' address of your LetzCloud console.",
 		});
 	}
 }

@@ -205,6 +205,9 @@ export function generate({ manifest, openapi, openapiName = manifest.openapi }) 
 	// n8n parameter names for body fields whose own name n8n's lint reserves (an options parameter
 	// named 'action' is read as an operation list). The request still sends the field's own name.
 	const parameterNames = manifest.parameterNames ?? {};
+	// Labels for body fields whose own name would show an internal word in n8n. The parameter name
+	// and the field sent keep the field's own name.
+	const displayNames = manifest.displayNames ?? {};
 
 	// Every schema the money rules name must still carry the field they name.
 	for (const [kind, table] of [
@@ -245,6 +248,13 @@ export function generate({ manifest, openapi, openapiName = manifest.openapi }) 
 		const [title, f] = key.split('.');
 		if (!components[title]?.properties?.[f]) problems.push(`parameterNames: ${title} has no field '${f}'`);
 		if (typeof name !== 'string' || !IDENT.test(name)) problems.push(`parameterNames: ${key} is not a parameter name`);
+	}
+	for (const [key, label] of Object.entries(displayNames)) {
+		const [title, f] = key.split('.');
+		if (!components[title]?.properties?.[f]) problems.push(`displayNames: ${title} has no field '${f}'`);
+		if (typeof label !== 'string' || !label || titleCase(label) !== label) {
+			problems.push(`displayNames: ${key} is not a Title Case label`);
+		}
 	}
 	for (const [key, values] of Object.entries(fieldOptions)) {
 		const [title, f] = key.split('.');
@@ -358,7 +368,11 @@ export function generate({ manifest, openapi, openapiName = manifest.openapi }) 
 	const fieldParameter = (field, raw, ctx) => {
 		const s = solid(raw);
 		const renamed = ctx.owner ? parameterNames[`${ctx.owner}.${field}`] : undefined;
-		const p = { displayName: display(field), name: typeof renamed === 'string' ? renamed : camelName(field) };
+		const label = ctx.owner ? displayNames[`${ctx.owner}.${field}`] : undefined;
+		const p = {
+			displayName: typeof label === 'string' ? label : display(field),
+			name: typeof renamed === 'string' ? renamed : camelName(field),
+		};
 		let jsonValue = false;
 		let description;
 		const listed = ctx.owner ? fieldOptions[`${ctx.owner}.${field}`] : undefined;

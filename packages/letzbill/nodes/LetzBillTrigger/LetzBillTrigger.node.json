@@ -6,12 +6,12 @@
 	"resources": {
 		"credentialDocumentation": [
 			{
-				"url": "https://github.com/helmajbri/altarys-n8n-nodes/tree/main/packages/letzbill#credentials"
+				"url": "https://github.com/helmajbri/altarys-n8n-nodes/blob/main/packages/letzbill/docs/credentials.md"
 			}
 		],
 		"primaryDocumentation": [
 			{
-				"url": "https://github.com/helmajbri/altarys-n8n-nodes/tree/main/packages/letzbill#trigger"
+				"url": "https://github.com/helmajbri/altarys-n8n-nodes/blob/main/packages/letzbill/docs/trigger.md"
 			}
 		]
 	}

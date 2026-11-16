@@ -3281,6 +3281,18 @@ export const generatedProperties: INodeProperties[] = [
 				},
 			},
 			{
+				displayName: 'Customer ID',
+				name: 'l3CustomerId',
+				type: 'string',
+				default: '',
+				routing: {
+					send: {
+						type: 'body',
+						property: 'l3_customer_id',
+					},
+				},
+			},
+			{
 				displayName: 'Environment Variables',
 				name: 'environmentVariables',
 				type: 'json',
@@ -3320,18 +3332,6 @@ export const generatedProperties: INodeProperties[] = [
 					send: {
 						type: 'body',
 						property: 'health_check_port',
-					},
-				},
-			},
-			{
-				displayName: 'L3 Customer ID',
-				name: 'l3CustomerId',
-				type: 'string',
-				default: '',
-				routing: {
-					send: {
-						type: 'body',
-						property: 'l3_customer_id',
 					},
 				},
 			},
@@ -3677,6 +3677,18 @@ export const generatedProperties: INodeProperties[] = [
 				},
 			},
 			{
+				displayName: 'Customer ID',
+				name: 'l3CustomerId',
+				type: 'string',
+				default: '',
+				routing: {
+					send: {
+						type: 'body',
+						property: 'l3_customer_id',
+					},
+				},
+			},
+			{
 				displayName: 'HA Enabled',
 				name: 'haEnabled',
 				type: 'boolean',
@@ -3698,18 +3710,6 @@ export const generatedProperties: INodeProperties[] = [
 					send: {
 						type: 'body',
 						property: 'kms_key_id',
-					},
-				},
-			},
-			{
-				displayName: 'L3 Customer ID',
-				name: 'l3CustomerId',
-				type: 'string',
-				default: '',
-				routing: {
-					send: {
-						type: 'body',
-						property: 'l3_customer_id',
 					},
 				},
 			},

@@ -1,7 +1,7 @@
 {
 	"name": "@altarys/n8n-nodes-letzcloud",
 	"version": "0.1.0",
-	"description": "n8n nodes for LetzCloud: manage instances, volumes, snapshots, networks, Kubernetes clusters, containers, databases and DNS records on a LetzCloud appliance, read your own invoices, usage and wallet, and start workflows from signed LetzCloud webhooks",
+	"description": "n8n nodes for LetzCloud: manage instances, volumes, snapshots, networks, Kubernetes clusters, containers, databases and DNS records in LetzCloud, read your own invoices, usage and wallet, and start workflows from signed LetzCloud webhooks",
 	"license": "MIT",
 	"homepage": "https://github.com/helmajbri/altarys-n8n-nodes/tree/main/packages/letzcloud#readme",
 	"keywords": [

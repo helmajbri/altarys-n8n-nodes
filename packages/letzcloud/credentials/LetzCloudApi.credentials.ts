@@ -30,17 +30,17 @@ export class LetzCloudApi implements ICredentialType {
 
 	icon: Icon = { light: 'file:../icons/letzcloud.svg', dark: 'file:../icons/letzcloud.dark.svg' };
 
-	documentationUrl = 'https://github.com/helmajbri/altarys-n8n-nodes/tree/main/packages/letzcloud#credentials';
+	documentationUrl = 'https://github.com/helmajbri/altarys-n8n-nodes/blob/main/packages/letzcloud/docs/credentials.md';
 
 	properties: INodeProperties[] = [
 		{
-			displayName: 'Appliance URL',
+			displayName: 'LetzCloud URL',
 			name: 'baseUrl',
 			type: 'string',
 			default: '',
 			placeholder: 'e.g. https://cloud.example.com',
 			description:
-				"Address of your LetzCloud appliance, without the /api/v1 path. Each appliance has its own address; ask your cloud provider. It must use HTTPS: the key is never sent over plain HTTP.",
+				'Address of your LetzCloud console, without the /api/v1 path. Your cloud provider gives you this address. It must use HTTPS: the key is never sent over plain HTTP.',
 			required: true,
 		},
 		{
@@ -50,14 +50,14 @@ export class LetzCloudApi implements ICredentialType {
 			typeOptions: { password: true },
 			default: '',
 			description:
-				'A LetzCloud service-account key; it starts with bff_sa_. A provider key manages the whole organization; a customer key only what belongs to that customer. The key is sent only after the appliance check passes, and only while the hidden Appliance Check field is empty, as n8n keeps it.',
+				'A LetzCloud service-account key; it starts with bff_sa_. A provider key manages the whole organization; a customer key only what belongs to that customer. n8n sends the key only to an HTTPS address that answers as LetzCloud.',
 			required: true,
 		},
 		{
 			// Never set. An empty expirable field makes n8n run preAuthentication before every
 			// request it authenticates with this credential, the credential test included. n8n
 			// fills a missing value with this default before it reads it.
-			displayName: 'Appliance Check',
+			displayName: 'Address Check',
 			name: 'applianceCheck',
 			type: 'hidden',
 			typeOptions: { expirable: true },
@@ -77,7 +77,7 @@ export class LetzCloudApi implements ICredentialType {
 			.replace(/\/+$/, '');
 		if (!/^https:\/\/[^/]/i.test(baseUrl)) {
 			throw new Error(
-				"The LetzCloud appliance URL must start with 'https://'. The API key was not sent: over plain 'http://' it could be read and reused.",
+				"The LetzCloud URL must start with 'https://'. The API key was not sent: over plain 'http://' it could be read and reused.",
 			);
 		}
 		let descriptor: unknown;
@@ -90,12 +90,12 @@ export class LetzCloudApi implements ICredentialType {
 			});
 		} catch {
 			throw new Error(
-				`No LetzCloud appliance answered at ${baseUrl}. Check the appliance URL: it is the address of your cloud console (for example https://cloud.example.com). The API key was not sent.`,
+				`No LetzCloud server answered at ${baseUrl}. Check the LetzCloud URL: it is the address of your cloud console (for example https://cloud.example.com). The API key was not sent.`,
 			);
 		}
 		if (!isApplianceDescriptor(descriptor)) {
 			throw new Error(
-				`${baseUrl} answered, but not as a LetzCloud appliance. Check the appliance URL. The API key was not sent.`,
+				`${baseUrl} answered, but not as a LetzCloud server. Check the LetzCloud URL. The API key was not sent.`,
 			);
 		}
 		return {};
@@ -129,7 +129,7 @@ export class LetzCloudApi implements ICredentialType {
 				properties: {
 					value: 401,
 					message:
-						'The appliance did not accept the API key. Check that it is a LetzCloud service-account key (it starts with bff_sa_) and that it has not been revoked.',
+						'LetzCloud did not accept the API key. Check that it is a LetzCloud service-account key (it starts with bff_sa_) and that it has not been revoked.',
 				},
 			},
 			{
@@ -137,7 +137,7 @@ export class LetzCloudApi implements ICredentialType {
 				properties: {
 					value: 403,
 					message:
-						"The appliance accepted the API key, but the key may not list instances (the 'vm:read' permission). It can still be used for the operations it has permissions for.",
+						"LetzCloud accepted the API key, but the key may not list instances (the 'vm:read' permission). It can still be used for the operations it has permissions for.",
 				},
 			},
 		],
