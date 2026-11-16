@@ -10,7 +10,7 @@
 //
 // Usage:
 //   node ../../tools/check-docs.mjs .         in a package folder, after `npm run build`
-//   node tools/check-docs.mjs --repo .        the repository's own pages (README.md, SECURITY.md)
+//   node tools/check-docs.mjs --repo .        the repository's own pages (README.md, SECURITY.md, RELEASING.md)
 
 import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs';
 import { dirname, join, relative, resolve, sep } from 'node:path';
@@ -575,7 +575,7 @@ export function checkPackageDocs(packageDir, loaded = loadPackage(packageDir)) {
 export function checkRepositoryDocs(root) {
 	const { terms, allow } = readTerms();
 	const rel = relFrom(root);
-	const pages = ['README.md', 'SECURITY.md'].map((p) => join(root, p));
+	const pages = ['README.md', 'SECURITY.md', 'RELEASING.md'].map((p) => join(root, p));
 	const problems = [];
 	for (const p of pages) if (!existsSync(p)) problems.push(`${rel(p)} is missing`);
 	const present = pages.filter(existsSync);

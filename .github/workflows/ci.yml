@@ -176,7 +176,7 @@ jobs:
         # Generated operations references are scoped out (reason in .vale.ini). Vale exits 1 only
         # on errors, so any reported line (warning or error) fails the step.
         run: |
-          files=$(ls README.md SECURITY.md packages/*/README.md packages/*/CHANGELOG.md packages/*/docs/*.md | grep -v '/docs/operations\.md$')
+          files=$(ls README.md SECURITY.md RELEASING.md packages/*/README.md packages/*/CHANGELOG.md packages/*/docs/*.md | grep -v '/docs/operations\.md$')
           set +e
           "$RUNNER_TEMP/vale/vale" --no-wrap --output=line $files > vale.txt
           status=$?
