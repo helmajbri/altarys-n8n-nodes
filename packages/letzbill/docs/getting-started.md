@@ -30,7 +30,7 @@ n8n's own guide to [installing community nodes](https://docs.n8n.io/integrations
 5. Select **Create**.
 6. Select **Copy key**, store the key somewhere safe, tick **I have copied and stored this key securely.**, and select **Done**. The console never shows the key again.
 
-The key starts with `fb_`. You also need the address of the LetzBill API: see [Find the API URL](credentials.md#find-the-api-url).
+The key starts with `fb_`. You also need the address of the LetzBill API. The same page shows it under **API address**: select **Copy API address** and keep it for the next step. If the page says **API address not published**, see [Find the API URL](credentials.md#find-the-api-url).
 
 ## Step 3: Add the credential in n8n
 

@@ -38,7 +38,7 @@ Every parameter and output field is in the [operations reference](docs/operation
 
 ## Credentials
 
-You need a LetzBill API key and the address of the LetzBill API. A LetzBill API key starts with `fb_`, and you create it in the console under **Billing** > **Developers** > **API keys**. Your LetzBill account contact gives you the API address, which must start with `https://`.
+You need a LetzBill API key and the address of the LetzBill API. A LetzBill API key starts with `fb_`, and you create it in the console under **Billing** > **Developers** > **API keys**. The same page shows the API address, which must start with `https://`.
 
 Step-by-step instructions, the permissions each node needs, and how to replace a key are in [Credentials](docs/credentials.md).
 

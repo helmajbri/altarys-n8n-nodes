@@ -33,11 +33,18 @@ This page is for cloud providers' staff. Customers of a cloud provider don't use
 
 ## Find the API URL
 
-<!-- To update: when the console shows the LetzBill API address on the API keys page, replace this section with the steps to read it there. -->
+The console shows the address of the LetzBill API on the **API keys** page, as **API address**.
 
-Your LetzBill account contact gives you the API address. The console will show it on the **API keys** page.
+1. In the console, open **Billing**.
+2. In the sidebar, under **Developers**, select **API keys**.
+3. Under **API address**, select **Copy API address**.
+4. Paste the address into the **API URL** field of the credential. If it ends with `/api/v1`, leave that part out.
 
-Enter it in **API URL** without `/api/v1`, for example `https://billing.example.com`.
+The address must start with `https://`, for example `https://billing.example.com`.
+
+### If the address isn't published yet
+
+Instead of the address, the page can show **API address not published**. LetzBill's own administrators publish the address, and until they do, the page has nothing to show. Meanwhile, ask your LetzBill account contact for the address, and enter it in **API URL** the same way.
 
 ## Add the credential in n8n
 
