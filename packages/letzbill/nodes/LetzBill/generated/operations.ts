@@ -1196,6 +1196,7 @@ export const generatedProperties: INodeProperties[] = [
 		type: 'string',
 		default: '',
 		required: true,
+		description: 'Your own unique ID for the customer, up to 255 characters. Get by External ID finds the customer with it.',
 		routing: {
 			send: {
 				type: 'body',
@@ -1235,6 +1236,7 @@ export const generatedProperties: INodeProperties[] = [
 				name: 'accountType',
 				type: 'string',
 				default: '',
+				description: 'Either \'customer\' (default) or \'partner\'',
 				routing: {
 					send: {
 						type: 'body',
@@ -1271,6 +1273,7 @@ export const generatedProperties: INodeProperties[] = [
 				name: 'appliedDunningCampaignId',
 				type: 'string',
 				default: '',
+				description: 'ID of the dunning campaign to apply to this customer',
 				routing: {
 					send: {
 						type: 'body',
@@ -1288,6 +1291,7 @@ export const generatedProperties: INodeProperties[] = [
 					minValue: 1,
 					maxValue: 28,
 				},
+				description: 'Day of the month on which the customer is billed, from 1 to 28',
 				routing: {
 					send: {
 						type: 'body',
@@ -1300,6 +1304,7 @@ export const generatedProperties: INodeProperties[] = [
 				name: 'billingEntityId',
 				type: 'string',
 				default: '',
+				description: 'ID of the billing entity that issues this customer\'s invoices',
 				routing: {
 					send: {
 						type: 'body',
@@ -1324,6 +1329,7 @@ export const generatedProperties: INodeProperties[] = [
 				name: 'country',
 				type: 'string',
 				default: '',
+				description: 'Two-letter ISO 3166-1 country code, such as LU or DE',
 				routing: {
 					send: {
 						type: 'body',
@@ -1350,6 +1356,7 @@ export const generatedProperties: INodeProperties[] = [
 				name: 'customerType',
 				type: 'string',
 				default: '',
+				description: 'Either \'company\' or \'individual\'',
 				routing: {
 					send: {
 						type: 'body',
@@ -1362,6 +1369,7 @@ export const generatedProperties: INodeProperties[] = [
 				name: 'documentLocale',
 				type: 'string',
 				default: '',
+				description: 'Language of the customer\'s documents as an ISO 639-1 code, such as en or fr',
 				routing: {
 					send: {
 						type: 'body',
@@ -1400,6 +1408,7 @@ export const generatedProperties: INodeProperties[] = [
 				name: 'externalSalesforceId',
 				type: 'string',
 				default: '',
+				description: 'ID of the customer in Salesforce, if you use it',
 				routing: {
 					send: {
 						type: 'body',
@@ -1412,6 +1421,7 @@ export const generatedProperties: INodeProperties[] = [
 				name: 'finalizeZeroAmountInvoice',
 				type: 'string',
 				default: '',
+				description: 'What happens to an invoice of zero: \'inherit\' (default, follow the organization setting), \'skip\' or \'finalize\'',
 				routing: {
 					send: {
 						type: 'body',
@@ -1424,6 +1434,7 @@ export const generatedProperties: INodeProperties[] = [
 				name: 'invoiceConsolidation',
 				type: 'string',
 				default: '',
+				description: 'Either \'individual\' (default, one invoice per subscription) or \'consolidated\' (one invoice for all subscriptions)',
 				routing: {
 					send: {
 						type: 'body',
@@ -1440,6 +1451,7 @@ export const generatedProperties: INodeProperties[] = [
 					numberPrecision: 0,
 					minValue: 0,
 				},
+				description: 'Invoice grace period in days',
 				routing: {
 					send: {
 						type: 'body',
@@ -1518,6 +1530,7 @@ export const generatedProperties: INodeProperties[] = [
 					numberPrecision: 0,
 					minValue: 0,
 				},
+				description: 'Number of days the customer has to pay an invoice',
 				routing: {
 					send: {
 						type: 'body',
@@ -1530,6 +1543,7 @@ export const generatedProperties: INodeProperties[] = [
 				name: 'paymentProviderCode',
 				type: 'string',
 				default: '',
+				description: 'Code of the payment provider connection that collects this customer\'s payments',
 				routing: {
 					send: {
 						type: 'body',
@@ -1605,6 +1619,7 @@ export const generatedProperties: INodeProperties[] = [
 				name: 'timezone',
 				type: 'string',
 				default: '',
+				description: 'Time zone of the customer as an IANA name, such as Europe/Luxembourg',
 				routing: {
 					send: {
 						type: 'body',
@@ -1629,6 +1644,7 @@ export const generatedProperties: INodeProperties[] = [
 				name: 'vatId',
 				type: 'string',
 				default: '',
+				description: 'EU VAT number of a business customer, such as LU12345678',
 				routing: {
 					send: {
 						type: 'body',
@@ -1670,6 +1686,7 @@ export const generatedProperties: INodeProperties[] = [
 		type: 'string',
 		required: true,
 		default: '',
+		description: 'ID of the customer',
 		displayOptions: {
 			show: {
 				resource: [
@@ -1687,6 +1704,7 @@ export const generatedProperties: INodeProperties[] = [
 		type: 'string',
 		required: true,
 		default: '',
+		description: 'ID of the customer',
 		displayOptions: {
 			show: {
 				resource: [
@@ -1704,6 +1722,7 @@ export const generatedProperties: INodeProperties[] = [
 		type: 'string',
 		required: true,
 		default: '',
+		description: 'The External ID you gave the customer',
 		displayOptions: {
 			show: {
 				resource: [
@@ -1796,6 +1815,7 @@ export const generatedProperties: INodeProperties[] = [
 				type: 'string',
 				default: '',
 				placeholder: 'name@email.com',
+				description: 'Only customers with this email address',
 				routing: {
 					send: {
 						type: 'query',
@@ -1808,6 +1828,7 @@ export const generatedProperties: INodeProperties[] = [
 				name: 'externalId',
 				type: 'string',
 				default: '',
+				description: 'Only the record with this External ID',
 				routing: {
 					send: {
 						type: 'query',
@@ -1820,6 +1841,7 @@ export const generatedProperties: INodeProperties[] = [
 				name: 'search',
 				type: 'string',
 				default: '',
+				description: 'Text to search for',
 				routing: {
 					send: {
 						type: 'query',
@@ -1835,6 +1857,7 @@ export const generatedProperties: INodeProperties[] = [
 		type: 'string',
 		required: true,
 		default: '',
+		description: 'ID of the customer',
 		displayOptions: {
 			show: {
 				resource: [
@@ -1868,6 +1891,7 @@ export const generatedProperties: INodeProperties[] = [
 				name: 'accountType',
 				type: 'string',
 				default: '',
+				description: 'Either \'customer\' or \'partner\'',
 				routing: {
 					send: {
 						type: 'body',
@@ -1904,6 +1928,7 @@ export const generatedProperties: INodeProperties[] = [
 				name: 'appliedDunningCampaignId',
 				type: 'string',
 				default: '',
+				description: 'ID of the dunning campaign to apply to this customer',
 				routing: {
 					send: {
 						type: 'body',
@@ -1921,6 +1946,7 @@ export const generatedProperties: INodeProperties[] = [
 					minValue: 1,
 					maxValue: 28,
 				},
+				description: 'Day of the month on which the customer is billed, from 1 to 28',
 				routing: {
 					send: {
 						type: 'body',
@@ -1933,6 +1959,7 @@ export const generatedProperties: INodeProperties[] = [
 				name: 'billingEntityId',
 				type: 'string',
 				default: '',
+				description: 'ID of the billing entity that issues this customer\'s invoices',
 				routing: {
 					send: {
 						type: 'body',
@@ -1957,6 +1984,7 @@ export const generatedProperties: INodeProperties[] = [
 				name: 'country',
 				type: 'string',
 				default: '',
+				description: 'Two-letter ISO 3166-1 country code, such as LU or DE',
 				routing: {
 					send: {
 						type: 'body',
@@ -1983,6 +2011,7 @@ export const generatedProperties: INodeProperties[] = [
 				name: 'customerType',
 				type: 'string',
 				default: '',
+				description: 'Either \'company\' or \'individual\'',
 				routing: {
 					send: {
 						type: 'body',
@@ -1995,6 +2024,7 @@ export const generatedProperties: INodeProperties[] = [
 				name: 'documentLocale',
 				type: 'string',
 				default: '',
+				description: 'Language of the customer\'s documents as an ISO 639-1 code, such as en or fr',
 				routing: {
 					send: {
 						type: 'body',
@@ -2033,6 +2063,7 @@ export const generatedProperties: INodeProperties[] = [
 				name: 'externalSalesforceId',
 				type: 'string',
 				default: '',
+				description: 'ID of the customer in Salesforce, if you use it',
 				routing: {
 					send: {
 						type: 'body',
@@ -2045,6 +2076,7 @@ export const generatedProperties: INodeProperties[] = [
 				name: 'finalizeZeroAmountInvoice',
 				type: 'string',
 				default: '',
+				description: 'What happens to an invoice of zero: \'inherit\' (follow the organization setting), \'skip\' or \'finalize\'',
 				routing: {
 					send: {
 						type: 'body',
@@ -2057,6 +2089,7 @@ export const generatedProperties: INodeProperties[] = [
 				name: 'invoiceConsolidation',
 				type: 'string',
 				default: '',
+				description: 'Either \'individual\' (one invoice per subscription) or \'consolidated\' (one invoice for all subscriptions)',
 				routing: {
 					send: {
 						type: 'body',
@@ -2073,6 +2106,7 @@ export const generatedProperties: INodeProperties[] = [
 					numberPrecision: 0,
 					minValue: 0,
 				},
+				description: 'Invoice grace period in days',
 				routing: {
 					send: {
 						type: 'body',
@@ -2151,6 +2185,7 @@ export const generatedProperties: INodeProperties[] = [
 					numberPrecision: 0,
 					minValue: 0,
 				},
+				description: 'Number of days the customer has to pay an invoice',
 				routing: {
 					send: {
 						type: 'body',
@@ -2163,6 +2198,7 @@ export const generatedProperties: INodeProperties[] = [
 				name: 'paymentProviderCode',
 				type: 'string',
 				default: '',
+				description: 'Code of the payment provider connection that collects this customer\'s payments',
 				routing: {
 					send: {
 						type: 'body',
@@ -2238,6 +2274,7 @@ export const generatedProperties: INodeProperties[] = [
 				name: 'timezone',
 				type: 'string',
 				default: '',
+				description: 'Time zone of the customer as an IANA name, such as Europe/Luxembourg',
 				routing: {
 					send: {
 						type: 'body',
@@ -2262,6 +2299,7 @@ export const generatedProperties: INodeProperties[] = [
 				name: 'vatId',
 				type: 'string',
 				default: '',
+				description: 'EU VAT number of a business customer, such as LU12345678',
 				routing: {
 					send: {
 						type: 'body',
@@ -2303,6 +2341,7 @@ export const generatedProperties: INodeProperties[] = [
 		type: 'string',
 		default: '',
 		required: true,
+		description: 'Your own unique ID for the subscription, up to 255 characters',
 		routing: {
 			send: {
 				type: 'body',
@@ -2458,6 +2497,7 @@ export const generatedProperties: INodeProperties[] = [
 				name: 'customerExternalId',
 				type: 'string',
 				default: '',
+				description: 'The External ID of the customer. Set this or Customer ID.',
 				routing: {
 					send: {
 						type: 'body',
@@ -2470,6 +2510,7 @@ export const generatedProperties: INodeProperties[] = [
 				name: 'customerId',
 				type: 'string',
 				default: '',
+				description: 'ID of the customer. Set this or Customer External ID.',
 				routing: {
 					send: {
 						type: 'body',
@@ -2482,6 +2523,7 @@ export const generatedProperties: INodeProperties[] = [
 				name: 'endingAt',
 				type: 'dateTime',
 				default: '',
+				description: 'When the subscription ends; leave empty for no end date',
 				routing: {
 					send: {
 						type: 'body',
@@ -2568,6 +2610,7 @@ export const generatedProperties: INodeProperties[] = [
 				name: 'planCode',
 				type: 'string',
 				default: '',
+				description: 'Code of the plan. Set this or Plan ID.',
 				routing: {
 					send: {
 						type: 'body',
@@ -2580,6 +2623,7 @@ export const generatedProperties: INodeProperties[] = [
 				name: 'planId',
 				type: 'string',
 				default: '',
+				description: 'ID of the plan. Set this or Plan Code.',
 				routing: {
 					send: {
 						type: 'body',
@@ -2592,6 +2636,7 @@ export const generatedProperties: INodeProperties[] = [
 				name: 'planVersionId',
 				type: 'string',
 				default: '',
+				description: 'ID of a specific version of the plan',
 				routing: {
 					send: {
 						type: 'body',
@@ -2604,6 +2649,7 @@ export const generatedProperties: INodeProperties[] = [
 				name: 'scheduledStartAt',
 				type: 'dateTime',
 				default: '',
+				description: 'Date and time to start the subscription later',
 				routing: {
 					send: {
 						type: 'body',
@@ -2616,6 +2662,7 @@ export const generatedProperties: INodeProperties[] = [
 				name: 'startedAt',
 				type: 'dateTime',
 				default: '',
+				description: 'When the subscription starts',
 				routing: {
 					send: {
 						type: 'body',
@@ -2628,6 +2675,7 @@ export const generatedProperties: INodeProperties[] = [
 				name: 'subscriptionAt',
 				type: 'dateTime',
 				default: '',
+				description: 'Date and time the subscription was agreed',
 				routing: {
 					send: {
 						type: 'body',
@@ -2640,6 +2688,7 @@ export const generatedProperties: INodeProperties[] = [
 				name: 'trialEndAt',
 				type: 'dateTime',
 				default: '',
+				description: 'When the free trial ends',
 				routing: {
 					send: {
 						type: 'body',
@@ -2655,6 +2704,7 @@ export const generatedProperties: INodeProperties[] = [
 		type: 'string',
 		required: true,
 		default: '',
+		description: 'ID of the subscription',
 		displayOptions: {
 			show: {
 				resource: [
@@ -2672,6 +2722,7 @@ export const generatedProperties: INodeProperties[] = [
 		type: 'string',
 		required: true,
 		default: '',
+		description: 'The External ID you gave the subscription',
 		displayOptions: {
 			show: {
 				resource: [
@@ -2705,6 +2756,7 @@ export const generatedProperties: INodeProperties[] = [
 				name: 'customerId',
 				type: 'string',
 				default: '',
+				description: 'Only records of this customer, by its ID',
 				routing: {
 					send: {
 						type: 'query',
@@ -2794,6 +2846,7 @@ export const generatedProperties: INodeProperties[] = [
 				name: 'customerId',
 				type: 'string',
 				default: '',
+				description: 'Only records of this customer, by its ID',
 				routing: {
 					send: {
 						type: 'query',
@@ -2806,6 +2859,7 @@ export const generatedProperties: INodeProperties[] = [
 				name: 'externalId',
 				type: 'string',
 				default: '',
+				description: 'Only the record with this External ID',
 				routing: {
 					send: {
 						type: 'query',
@@ -2818,6 +2872,7 @@ export const generatedProperties: INodeProperties[] = [
 				name: 'planId',
 				type: 'string',
 				default: '',
+				description: 'Only subscriptions of this plan, by its ID',
 				routing: {
 					send: {
 						type: 'query',
@@ -2883,6 +2938,7 @@ export const generatedProperties: INodeProperties[] = [
 		type: 'string',
 		required: true,
 		default: '',
+		description: 'ID of the subscription',
 		displayOptions: {
 			show: {
 				resource: [
@@ -2964,6 +3020,7 @@ export const generatedProperties: INodeProperties[] = [
 				name: 'terminationDate',
 				type: 'dateTime',
 				default: '',
+				description: 'Date and time the subscription ends',
 				routing: {
 					send: {
 						type: 'body',
@@ -2979,6 +3036,7 @@ export const generatedProperties: INodeProperties[] = [
 		type: 'string',
 		required: true,
 		default: '',
+		description: 'ID of the subscription',
 		displayOptions: {
 			show: {
 				resource: [
@@ -3078,6 +3136,7 @@ export const generatedProperties: INodeProperties[] = [
 				name: 'endingAt',
 				type: 'dateTime',
 				default: '',
+				description: 'When the subscription ends',
 				routing: {
 					send: {
 						type: 'body',
@@ -3164,6 +3223,7 @@ export const generatedProperties: INodeProperties[] = [
 				name: 'planId',
 				type: 'string',
 				default: '',
+				description: 'ID of the plan to move the subscription to',
 				routing: {
 					send: {
 						type: 'body',
@@ -3176,6 +3236,7 @@ export const generatedProperties: INodeProperties[] = [
 				name: 'trialEndAt',
 				type: 'dateTime',
 				default: '',
+				description: 'When the free trial ends',
 				routing: {
 					send: {
 						type: 'body',
@@ -3191,6 +3252,7 @@ export const generatedProperties: INodeProperties[] = [
 		type: 'string',
 		default: '',
 		required: true,
+		description: 'ID of the customer to invoice',
 		routing: {
 			send: {
 				type: 'body',
@@ -3255,6 +3317,7 @@ export const generatedProperties: INodeProperties[] = [
 				name: 'dueDate',
 				type: 'string',
 				default: '',
+				description: 'Date by which the invoice must be paid',
 				routing: {
 					send: {
 						type: 'body',
@@ -3267,6 +3330,7 @@ export const generatedProperties: INodeProperties[] = [
 				name: 'subscriptionId',
 				type: 'string',
 				default: '',
+				description: 'ID of a subscription of the customer to link the invoice to',
 				routing: {
 					send: {
 						type: 'body',
@@ -3282,6 +3346,7 @@ export const generatedProperties: INodeProperties[] = [
 		type: 'string',
 		required: true,
 		default: '',
+		description: 'ID of the invoice',
 		displayOptions: {
 			show: {
 				resource: [
@@ -3299,6 +3364,7 @@ export const generatedProperties: INodeProperties[] = [
 		type: 'string',
 		required: true,
 		default: '',
+		description: 'ID of the invoice',
 		displayOptions: {
 			show: {
 				resource: [
@@ -3316,6 +3382,7 @@ export const generatedProperties: INodeProperties[] = [
 		type: 'string',
 		required: true,
 		default: '',
+		description: 'ID of the invoice',
 		displayOptions: {
 			show: {
 				resource: [
@@ -3466,6 +3533,7 @@ export const generatedProperties: INodeProperties[] = [
 				name: 'customerId',
 				type: 'string',
 				default: '',
+				description: 'Only records of this customer, by its ID',
 				routing: {
 					send: {
 						type: 'query',
@@ -3478,6 +3546,7 @@ export const generatedProperties: INodeProperties[] = [
 				name: 'fromDate',
 				type: 'dateTime',
 				default: '',
+				description: 'Only records from this date on',
 				routing: {
 					send: {
 						type: 'query',
@@ -3490,6 +3559,7 @@ export const generatedProperties: INodeProperties[] = [
 				name: 'invoiceStatus',
 				type: 'string',
 				default: '',
+				description: 'Only invoices with these statuses, separated by commas: draft, finalized, voided, generating, failed, open, closed, pending, paid, refunded, partially_refunded or pending_approval',
 				routing: {
 					send: {
 						type: 'query',
@@ -3515,6 +3585,7 @@ export const generatedProperties: INodeProperties[] = [
 				name: 'search',
 				type: 'string',
 				default: '',
+				description: 'Text to search for',
 				routing: {
 					send: {
 						type: 'query',
@@ -3527,6 +3598,7 @@ export const generatedProperties: INodeProperties[] = [
 				name: 'subscriptionId',
 				type: 'string',
 				default: '',
+				description: 'Only invoices of this subscription, by its ID',
 				routing: {
 					send: {
 						type: 'query',
@@ -3539,6 +3611,7 @@ export const generatedProperties: INodeProperties[] = [
 				name: 'toDate',
 				type: 'dateTime',
 				default: '',
+				description: 'Only records up to this date',
 				routing: {
 					send: {
 						type: 'query',
@@ -3554,6 +3627,7 @@ export const generatedProperties: INodeProperties[] = [
 		type: 'string',
 		required: true,
 		default: '',
+		description: 'ID of the invoice',
 		displayOptions: {
 			show: {
 				resource: [
@@ -3618,6 +3692,7 @@ export const generatedProperties: INodeProperties[] = [
 				name: 'message',
 				type: 'string',
 				default: '',
+				description: 'Text of the email',
 				routing: {
 					send: {
 						type: 'body',
@@ -3631,6 +3706,7 @@ export const generatedProperties: INodeProperties[] = [
 				type: 'string',
 				default: '',
 				placeholder: 'name@email.com',
+				description: 'Email address to send the invoice to',
 				routing: {
 					send: {
 						type: 'body',
@@ -3643,6 +3719,7 @@ export const generatedProperties: INodeProperties[] = [
 				name: 'recipientName',
 				type: 'string',
 				default: '',
+				description: 'Name of the person the invoice is sent to',
 				routing: {
 					send: {
 						type: 'body',
@@ -3655,6 +3732,7 @@ export const generatedProperties: INodeProperties[] = [
 				name: 'subject',
 				type: 'string',
 				default: '',
+				description: 'Subject line of the email',
 				routing: {
 					send: {
 						type: 'body',
@@ -3670,6 +3748,7 @@ export const generatedProperties: INodeProperties[] = [
 		type: 'string',
 		required: true,
 		default: '',
+		description: 'ID of the invoice',
 		displayOptions: {
 			show: {
 				resource: [
@@ -3687,6 +3766,7 @@ export const generatedProperties: INodeProperties[] = [
 		type: 'string',
 		default: '',
 		required: true,
+		description: 'Why the invoice is voided; LetzBill records it with the invoice',
 		routing: {
 			send: {
 				type: 'body',
@@ -3710,6 +3790,7 @@ export const generatedProperties: INodeProperties[] = [
 		type: 'string',
 		default: '',
 		required: true,
+		description: 'ID of the finalized invoice to credit',
 		routing: {
 			send: {
 				type: 'body',
@@ -3857,6 +3938,7 @@ export const generatedProperties: INodeProperties[] = [
 				name: 'description',
 				type: 'string',
 				default: '',
+				description: 'Text shown on the credit note, up to 2000 characters',
 				routing: {
 					send: {
 						type: 'body',
@@ -3870,6 +3952,7 @@ export const generatedProperties: INodeProperties[] = [
 				type: 'string',
 				default: '',
 				placeholder: 'e.g. 2026-01-31',
+				description: 'Date of the credit note, in YYYY-MM-DD format',
 				routing: {
 					send: {
 						type: 'body',
@@ -3902,6 +3985,7 @@ export const generatedProperties: INodeProperties[] = [
 		type: 'string',
 		required: true,
 		default: '',
+		description: 'ID of the credit note',
 		displayOptions: {
 			show: {
 				resource: [
@@ -4019,6 +4103,7 @@ export const generatedProperties: INodeProperties[] = [
 				name: 'customerId',
 				type: 'string',
 				default: '',
+				description: 'Only records of this customer, by its ID',
 				routing: {
 					send: {
 						type: 'query',
@@ -4031,6 +4116,7 @@ export const generatedProperties: INodeProperties[] = [
 				name: 'invoiceId',
 				type: 'string',
 				default: '',
+				description: 'Only records of this invoice, by its ID',
 				routing: {
 					send: {
 						type: 'query',
@@ -4107,6 +4193,7 @@ export const generatedProperties: INodeProperties[] = [
 				name: 'search',
 				type: 'string',
 				default: '',
+				description: 'Text to search for',
 				routing: {
 					send: {
 						type: 'query',
@@ -4148,6 +4235,7 @@ export const generatedProperties: INodeProperties[] = [
 		type: 'string',
 		required: true,
 		default: '',
+		description: 'ID of the credit note',
 		displayOptions: {
 			show: {
 				resource: [
@@ -4181,6 +4269,7 @@ export const generatedProperties: INodeProperties[] = [
 				name: 'reason',
 				type: 'string',
 				default: '',
+				description: 'Why the credit note is voided, up to 500 characters',
 				routing: {
 					send: {
 						type: 'body',
@@ -4249,6 +4338,7 @@ export const generatedProperties: INodeProperties[] = [
 		type: 'string',
 		default: '',
 		required: true,
+		description: 'ID of what the payment pays, such as the ID of an invoice',
 		routing: {
 			send: {
 				type: 'body',
@@ -4302,6 +4392,7 @@ export const generatedProperties: INodeProperties[] = [
 				name: 'payableType',
 				type: 'string',
 				default: '',
+				description: 'What the payment pays: \'Invoice\' (default) or \'PaymentRequest\'',
 				routing: {
 					send: {
 						type: 'body',
@@ -4314,6 +4405,7 @@ export const generatedProperties: INodeProperties[] = [
 				name: 'paymentProviderCustomerId',
 				type: 'string',
 				default: '',
+				description: 'ID of the customer at the payment provider, for a \'provider\' payment',
 				routing: {
 					send: {
 						type: 'body',
@@ -4326,6 +4418,7 @@ export const generatedProperties: INodeProperties[] = [
 				name: 'paymentProviderId',
 				type: 'string',
 				default: '',
+				description: 'ID of the payment provider connection to collect through, for a \'provider\' payment',
 				routing: {
 					send: {
 						type: 'body',
@@ -4338,6 +4431,7 @@ export const generatedProperties: INodeProperties[] = [
 				name: 'paymentType',
 				type: 'string',
 				default: '',
+				description: 'Either \'manual\', to record a payment you received, or \'provider\', to collect it through a payment provider',
 				routing: {
 					send: {
 						type: 'body',
@@ -4350,6 +4444,7 @@ export const generatedProperties: INodeProperties[] = [
 				name: 'providerPaymentMethodId',
 				type: 'string',
 				default: '',
+				description: 'ID of the stored payment method at the payment provider',
 				routing: {
 					send: {
 						type: 'body',
@@ -4362,6 +4457,7 @@ export const generatedProperties: INodeProperties[] = [
 				name: 'reference',
 				type: 'string',
 				default: '',
+				description: 'Your reference for the payment, such as a bank transfer reference',
 				routing: {
 					send: {
 						type: 'body',
@@ -4377,6 +4473,7 @@ export const generatedProperties: INodeProperties[] = [
 		type: 'string',
 		required: true,
 		default: '',
+		description: 'ID of the payment',
 		displayOptions: {
 			show: {
 				resource: [
@@ -4468,6 +4565,7 @@ export const generatedProperties: INodeProperties[] = [
 				name: 'customerId',
 				type: 'string',
 				default: '',
+				description: 'Only records of this customer, by its ID',
 				routing: {
 					send: {
 						type: 'query',
@@ -4480,6 +4578,7 @@ export const generatedProperties: INodeProperties[] = [
 				name: 'externalCustomerId',
 				type: 'string',
 				default: '',
+				description: 'Only records of the customer with this External ID',
 				routing: {
 					send: {
 						type: 'query',
@@ -4493,6 +4592,7 @@ export const generatedProperties: INodeProperties[] = [
 				type: 'string',
 				default: '',
 				placeholder: 'e.g. 2026-01-31',
+				description: 'Only records from this date on',
 				routing: {
 					send: {
 						type: 'query',
@@ -4505,6 +4605,7 @@ export const generatedProperties: INodeProperties[] = [
 				name: 'invoiceId',
 				type: 'string',
 				default: '',
+				description: 'Only records of this invoice, by its ID',
 				routing: {
 					send: {
 						type: 'query',
@@ -4582,6 +4683,7 @@ export const generatedProperties: INodeProperties[] = [
 				name: 'search',
 				type: 'string',
 				default: '',
+				description: 'Text to search for',
 				routing: {
 					send: {
 						type: 'query',
@@ -4595,6 +4697,7 @@ export const generatedProperties: INodeProperties[] = [
 				type: 'string',
 				default: '',
 				placeholder: 'e.g. 2026-01-31',
+				description: 'Only records up to this date',
 				routing: {
 					send: {
 						type: 'query',
@@ -4610,6 +4713,7 @@ export const generatedProperties: INodeProperties[] = [
 		type: 'string',
 		required: true,
 		default: '',
+		description: 'ID of the payment',
 		displayOptions: {
 			show: {
 				resource: [
@@ -4705,6 +4809,7 @@ export const generatedProperties: INodeProperties[] = [
 				name: 'reason',
 				type: 'string',
 				default: '',
+				description: 'Why the payment is refunded, up to 1000 characters',
 				routing: {
 					send: {
 						type: 'body',
@@ -4720,6 +4825,7 @@ export const generatedProperties: INodeProperties[] = [
 		type: 'string',
 		default: '',
 		required: true,
+		description: 'The External ID of the customer who owns the wallet',
 		routing: {
 			send: {
 				type: 'body',
@@ -4787,6 +4893,7 @@ export const generatedProperties: INodeProperties[] = [
 				name: 'expirationAt',
 				type: 'dateTime',
 				default: '',
+				description: 'When the credits in the wallet expire',
 				routing: {
 					send: {
 						type: 'body',
@@ -4855,6 +4962,7 @@ export const generatedProperties: INodeProperties[] = [
 		type: 'string',
 		required: true,
 		default: '',
+		description: 'ID of the wallet',
 		displayOptions: {
 			show: {
 				resource: [
@@ -4946,6 +5054,7 @@ export const generatedProperties: INodeProperties[] = [
 				name: 'customerId',
 				type: 'string',
 				default: '',
+				description: 'Only records of this customer, by its ID',
 				routing: {
 					send: {
 						type: 'query',
@@ -4958,6 +5067,7 @@ export const generatedProperties: INodeProperties[] = [
 				name: 'externalCustomerId',
 				type: 'string',
 				default: '',
+				description: 'Only records of the customer with this External ID',
 				routing: {
 					send: {
 						type: 'query',
@@ -4970,6 +5080,7 @@ export const generatedProperties: INodeProperties[] = [
 				name: 'search',
 				type: 'string',
 				default: '',
+				description: 'Text to search for',
 				routing: {
 					send: {
 						type: 'query',
@@ -4982,6 +5093,7 @@ export const generatedProperties: INodeProperties[] = [
 				name: 'status',
 				type: 'string',
 				default: '',
+				description: 'Either \'active\' or \'terminated\'',
 				routing: {
 					send: {
 						type: 'query',
@@ -4997,6 +5109,7 @@ export const generatedProperties: INodeProperties[] = [
 		type: 'string',
 		required: true,
 		default: '',
+		description: 'ID of the wallet',
 		displayOptions: {
 			show: {
 				resource: [
@@ -5088,6 +5201,7 @@ export const generatedProperties: INodeProperties[] = [
 				name: 'search',
 				type: 'string',
 				default: '',
+				description: 'Text to search for',
 				routing: {
 					send: {
 						type: 'query',
@@ -5100,6 +5214,7 @@ export const generatedProperties: INodeProperties[] = [
 				name: 'transactionStatus',
 				type: 'string',
 				default: '',
+				description: 'One of \'pending\', \'settled\' or \'failed\'',
 				routing: {
 					send: {
 						type: 'query',
@@ -5112,6 +5227,7 @@ export const generatedProperties: INodeProperties[] = [
 				name: 'transactionType',
 				type: 'string',
 				default: '',
+				description: 'Either \'inbound\' or \'outbound\'',
 				routing: {
 					send: {
 						type: 'query',
@@ -5127,6 +5243,7 @@ export const generatedProperties: INodeProperties[] = [
 		type: 'string',
 		required: true,
 		default: '',
+		description: 'ID of the wallet',
 		displayOptions: {
 			show: {
 				resource: [
@@ -5230,6 +5347,7 @@ export const generatedProperties: INodeProperties[] = [
 		type: 'string',
 		default: '',
 		required: true,
+		description: 'Code of the billable metric this usage counts toward',
 		routing: {
 			send: {
 				type: 'body',
@@ -5253,6 +5371,7 @@ export const generatedProperties: INodeProperties[] = [
 		type: 'string',
 		default: '',
 		required: true,
+		description: 'Your unique ID for this usage event, up to 255 characters. LetzBill counts each transaction ID once, so take it from your own data.',
 		routing: {
 			send: {
 				type: 'body',
@@ -5292,6 +5411,7 @@ export const generatedProperties: INodeProperties[] = [
 				name: 'externalCustomerId',
 				type: 'string',
 				default: '',
+				description: 'The External ID of the customer the usage belongs to',
 				routing: {
 					send: {
 						type: 'body',
@@ -5304,6 +5424,7 @@ export const generatedProperties: INodeProperties[] = [
 				name: 'externalSubscriptionId',
 				type: 'string',
 				default: '',
+				description: 'The External ID of the subscription the usage belongs to',
 				routing: {
 					send: {
 						type: 'body',
@@ -5330,6 +5451,7 @@ export const generatedProperties: INodeProperties[] = [
 				name: 'timestamp',
 				type: 'dateTime',
 				default: '',
+				description: 'When the usage happened',
 				routing: {
 					send: {
 						type: 'body',
@@ -5370,6 +5492,7 @@ export const generatedProperties: INodeProperties[] = [
 		type: 'string',
 		required: true,
 		default: '',
+		description: 'Transaction ID of the usage event',
 		displayOptions: {
 			show: {
 				resource: [
@@ -5493,6 +5616,7 @@ export const generatedProperties: INodeProperties[] = [
 				name: 'code',
 				type: 'string',
 				default: '',
+				description: 'Only events of this billable metric code',
 				routing: {
 					send: {
 						type: 'query',
@@ -5505,6 +5629,7 @@ export const generatedProperties: INodeProperties[] = [
 				name: 'externalCustomerId',
 				type: 'string',
 				default: '',
+				description: 'Only records of the customer with this External ID',
 				routing: {
 					send: {
 						type: 'query',
@@ -5517,6 +5642,7 @@ export const generatedProperties: INodeProperties[] = [
 				name: 'externalSubscriptionId',
 				type: 'string',
 				default: '',
+				description: 'Only events of the subscription with this External ID',
 				routing: {
 					send: {
 						type: 'query',
@@ -5542,6 +5668,7 @@ export const generatedProperties: INodeProperties[] = [
 				name: 'timestampFrom',
 				type: 'dateTime',
 				default: '',
+				description: 'Only events from this time on',
 				routing: {
 					send: {
 						type: 'query',
@@ -5554,6 +5681,7 @@ export const generatedProperties: INodeProperties[] = [
 				name: 'timestampTo',
 				type: 'dateTime',
 				default: '',
+				description: 'Only events up to this time',
 				routing: {
 					send: {
 						type: 'query',
@@ -5569,6 +5697,7 @@ export const generatedProperties: INodeProperties[] = [
 		type: 'string',
 		required: true,
 		default: '',
+		description: 'ID of the webhook endpoint',
 		displayOptions: {
 			show: {
 				resource: [
@@ -5586,6 +5715,7 @@ export const generatedProperties: INodeProperties[] = [
 		type: 'string',
 		required: true,
 		default: '',
+		description: 'ID of the webhook endpoint',
 		displayOptions: {
 			show: {
 				resource: [
@@ -5690,6 +5820,7 @@ export const generatedProperties: INodeProperties[] = [
 				name: 'eventType',
 				type: 'string',
 				default: '',
+				description: 'Only endpoints that receive this event, such as invoice.paid',
 				routing: {
 					send: {
 						type: 'query',
@@ -5702,6 +5833,7 @@ export const generatedProperties: INodeProperties[] = [
 				name: 'url',
 				type: 'string',
 				default: '',
+				description: 'Only endpoints whose URL contains this text',
 				routing: {
 					send: {
 						type: 'query',
@@ -5717,6 +5849,7 @@ export const generatedProperties: INodeProperties[] = [
 		type: 'string',
 		required: true,
 		default: '',
+		description: 'ID of the webhook endpoint',
 		displayOptions: {
 			show: {
 				resource: [

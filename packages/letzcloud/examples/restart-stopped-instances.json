@@ -1,0 +1,270 @@
+{
+  "name": "Restart stopped instances every morning",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## Restart stopped instances every morning\n\nEvery day at 7:00, this workflow finds the stopped instances whose name contains the text you set, starts each one, and waits until it runs. If an instance can't be started, it emails your team.\n\n### Set up\n1. Install the community package `@altarys/n8n-nodes-letzcloud`.\n2. Select a **LetzCloud API** credential with a provider key in the three LetzCloud nodes. The key needs `vm:read` and the permission to start instances.\n3. Select an SMTP credential in **Email: instance not restarted**.\n4. In **Settings**, set the name text and the addresses.\n5. Publish the workflow.\n\nOne execution waits at most 7,200 seconds in all. With many stopped instances, the last ones may get less time to start; any that don't reach Running in time get the email.\n\nGuide: https://github.com/helmajbri/altarys-n8n-nodes/blob/main/packages/letzcloud/docs/examples.md",
+        "height": 640,
+        "width": 440
+      },
+      "id": "c1a2b3c4-004b-4000-8000-00000000004c",
+      "name": "Overview",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -460,
+        -140
+      ]
+    },
+    {
+      "parameters": {
+        "content": "### 1. Find stopped instances\n**Get stopped instances** lists every stopped instance whose name contains the text in **Settings**.",
+        "height": 220,
+        "width": 300,
+        "color": 7
+      },
+      "id": "c1a2b3c4-004d-4000-8000-00000000004e",
+      "name": "Section: find",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        180,
+        -240
+      ]
+    },
+    {
+      "parameters": {
+        "content": "### 2. Start and wait\nEach instance is started, then **Wait until running** reads it until it runs, for up to 15 minutes.",
+        "height": 220,
+        "width": 300,
+        "color": 7
+      },
+      "id": "c1a2b3c4-004f-4000-8000-000000000050",
+      "name": "Section: restart",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        660,
+        -300
+      ]
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "days",
+              "triggerAtHour": 7
+            }
+          ]
+        }
+      },
+      "id": "c1a2b3c4-0051-4000-8000-000000000052",
+      "name": "Every day at 7:00",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "c1a2b3c4-0053-4000-8000-000000000054",
+              "name": "nameContains",
+              "value": "web-",
+              "type": "string"
+            },
+            {
+              "id": "c1a2b3c4-0055-4000-8000-000000000056",
+              "name": "toEmail",
+              "value": "cloud-team@example.com",
+              "type": "string"
+            },
+            {
+              "id": "c1a2b3c4-0057-4000-8000-000000000058",
+              "name": "fromEmail",
+              "value": "n8n@example.com",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "c1a2b3c4-0059-4000-8000-00000000005a",
+      "name": "Settings",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        220,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "instance",
+        "operation": "getAll",
+        "returnAll": true,
+        "filters": {
+          "state": "Stopped",
+          "search": "={{ $json.nameContains }}"
+        }
+      },
+      "id": "c1a2b3c4-005b-4000-8000-00000000005c",
+      "name": "Get stopped instances",
+      "type": "@altarys/n8n-nodes-letzcloud.letzCloud",
+      "typeVersion": 1,
+      "position": [
+        440,
+        0
+      ],
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "resource": "instance",
+        "operation": "changeState",
+        "vmId": "={{ $json.id }}",
+        "stateAction": "start",
+        "additionalFields": {}
+      },
+      "id": "c1a2b3c4-005d-4000-8000-00000000005e",
+      "name": "Start instance",
+      "type": "@altarys/n8n-nodes-letzcloud.letzCloud",
+      "typeVersion": 1,
+      "position": [
+        680,
+        -100
+      ],
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "resource": "instance",
+        "operation": "waitForState",
+        "vmId": "={{ $('Get stopped instances').item.json.id }}",
+        "targetState": "Running",
+        "timeoutSeconds": 900,
+        "intervalSeconds": 15
+      },
+      "id": "c1a2b3c4-005f-4000-8000-000000000060",
+      "name": "Wait until running",
+      "type": "@altarys/n8n-nodes-letzcloud.letzCloud",
+      "typeVersion": 1,
+      "position": [
+        920,
+        -100
+      ],
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "fromEmail": "={{ $('Settings').first().json.fromEmail }}",
+        "toEmail": "={{ $('Settings').first().json.toEmail }}",
+        "subject": "=Instance {{ $('Get stopped instances').item.json.name }} was not restarted",
+        "emailFormat": "text",
+        "text": "=The workflow could not start the instance {{ $('Get stopped instances').item.json.name }}, or it did not reach the Running state in time.\n\nCheck the instance in the LetzCloud console.",
+        "options": {}
+      },
+      "id": "c1a2b3c4-0061-4000-8000-000000000062",
+      "name": "Email: instance not restarted",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        1160,
+        60
+      ]
+    },
+    {
+      "parameters": {
+        "errorMessage": "The stopped instances could not be read from LetzCloud. Open the failed execution to see the message from the LetzCloud node."
+      },
+      "id": "c1a2b3c4-0063-4000-8000-000000000064",
+      "name": "Stop: instances could not be listed",
+      "type": "n8n-nodes-base.stopAndError",
+      "typeVersion": 1,
+      "position": [
+        680,
+        140
+      ]
+    }
+  ],
+  "connections": {
+    "Every day at 7:00": {
+      "main": [
+        [
+          {
+            "node": "Settings",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Settings": {
+      "main": [
+        [
+          {
+            "node": "Get stopped instances",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get stopped instances": {
+      "main": [
+        [
+          {
+            "node": "Start instance",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Stop: instances could not be listed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Start instance": {
+      "main": [
+        [
+          {
+            "node": "Wait until running",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Email: instance not restarted",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait until running": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Email: instance not restarted",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

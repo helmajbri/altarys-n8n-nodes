@@ -58,7 +58,7 @@ async function endpointsAt(
 	throw new NodeOperationError(
 		this.getNode(),
 		`LetzCloud lists more than ${MAX_ENDPOINT_PAGES * PAGE_SIZE} webhook endpoints`,
-		{ description: 'Remove webhook endpoints that are no longer used, then activate the workflow again.' },
+		{ description: 'Remove webhook endpoints that are no longer used, then publish the workflow again.' },
 	);
 }
 
@@ -78,7 +78,7 @@ export class LetzCloudTrigger implements INodeType {
 		group: ['trigger'],
 		version: 1,
 		subtitle: '={{$parameter["events"].join(", ")}}',
-		description: 'Starts the workflow when a LetzCloud appliance sends a signed webhook event',
+		description: 'Starts the workflow when LetzCloud sends a signed webhook event',
 		defaults: {
 			name: 'LetzCloud Trigger',
 		},

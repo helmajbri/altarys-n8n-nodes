@@ -49,11 +49,11 @@ test('the discovery route is read without the key, and a LetzCloud appliance pas
 
 test('a wrong URL reads as a wrong URL, and the key is not sent', async () => {
 	const cases = [
-		['nothing answers', () => Promise.reject(Object.assign(new Error('getaddrinfo ENOTFOUND'), { code: 'ENOTFOUND' })), /No LetzCloud appliance answered at https:\/\/cloud\.example\.com/],
-		['a 404 from another server', () => Promise.reject(Object.assign(new Error('Request failed with status code 404'), { httpCode: '404' })), /No LetzCloud appliance answered/],
-		['another JSON service', () => ({ status: 'ok' }), /answered, but not as a LetzCloud appliance/],
-		['an HTML page', () => '<html></html>', /answered, but not as a LetzCloud appliance/],
-		['an empty descriptor', () => ({ appliance_public_key: '', fingerprint: '' }), /not as a LetzCloud appliance/],
+		['nothing answers', () => Promise.reject(Object.assign(new Error('getaddrinfo ENOTFOUND'), { code: 'ENOTFOUND' })), /No LetzCloud server answered at https:\/\/cloud\.example\.com/],
+		['a 404 from another server', () => Promise.reject(Object.assign(new Error('Request failed with status code 404'), { httpCode: '404' })), /No LetzCloud server answered/],
+		['another JSON service', () => ({ status: 'ok' }), /answered, but not as a LetzCloud server/],
+		['an HTML page', () => '<html></html>', /answered, but not as a LetzCloud server/],
+		['an empty descriptor', () => ({ appliance_public_key: '', fingerprint: '' }), /not as a LetzCloud server/],
 	];
 	for (const [label, answer, expected] of cases) {
 		const { ctx } = helper(answer);

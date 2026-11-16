@@ -80,10 +80,37 @@ jobs:
         run: npm run lint
 
       - name: Build
+        id: build
         run: npm run build
 
       - name: Test
         run: npm test
+
+      - name: Documentation matches the built nodes
+        # docs/operations.md and the reference block of docs/trigger.md are generated from dist/.
+        id: docs
+        if: ${{ !cancelled() && steps.build.outcome == 'success' }}
+        run: node ../../tools/generate-docs.mjs . --check
+
+      - name: Documentation checks (reference, troubleshooting, jargon, links, examples)
+        if: ${{ !cancelled() && steps.build.outcome == 'success' }}
+        run: node ../../tools/check-docs.mjs .
+
+      - name: Write the documentation generator output for review
+        if: ${{ !cancelled() && steps.docs.outcome == 'failure' }}
+        run: |
+          node ../../tools/generate-docs.mjs . --write
+          mkdir -p "$RUNNER_TEMP/docs"
+          cp docs/operations.md docs/trigger.md "$RUNNER_TEMP/docs/"
+
+      - name: Keep the documentation generator output
+        if: ${{ !cancelled() && steps.docs.outcome == 'failure' }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: generated-docs-${{ matrix.package }}
+          path: ${{ runner.temp }}/docs/
+          if-no-files-found: ignore
+
 
       - name: The package has a committed lockfile
         if: env.LOCKFILE_MISSING == '1'
@@ -106,3 +133,55 @@ jobs:
 
       - name: Test the generator and the package guard
         run: node --test 'tools/test/*.test.mjs'
+
+  docs:
+    name: Documentation style and repository pages
+    runs-on: ubuntu-latest
+    env:
+      # Vale CLI release and the Microsoft style package, pinned by version and SHA-256 (the
+      # digests GitHub publishes for these release assets). The official vale-action reports
+      # through reviewdog and, by default, only on added lines; the CLI is run directly so that
+      # every documentation page is linted on every run.
+      VALE_VERSION: 3.26.0
+      VALE_SHA256: 22aa69a556558e4a9dfc63c17030777383d8d3c48dcdfad655fa98e839d666ed
+      MICROSOFT_VERSION: v0.15.1
+      MICROSOFT_SHA256: 0b37660b244a9399d7f10225895773291d27b2967ed0d239a1d379b633e8cd16
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          persist-credentials: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: 'lts/*'
+
+      - name: Repository pages (jargon, links)
+        run: node tools/check-docs.mjs --repo .
+
+      - name: Install Vale and the Microsoft style
+        if: ${{ !cancelled() }}
+        run: |
+          curl -fsSL -o "$RUNNER_TEMP/vale.tar.gz"             "https://github.com/vale-cli/vale/releases/download/v${VALE_VERSION}/vale_${VALE_VERSION}_Linux_64-bit.tar.gz"
+          echo "${VALE_SHA256}  $RUNNER_TEMP/vale.tar.gz" | sha256sum -c -
+          mkdir -p "$RUNNER_TEMP/vale"
+          tar -xzf "$RUNNER_TEMP/vale.tar.gz" -C "$RUNNER_TEMP/vale"
+          curl -fsSL -o "$RUNNER_TEMP/Microsoft.zip"             "https://github.com/vale-cli/Microsoft/releases/download/${MICROSOFT_VERSION}/Microsoft.zip"
+          echo "${MICROSOFT_SHA256}  $RUNNER_TEMP/Microsoft.zip" | sha256sum -c -
+          unzip -q "$RUNNER_TEMP/Microsoft.zip" -d .vale/styles
+          "$RUNNER_TEMP/vale/vale" --version
+
+      - name: Prose lint (Vale, Microsoft style)
+        if: ${{ !cancelled() }}
+        # Generated operations references are scoped out (reason in .vale.ini). Vale exits 1 only
+        # on errors, so any reported line (warning or error) fails the step.
+        run: |
+          files=$(ls README.md SECURITY.md packages/*/README.md packages/*/CHANGELOG.md packages/*/docs/*.md | grep -v '/docs/operations\.md$')
+          set +e
+          "$RUNNER_TEMP/vale/vale" --no-wrap --output=line $files > vale.txt
+          status=$?
+          set -e
+          cat vale.txt
+          if [ "$status" -gt 1 ]; then echo "Vale did not run (exit $status)"; exit "$status"; fi
+          if [ -s vale.txt ]; then echo "Vale reported $(wc -l < vale.txt) finding(s)"; exit 1; fi
+          echo "Vale: no findings"

@@ -1,0 +1,199 @@
+{
+  "name": "Send each finalized invoice PDF to the accounting mailbox",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## Send each finalized invoice PDF to the accounting mailbox\n\nWhen LetzBill finalizes an invoice, this workflow downloads its PDF and emails it to your accounting mailbox.\n\n### Set up\n1. Install the community package `@altarys/n8n-nodes-letzbill`.\n2. Select a **LetzBill API** credential in both LetzBill nodes. The key needs **Read**, **Write**, and **Delete** for webhooks and **Read** for invoices.\n3. Select an SMTP credential in both email nodes.\n4. Change the addresses in **Settings**.\n5. Publish the workflow.\n\nThe download is retried three times. If it still fails, the second email names the invoice, so someone can send it by hand.\n\nGuide: https://github.com/helmajbri/altarys-n8n-nodes/blob/main/packages/letzbill/docs/examples.md",
+        "height": 560,
+        "width": 440
+      },
+      "id": "b3e5f7a9-0037-4000-8000-000000000038",
+      "name": "Overview",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -460,
+        -120
+      ]
+    },
+    {
+      "parameters": {
+        "content": "### 1. Download the PDF\nThe event names the invoice. **Download invoice PDF** fetches the file and retries three times.",
+        "height": 220,
+        "width": 300,
+        "color": 7
+      },
+      "id": "b3e5f7a9-0039-4000-8000-00000000003a",
+      "name": "Section: download",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        180,
+        -200
+      ]
+    },
+    {
+      "parameters": {
+        "content": "### 2. Send it\nThe PDF goes to the accounting mailbox. If the download failed, a second email names the invoice.",
+        "height": 220,
+        "width": 300,
+        "color": 7
+      },
+      "id": "b3e5f7a9-003b-4000-8000-00000000003c",
+      "name": "Section: send",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        660,
+        -260
+      ]
+    },
+    {
+      "parameters": {
+        "events": [
+          "invoice.finalized"
+        ],
+        "toleranceSeconds": 300
+      },
+      "id": "b3e5f7a9-003d-4000-8000-00000000003e",
+      "name": "LetzBill Trigger",
+      "type": "@altarys/n8n-nodes-letzbill.letzBillTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "b3e5f7a9-003f-4000-8000-000000000040",
+              "name": "toEmail",
+              "value": "accounting@example.com",
+              "type": "string"
+            },
+            {
+              "id": "b3e5f7a9-0041-4000-8000-000000000042",
+              "name": "fromEmail",
+              "value": "n8n@example.com",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "b3e5f7a9-0043-4000-8000-000000000044",
+      "name": "Settings",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        220,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "invoice",
+        "operation": "downloadPdf",
+        "invoiceId": "={{ $('LetzBill Trigger').item.json.invoice.id }}"
+      },
+      "id": "b3e5f7a9-0045-4000-8000-000000000046",
+      "name": "Download invoice PDF",
+      "type": "@altarys/n8n-nodes-letzbill.letzBill",
+      "typeVersion": 1,
+      "position": [
+        440,
+        0
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000,
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "fromEmail": "={{ $('Settings').first().json.fromEmail }}",
+        "toEmail": "={{ $('Settings').first().json.toEmail }}",
+        "subject": "=Invoice {{ $('LetzBill Trigger').item.json.invoice.invoice_number }}",
+        "emailFormat": "text",
+        "text": "=The finalized invoice is attached.",
+        "options": {
+          "fileAttachments": "data"
+        }
+      },
+      "id": "b3e5f7a9-0047-4000-8000-000000000048",
+      "name": "Email the PDF",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        700,
+        -100
+      ]
+    },
+    {
+      "parameters": {
+        "fromEmail": "={{ $('Settings').first().json.fromEmail }}",
+        "toEmail": "={{ $('Settings').first().json.toEmail }}",
+        "subject": "=Invoice {{ $('LetzBill Trigger').item.json.invoice.invoice_number }}: PDF not downloaded",
+        "emailFormat": "text",
+        "text": "=The invoice was finalized, but its PDF could not be downloaded from LetzBill. Download it from the console and send it by hand.",
+        "options": {}
+      },
+      "id": "b3e5f7a9-0049-4000-8000-00000000004a",
+      "name": "Email that the PDF is missing",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        700,
+        120
+      ]
+    }
+  ],
+  "connections": {
+    "LetzBill Trigger": {
+      "main": [
+        [
+          {
+            "node": "Settings",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Settings": {
+      "main": [
+        [
+          {
+            "node": "Download invoice PDF",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download invoice PDF": {
+      "main": [
+        [
+          {
+            "node": "Email the PDF",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Email that the PDF is missing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

@@ -1,0 +1,278 @@
+{
+  "name": "Email a daily report of your instances",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## Email a daily report of your instances\n\nEvery day at 8:00, this workflow lists all instances of your LetzCloud account, writes their name, state, zone, and IP address to a CSV file, and emails the file.\n\n### Set up\n1. Install the community package `@altarys/n8n-nodes-letzcloud`.\n2. Select a **LetzCloud API** credential with a provider key in **Get all instances**. The key needs `vm:read`.\n3. Select an SMTP credential in **Email the report**.\n4. Change the addresses in **Settings**.\n5. Publish the workflow.\n\nIf the instances can't be read, the execution fails, so it shows as failed in the executions list.\n\nGuide: https://github.com/helmajbri/altarys-n8n-nodes/blob/main/packages/letzcloud/docs/examples.md",
+        "height": 600,
+        "width": 440
+      },
+      "id": "c2b3c4d5-0065-4000-8000-000000000066",
+      "name": "Overview",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -460,
+        -160
+      ]
+    },
+    {
+      "parameters": {
+        "content": "### 1. Read the instances\n**Get all instances** reads every page. It retries three times before the execution fails.",
+        "height": 220,
+        "width": 300,
+        "color": 7
+      },
+      "id": "c2b3c4d5-0067-4000-8000-000000000068",
+      "name": "Section: read",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        180,
+        -240
+      ]
+    },
+    {
+      "parameters": {
+        "content": "### 2. Build and send the report\nOne row per instance, written to a CSV file and emailed.",
+        "height": 220,
+        "width": 300,
+        "color": 7
+      },
+      "id": "c2b3c4d5-0069-4000-8000-00000000006a",
+      "name": "Section: report",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        660,
+        -300
+      ]
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "days",
+              "triggerAtHour": 8
+            }
+          ]
+        }
+      },
+      "id": "c2b3c4d5-006b-4000-8000-00000000006c",
+      "name": "Every day at 8:00",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "c2b3c4d5-006d-4000-8000-00000000006e",
+              "name": "toEmail",
+              "value": "cloud-team@example.com",
+              "type": "string"
+            },
+            {
+              "id": "c2b3c4d5-006f-4000-8000-000000000070",
+              "name": "fromEmail",
+              "value": "n8n@example.com",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "c2b3c4d5-0071-4000-8000-000000000072",
+      "name": "Settings",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        220,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "instance",
+        "operation": "getAll",
+        "returnAll": true,
+        "filters": {}
+      },
+      "id": "c2b3c4d5-0073-4000-8000-000000000074",
+      "name": "Get all instances",
+      "type": "@altarys/n8n-nodes-letzcloud.letzCloud",
+      "typeVersion": 1,
+      "position": [
+        440,
+        0
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000,
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "c2b3c4d5-0075-4000-8000-000000000076",
+              "name": "instance",
+              "value": "={{ $json.name }}",
+              "type": "string"
+            },
+            {
+              "id": "c2b3c4d5-0077-4000-8000-000000000078",
+              "name": "state",
+              "value": "={{ $json.state }}",
+              "type": "string"
+            },
+            {
+              "id": "c2b3c4d5-0079-4000-8000-00000000007a",
+              "name": "zone",
+              "value": "={{ $json.zone_name }}",
+              "type": "string"
+            },
+            {
+              "id": "c2b3c4d5-007b-4000-8000-00000000007c",
+              "name": "ip_address",
+              "value": "={{ $json.ip_address }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "c2b3c4d5-007d-4000-8000-00000000007e",
+      "name": "Report columns",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        680,
+        -100
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "csv",
+        "options": {
+          "fileName": "=instances-{{ $now.toFormat('yyyy-LL-dd') }}.csv"
+        }
+      },
+      "id": "c2b3c4d5-007f-4000-8000-000000000080",
+      "name": "Write CSV file",
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [
+        900,
+        -100
+      ]
+    },
+    {
+      "parameters": {
+        "fromEmail": "={{ $('Settings').first().json.fromEmail }}",
+        "toEmail": "={{ $('Settings').first().json.toEmail }}",
+        "subject": "=LetzCloud instances on {{ $now.toFormat('yyyy-LL-dd') }}",
+        "emailFormat": "text",
+        "text": "=The attached file lists every instance of your LetzCloud account and its state.",
+        "options": {
+          "fileAttachments": "data"
+        }
+      },
+      "id": "c2b3c4d5-0081-4000-8000-000000000082",
+      "name": "Email the report",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        1120,
+        -100
+      ]
+    },
+    {
+      "parameters": {
+        "errorMessage": "The instances could not be read from LetzCloud. Open the failed execution to see the message from the LetzCloud node."
+      },
+      "id": "c2b3c4d5-0083-4000-8000-000000000084",
+      "name": "Stop: instances could not be read",
+      "type": "n8n-nodes-base.stopAndError",
+      "typeVersion": 1,
+      "position": [
+        680,
+        140
+      ]
+    }
+  ],
+  "connections": {
+    "Every day at 8:00": {
+      "main": [
+        [
+          {
+            "node": "Settings",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Settings": {
+      "main": [
+        [
+          {
+            "node": "Get all instances",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get all instances": {
+      "main": [
+        [
+          {
+            "node": "Report columns",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Stop: instances could not be read",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Report columns": {
+      "main": [
+        [
+          {
+            "node": "Write CSV file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Write CSV file": {
+      "main": [
+        [
+          {
+            "node": "Email the report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

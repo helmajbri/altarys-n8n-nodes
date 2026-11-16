@@ -107,6 +107,19 @@ export function camelName(field) {
 
 const compareNames = (a, b) => a.localeCompare(b);
 
+// n8n's lint wants a one-sentence description without a final period, and a longer one with it.
+const SENTENCE_BREAK = /[A-Za-z0-9)'"]\. [A-Z]/;
+
+/** Joins description parts into one description, punctuated the way n8n's lint expects. */
+export function sentences(parts) {
+	const list = parts
+		.filter((x) => typeof x === 'string' && x.trim())
+		.map((x) => x.trim().replace(/\.$/, ''));
+	if (!list.length) return undefined;
+	if (list.length === 1) return SENTENCE_BREAK.test(list[0]) ? `${list[0]}.` : list[0];
+	return `${list.join('. ')}.`;
+}
+
 // ---------------------------------------------------------------- schema helpers
 
 function makeSchemaTools(openapi) {
@@ -194,7 +207,10 @@ export function generate({ manifest, openapi, openapiName = manifest.openapi }) 
 	const minorRe = new RegExp(money.minorUnitField);
 	const majorRe = new RegExp(money.majorUnitField);
 	const currencyRe = new RegExp(money.currencyField);
-	const omitFor = (title) => money.outputOmit[title] ?? {};
+	// Output fields the node drops: money.outputOmit (amounts that are not integer minor units) and
+	// outputOmit (identifiers of the platform's internals that no operation takes as input).
+	const otherOmit = manifest.outputOmit ?? {};
+	const omitFor = (title) => ({ ...(money.outputOmit[title] ?? {}), ...(otherOmit[title] ?? {}) });
 	const notMoneyFor = (title) => money.notMoney[title] ?? {};
 	// Integer minor-unit amounts whose name does not end in the minor-unit suffix.
 	const minorUnitFields = money.minorUnitFields ?? {};
@@ -205,12 +221,26 @@ export function generate({ manifest, openapi, openapiName = manifest.openapi }) 
 	// n8n parameter names for body fields whose own name n8n's lint reserves (an options parameter
 	// named 'action' is read as an operation list). The request still sends the field's own name.
 	const parameterNames = manifest.parameterNames ?? {};
+	// Labels for body fields whose own name would show an internal word in n8n. The parameter name
+	// and the field sent keep the field's own name.
+	const displayNames = manifest.displayNames ?? {};
+	// Parameter descriptions, keyed 'Schema.field' for body fields, 'query.<resource>.<name>' or
+	// 'query.<name>' for query parameters, and 'path.<resource>.<name>' or 'path.<name>' for path
+	// parameters. A key no parameter uses is refused, so the list cannot go stale.
+	const descriptions = manifest.descriptions ?? {};
+	const usedDescriptions = new Set();
+	const describe = (keys) => {
+		const key = keys.find((k) => typeof descriptions[k] === 'string');
+		if (key) usedDescriptions.add(key);
+		return key ? descriptions[key] : undefined;
+	};
 
 	// Every schema the money rules name must still carry the field they name.
 	for (const [kind, table] of [
 		['outputOmit', money.outputOmit],
 		['notMoney', money.notMoney],
 		['minorUnitFields', minorUnitFields],
+		['outputOmit (top level)', otherOmit],
 	]) {
 		for (const [title, fields] of Object.entries(table)) {
 			const s = components[title];
@@ -245,6 +275,13 @@ export function generate({ manifest, openapi, openapiName = manifest.openapi }) 
 		const [title, f] = key.split('.');
 		if (!components[title]?.properties?.[f]) problems.push(`parameterNames: ${title} has no field '${f}'`);
 		if (typeof name !== 'string' || !IDENT.test(name)) problems.push(`parameterNames: ${key} is not a parameter name`);
+	}
+	for (const [key, label] of Object.entries(displayNames)) {
+		const [title, f] = key.split('.');
+		if (!components[title]?.properties?.[f]) problems.push(`displayNames: ${title} has no field '${f}'`);
+		if (typeof label !== 'string' || !label || titleCase(label) !== label) {
+			problems.push(`displayNames: ${key} is not a Title Case label`);
+		}
 	}
 	for (const [key, values] of Object.entries(fieldOptions)) {
 		const [title, f] = key.split('.');
@@ -358,7 +395,11 @@ export function generate({ manifest, openapi, openapiName = manifest.openapi }) 
 	const fieldParameter = (field, raw, ctx) => {
 		const s = solid(raw);
 		const renamed = ctx.owner ? parameterNames[`${ctx.owner}.${field}`] : undefined;
-		const p = { displayName: display(field), name: typeof renamed === 'string' ? renamed : camelName(field) };
+		const label = ctx.owner ? displayNames[`${ctx.owner}.${field}`] : undefined;
+		const p = {
+			displayName: typeof label === 'string' ? label : display(field),
+			name: typeof renamed === 'string' ? renamed : camelName(field),
+		};
 		let jsonValue = false;
 		let description;
 		const listed = ctx.owner ? fieldOptions[`${ctx.owner}.${field}`] : undefined;
@@ -436,7 +477,9 @@ export function generate({ manifest, openapi, openapiName = manifest.openapi }) 
 			p.default = '';
 		}
 		if (ctx.required) p.required = true;
-		if (description) p.description = description;
+		const own = describe(ctx.descriptionKeys ?? (ctx.owner ? [`${ctx.owner}.${field}`] : []));
+		const text = sentences([own, description]);
+		if (text) p.description = text;
 		const send = { type: ctx.in, property: field };
 		if (jsonValue) send.value = JSON_VALUE;
 		p.routing = { send };
@@ -506,6 +549,7 @@ export function generate({ manifest, openapi, openapiName = manifest.openapi }) 
 		const uuidParameters = [];
 		const safeParameters = [];
 		let url = m.path;
+		const pathDescription = (name) => sentences([describe([`path.${m.resource}.${name}`, `path.${name}`])]);
 		for (const name of pathNames) {
 			const declared = byIn('path').find((p) => p.name === name);
 			if (!declared) {
@@ -522,6 +566,7 @@ export function generate({ manifest, openapi, openapiName = manifest.openapi }) 
 				type: 'string',
 				required: true,
 				default: '',
+				...(pathDescription(name) ? { description: pathDescription(name) } : {}),
 				displayOptions: show(m.resource, m.value),
 			});
 		}
@@ -610,7 +655,14 @@ export function generate({ manifest, openapi, openapiName = manifest.openapi }) 
 				problems.push(`${where}: query parameter '${q}' is not declared in ${openapiName}`);
 				continue;
 			}
-			queryProps.push(fieldParameter(q, declared.schema, { in: 'query', required: false, where }));
+			queryProps.push(
+				fieldParameter(q, declared.schema, {
+					in: 'query',
+					required: false,
+					where,
+					descriptionKeys: [`query.${m.resource}.${q}`, `query.${q}`],
+				}),
+			);
 		}
 
 		// Output.
@@ -778,6 +830,11 @@ export function generate({ manifest, openapi, openapiName = manifest.openapi }) 
 				if (!components[title]?.properties?.[f]) problems.push(`${where}: ${title} has no field '${f}'`);
 			}
 		}
+	}
+
+	for (const [key, text] of Object.entries(descriptions)) {
+		if (typeof text !== 'string' || !text.trim()) problems.push(`descriptions: ${key} is not a description`);
+		else if (!usedDescriptions.has(key)) problems.push(`descriptions: no parameter uses '${key}'`);
 	}
 
 	if (problems.length) throw new GeneratorError(problems);

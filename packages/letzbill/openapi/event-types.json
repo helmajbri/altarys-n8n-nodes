@@ -1,0 +1,337 @@
+{
+	"about": "The webhook events LetzBill sends, as its event catalogue (GET /api/v1/webhooks/event_types) lists them. The LetzBill Trigger loads the live list from your account; tools/generate-docs.mjs renders this snapshot in docs/trigger.md. Update it when LetzBill adds, renames or removes an event. The descriptions here are plain text written for these pages; the live list in the node shows LetzBill's own descriptions.",
+	"events": [
+		{
+			"type": "invoice.created",
+			"description": "An invoice was created."
+		},
+		{
+			"type": "invoice.finalized",
+			"description": "An invoice was finalized."
+		},
+		{
+			"type": "invoice.paid",
+			"description": "An invoice became paid."
+		},
+		{
+			"type": "invoice.voided",
+			"description": "An invoice was voided."
+		},
+		{
+			"type": "invoice.overdue",
+			"description": "An invoice is past its due date and unpaid."
+		},
+		{
+			"type": "invoice.payment_failed",
+			"description": "A payment attempt on an invoice was refused."
+		},
+		{
+			"type": "invoice.dispute_lost",
+			"description": "The customer disputed a payment on an invoice with their bank or card issuer, and the dispute was lost."
+		},
+		{
+			"type": "credit_note.refunded",
+			"description": "A credit note was refunded."
+		},
+		{
+			"type": "credit_note.voided",
+			"description": "A credit note was voided."
+		},
+		{
+			"type": "subscription.created",
+			"description": "A subscription was created."
+		},
+		{
+			"type": "subscription.started",
+			"description": "A subscription became active."
+		},
+		{
+			"type": "subscription.terminated",
+			"description": "A subscription was terminated."
+		},
+		{
+			"type": "subscription.plan_changed",
+			"description": "A subscription changed plan."
+		},
+		{
+			"type": "subscription.paused",
+			"description": "A subscription was paused."
+		},
+		{
+			"type": "subscription.resumed",
+			"description": "A paused subscription was resumed."
+		},
+		{
+			"type": "payment.succeeded",
+			"description": "A payment succeeded."
+		},
+		{
+			"type": "payment.unapplied",
+			"description": "A payment was received but couldn't be matched to an invoice."
+		},
+		{
+			"type": "payment.unapplied_resolved",
+			"description": "A received payment that couldn't be matched to an invoice was matched or settled."
+		},
+		{
+			"type": "payment.permanently_failed",
+			"description": "A payment failed, and LetzBill has no retries left for it."
+		},
+		{
+			"type": "mandate.active",
+			"description": "A customer's payment mandate, such as a direct debit authorization, became active, so payments can be collected."
+		},
+		{
+			"type": "commitment.true_up_generated",
+			"description": "An invoice was created for the part of a committed amount that the customer didn't use."
+		},
+		{
+			"type": "commitment.at_risk",
+			"description": "A customer is unlikely to reach the amount their subscription commits them to."
+		},
+		{
+			"type": "entitlement.updated",
+			"description": "A feature limit or allowance of a subscription changed."
+		},
+		{
+			"type": "entitlement.override_created",
+			"description": "A feature limit or allowance was changed for one subscription only."
+		},
+		{
+			"type": "connector.sync.completed",
+			"description": "An e-invoicing connection finished sending or receiving a document."
+		},
+		{
+			"type": "connector.sync.failed",
+			"description": "An e-invoicing connection couldn't send or receive a document."
+		},
+		{
+			"type": "payout.fully_approved",
+			"description": "A payout to a partner was approved."
+		},
+		{
+			"type": "payout.processing",
+			"description": "A payout to a partner started."
+		},
+		{
+			"type": "payout.paid",
+			"description": "A payout to a partner was paid."
+		},
+		{
+			"type": "payout.in_transit",
+			"description": "A payout to a partner is on its way to the bank."
+		},
+		{
+			"type": "payout.failed",
+			"description": "A payout to a partner failed."
+		},
+		{
+			"type": "payout.rejected",
+			"description": "A payout to a partner was rejected."
+		},
+		{
+			"type": "payout.cancelled",
+			"description": "A payout to a partner was cancelled."
+		},
+		{
+			"type": "wallet.transaction.created",
+			"description": "A wallet transaction was recorded."
+		},
+		{
+			"type": "wallet.balance.low",
+			"description": "A wallet balance fell below its low-balance threshold."
+		},
+		{
+			"type": "wallet.balance.depleted",
+			"description": "A wallet balance reached zero."
+		},
+		{
+			"type": "wallet.expired",
+			"description": "A wallet expired."
+		},
+		{
+			"type": "wallet.recurring_refill.executed",
+			"description": "A wallet was topped up by its recurring top-up."
+		},
+		{
+			"type": "wallet.recurring_refill.failed",
+			"description": "The recurring top-up of a wallet failed."
+		},
+		{
+			"type": "usage_alert.triggered",
+			"description": "A customer's usage reached the threshold of a usage alert."
+		},
+		{
+			"type": "nexus.threshold_approaching",
+			"description": "Sales in a tax region are close to the amount from which you must register for sales tax there."
+		},
+		{
+			"type": "nexus.threshold_exceeded",
+			"description": "Sales in a tax region passed the amount from which you must register for sales tax there."
+		},
+		{
+			"type": "nexus.registration_required",
+			"description": "You must register for tax in a region."
+		},
+		{
+			"type": "customer.vat_validated",
+			"description": "A customer's VAT number was checked and is valid."
+		},
+		{
+			"type": "customer.vat_invalidated",
+			"description": "A customer's VAT number that was valid is no longer valid."
+		},
+		{
+			"type": "customer.vat_unavailable",
+			"description": "A customer's VAT number couldn't be checked, even after retries."
+		},
+		{
+			"type": "organization.lifecycle.trial_started",
+			"description": "Your organization started its trial of LetzBill."
+		},
+		{
+			"type": "organization.lifecycle.activated",
+			"description": "Your organization's LetzBill account became active."
+		},
+		{
+			"type": "organization.lifecycle.past_due",
+			"description": "A payment for your organization's LetzBill account is overdue."
+		},
+		{
+			"type": "organization.lifecycle.payment_recovered",
+			"description": "The overdue payment for your organization's LetzBill account was paid."
+		},
+		{
+			"type": "organization.lifecycle.suspended",
+			"description": "Your organization's LetzBill account was suspended."
+		},
+		{
+			"type": "organization.lifecycle.reinstated",
+			"description": "Your organization's suspended LetzBill account was reinstated."
+		},
+		{
+			"type": "organization.lifecycle.deactivation_requested",
+			"description": "Someone asked to deactivate your organization's LetzBill account."
+		},
+		{
+			"type": "organization.lifecycle.deactivation_cancelled",
+			"description": "The request to deactivate your organization's LetzBill account was cancelled."
+		},
+		{
+			"type": "organization.lifecycle.deactivated",
+			"description": "Your organization's LetzBill account was deactivated."
+		},
+		{
+			"type": "organization.lifecycle.reactivated",
+			"description": "Your organization's deactivated LetzBill account was reactivated."
+		},
+		{
+			"type": "organization.lifecycle.pending_deletion",
+			"description": "Your organization's LetzBill account is going to be deleted."
+		},
+		{
+			"type": "organization.lifecycle.deleted",
+			"description": "Your organization's LetzBill account was deleted."
+		},
+		{
+			"type": "saas.subscription.upgraded",
+			"description": "Your organization's own LetzBill plan was upgraded."
+		},
+		{
+			"type": "saas.subscription.downgraded",
+			"description": "Your organization's own LetzBill plan was downgraded."
+		},
+		{
+			"type": "saas.subscription.canceled",
+			"description": "Your organization's own LetzBill plan was canceled."
+		},
+		{
+			"type": "saas.subscription.reactivated",
+			"description": "Your organization's own LetzBill plan was reactivated."
+		},
+		{
+			"type": "dunning.started",
+			"description": "LetzBill started sending payment reminders for an unpaid invoice."
+		},
+		{
+			"type": "dunning.payment_retry_scheduled",
+			"description": "LetzBill scheduled another attempt to collect an unpaid invoice."
+		},
+		{
+			"type": "dunning.payment_retry_succeeded",
+			"description": "A new attempt to collect an unpaid invoice succeeded."
+		},
+		{
+			"type": "dunning.payment_retry_failed",
+			"description": "A new attempt to collect an unpaid invoice failed."
+		},
+		{
+			"type": "dunning.exhausted",
+			"description": "LetzBill made every planned attempt to collect an unpaid invoice, without success."
+		},
+		{
+			"type": "dunning.threshold_warning",
+			"description": "A subscription has been unpaid long enough to reach a warning step of its payment reminders."
+		},
+		{
+			"type": "dunning.subscription_suspended",
+			"description": "A subscription was suspended because its invoices stayed unpaid."
+		},
+		{
+			"type": "dunning.subscription_reactivated",
+			"description": "A subscription suspended for unpaid invoices was reactivated."
+		},
+		{
+			"type": "partner.suspended",
+			"description": "A reseller partner was suspended."
+		},
+		{
+			"type": "partner.terminated",
+			"description": "The agreement with a reseller partner ended."
+		},
+		{
+			"type": "partner.reactivated",
+			"description": "A suspended reseller partner was reactivated."
+		},
+		{
+			"type": "partner.activated",
+			"description": "A reseller partner was activated."
+		},
+		{
+			"type": "partner.customer_attributed",
+			"description": "A customer was linked to a reseller partner."
+		},
+		{
+			"type": "partner.white_label_updated",
+			"description": "A reseller partner's own branding settings were changed."
+		},
+		{
+			"type": "partner_customer.reassigned",
+			"description": "A customer was moved to another reseller partner."
+		},
+		{
+			"type": "partner_customer.unassigned",
+			"description": "A customer was unlinked from its reseller partner."
+		},
+		{
+			"type": "settlement.approved",
+			"description": "A settlement of amounts owed to a reseller partner was approved."
+		},
+		{
+			"type": "settlement.cancelled",
+			"description": "A settlement of amounts owed to a reseller partner was cancelled."
+		},
+		{
+			"type": "settlement.paid",
+			"description": "A settlement of amounts owed to a reseller partner was paid."
+		},
+		{
+			"type": "commission.cancelled",
+			"description": "A reseller partner's commission was cancelled."
+		},
+		{
+			"type": "commission.recalculated",
+			"description": "A reseller partner's commission was calculated again."
+		}
+	]
+}

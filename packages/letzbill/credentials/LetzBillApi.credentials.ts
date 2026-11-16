@@ -16,7 +16,7 @@ export class LetzBillApi implements ICredentialType {
 
 	icon: Icon = { light: 'file:../icons/letzbill.svg', dark: 'file:../icons/letzbill.dark.svg' };
 
-	documentationUrl = 'https://github.com/helmajbri/altarys-n8n-nodes/tree/main/packages/letzbill#credentials';
+	documentationUrl = 'https://github.com/helmajbri/altarys-n8n-nodes/blob/main/packages/letzbill/docs/credentials.md';
 
 	properties: INodeProperties[] = [
 		{
@@ -36,7 +36,7 @@ export class LetzBillApi implements ICredentialType {
 			typeOptions: { password: true },
 			default: '',
 			description:
-				'A LetzBill API key; it starts with fb_. It is sent only to an HTTPS API URL, and only while the hidden HTTPS Check field is empty, as n8n keeps it.',
+				'A LetzBill API key; it starts with fb_. n8n sends it only to an HTTPS API URL.',
 			required: true,
 		},
 		{

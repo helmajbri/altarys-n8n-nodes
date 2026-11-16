@@ -1,0 +1,198 @@
+{
+  "name": "Notify the billing team when an invoice payment fails",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## Notify the billing team when an invoice payment fails\n\nWhen a payment attempt on an invoice is refused, this workflow reads the invoice from LetzBill and emails its number, customer, and amount to your billing team.\n\n### Set up\n1. Install the community package `@altarys/n8n-nodes-letzbill`.\n2. Select a **LetzBill API** credential in both LetzBill nodes. The key needs **Read**, **Write**, and **Delete** for webhooks and **Read** for invoices.\n3. Select an SMTP credential in both email nodes.\n4. Change the addresses in **Settings**.\n5. Publish the workflow.\n\nIf the invoice can't be read, the second email still tells the team which event failed.\n\nAmounts are divided by 100, which is right for two-decimal currencies such as EUR. For other currencies, see the minor units table in the guide.\n\nGuide: https://github.com/helmajbri/altarys-n8n-nodes/blob/main/packages/letzbill/docs/examples.md",
+        "height": 620,
+        "width": 440
+      },
+      "id": "b1a7e5c0-0001-4000-8000-000000000002",
+      "name": "Overview",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -460,
+        -120
+      ]
+    },
+    {
+      "parameters": {
+        "content": "### 1. Read the invoice\nThe event names the invoice. **Get invoice** reads its number, customer, and amount, and retries three times.",
+        "height": 220,
+        "width": 300,
+        "color": 7
+      },
+      "id": "b1a7e5c0-0003-4000-8000-000000000004",
+      "name": "Section: read the invoice",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        180,
+        -200
+      ]
+    },
+    {
+      "parameters": {
+        "content": "### 2. Notify the team\nThe first email goes out when the invoice was read. The second one goes out when it couldn't be read.",
+        "height": 220,
+        "width": 300,
+        "color": 7
+      },
+      "id": "b1a7e5c0-0005-4000-8000-000000000006",
+      "name": "Section: notify",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        660,
+        -260
+      ]
+    },
+    {
+      "parameters": {
+        "events": [
+          "invoice.payment_failed"
+        ],
+        "toleranceSeconds": 300
+      },
+      "id": "b1a7e5c0-0007-4000-8000-000000000008",
+      "name": "LetzBill Trigger",
+      "type": "@altarys/n8n-nodes-letzbill.letzBillTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "b1a7e5c0-0009-4000-8000-00000000000a",
+              "name": "toEmail",
+              "value": "billing-team@example.com",
+              "type": "string"
+            },
+            {
+              "id": "b1a7e5c0-000b-4000-8000-00000000000c",
+              "name": "fromEmail",
+              "value": "n8n@example.com",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "b1a7e5c0-000d-4000-8000-00000000000e",
+      "name": "Settings",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        220,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "invoice",
+        "operation": "get",
+        "invoiceId": "={{ $('LetzBill Trigger').item.json.invoice.id }}",
+        "options": {}
+      },
+      "id": "b1a7e5c0-000f-4000-8000-000000000010",
+      "name": "Get invoice",
+      "type": "@altarys/n8n-nodes-letzbill.letzBill",
+      "typeVersion": 1,
+      "position": [
+        440,
+        0
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000,
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "fromEmail": "={{ $('Settings').first().json.fromEmail }}",
+        "toEmail": "={{ $('Settings').first().json.toEmail }}",
+        "subject": "=Payment failed for invoice {{ $json.invoice_number }}",
+        "emailFormat": "text",
+        "text": "=A payment attempt on an invoice was refused.\n\nInvoice: {{ $json.invoice_number }}\nCustomer: {{ $json.customer_name }}\nAmount: {{ ($json.total_amount_cents / 100).toFixed(2) }} {{ $json.currency }}\nPayment status: {{ $json.payment_status }}",
+        "options": {}
+      },
+      "id": "b1a7e5c0-0011-4000-8000-000000000012",
+      "name": "Email the billing team",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        700,
+        -100
+      ]
+    },
+    {
+      "parameters": {
+        "fromEmail": "={{ $('Settings').first().json.fromEmail }}",
+        "toEmail": "={{ $('Settings').first().json.toEmail }}",
+        "subject": "=Payment failed, but the invoice could not be read",
+        "emailFormat": "text",
+        "text": "=LetzBill reported a failed payment, but the workflow could not read the invoice.\n\nEvent: {{ $('LetzBill Trigger').item.json.metadata.event_id }}\n\nOpen the invoice in the console to follow up.",
+        "options": {}
+      },
+      "id": "b1a7e5c0-0013-4000-8000-000000000014",
+      "name": "Email that the invoice could not be read",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        700,
+        120
+      ]
+    }
+  ],
+  "connections": {
+    "LetzBill Trigger": {
+      "main": [
+        [
+          {
+            "node": "Settings",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Settings": {
+      "main": [
+        [
+          {
+            "node": "Get invoice",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get invoice": {
+      "main": [
+        [
+          {
+            "node": "Email the billing team",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Email that the invoice could not be read",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

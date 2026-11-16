@@ -1,0 +1,101 @@
+# LetzCloud Trigger node
+
+Use the **LetzCloud Trigger** node to start a workflow when LetzCloud sends an event, such as an instance that changed state or a customer's invoice that was issued.
+
+This page is for cloud providers' staff and for customers of a cloud provider. It explains how the trigger subscribes to events, what your n8n instance needs, how deliveries are checked, and which events each kind of key can choose.
+
+## Set up the trigger
+
+1. Add the **LetzCloud Trigger** node to a new workflow and select your **LetzCloud API** credential.
+2. In **Subscribe As**, choose whose events you want:
+   - **Provider**: events of the whole provider organization. Needs a provider key with the `infrastructure:admin` permission.
+   - **Customer**: events of the customer the key belongs to, including its invoices and usage alerts. Needs a customer key with `monitoring:read` and `monitoring:write`. See [Customer keys](credentials.md#customer-keys).
+3. In **Event Names or IDs**, choose one or more events. n8n loads the list your key may choose from LetzCloud.
+4. Add the nodes that should run for each event.
+5. Publish the workflow.
+
+When you publish the workflow, the trigger registers a webhook endpoint in LetzCloud for the events you chose, at the workflow's production webhook URL. LetzCloud then sends each of those events to n8n, and each delivery starts one execution.
+
+When you unpublish the workflow, the trigger removes the endpoint, and LetzCloud stops sending events to it. Publishing again doesn't add a second endpoint: the trigger reuses its endpoint, or replaces it when you changed the events or **Subscribe As**.
+
+## What your n8n instance needs
+
+LetzCloud sends events only to `https://` addresses. It must be able to reach your n8n instance at the workflow's production webhook URL, which n8n shows under **Production URL** in the trigger's **Webhook URLs**. If the URL starts with `http://`, publishing the workflow fails with a message that says so.
+
+If your self-hosted n8n runs behind a reverse proxy, set the `N8N_WEBHOOK_URL` environment variable to the public `https://` address of n8n. The webhook URLs n8n gives LetzCloud then point at that address. `WEBHOOK_URL` is the older, deprecated name of the same variable.
+
+## Test the trigger before you publish
+
+1. Open the **LetzCloud Trigger** node and select **Listen for test event**.
+2. n8n registers a temporary webhook endpoint in LetzCloud, at the trigger's **Test URL**, and waits up to two minutes for one event. The **Test URL** must start with `https://` too.
+3. Cause one of the events you chose, for example stop and start a test instance to send `instance.updated`.
+4. The event runs the workflow once, so you can check the output of each node. n8n then removes the temporary endpoint.
+
+## How deliveries are checked
+
+Each delivery is signed with a secret that only LetzCloud and this trigger know. The trigger receives the secret when it registers the endpoint, and keeps it in the workflow.
+
+Before a delivery starts the workflow, the trigger checks that:
+
+- the signature matches the delivery, so the content wasn't changed and the sender knows the secret, and
+- the time in the delivery is within **Timestamp Tolerance (Seconds)** of the clock of your n8n instance. The default is 300 seconds.
+
+A delivery that fails either check starts no workflow. n8n's log records why, as described in [Troubleshooting](troubleshooting.md#a-delivery-was-dropped).
+
+Anyone who can read the workflow can also read its signing secret. Limit who can open the workflow. To get a new secret, unpublish the workflow and publish it again: the trigger then registers a new endpoint with a new secret.
+
+## Why a repeated delivery is ignored
+
+LetzCloud delivers each event at least once, so the same event can arrive twice, for example when LetzCloud retries after a network error. The trigger remembers up to 1,000 events it accepted during the timestamp tolerance. It ignores a repeat of one of them: it answers LetzCloud, but starts no execution.
+
+A repeat that arrives later than the tolerance, or two copies that arrive at the same moment, can still start a second execution. Where a duplicate would matter, check `metadata.event_id` in your workflow.
+
+## What the trigger outputs
+
+Each delivery becomes one item: the event exactly as LetzCloud sent it, with these fields:
+
+| Field | Content |
+|---|---|
+| `webhook_type` | The event, such as `instance.updated`. |
+| `object_type` | The kind of object the event is about, such as `instance`. |
+| `instance`, or the field named by `object_type` | The object itself. For example, `{{ $json.instance.id }}` reads its ID in an expression. |
+| `metadata.event_id` | The ID of the event. A retry of the same event has the same ID. |
+| `metadata.timestamp` | When LetzCloud built the event. |
+
+## Trigger parameters and events
+
+The parameters of the trigger and the events each kind of key can choose. The event lists are the ones LetzCloud offered when this version of the package was released. The list in the node is always the one for your key.
+
+<!-- BEGIN GENERATED: trigger reference -->
+<!-- Generated by tools/generate-docs.mjs from the built trigger and openapi/event-types.json. -->
+<!-- vale off -->
+
+### LetzCloud Trigger parameters
+
+| Parameter | Type | Required | Details |
+|---|---|---|---|
+| Subscribe As | Option | No | Whose events to receive; the key in the credential must belong to the same side. One of: `Customer`: Events of the customer the key belongs to, including its invoices and usage alerts. Needs a customer key with 'monitoring:read' and 'monitoring:write'. `Provider`: Events of the whole provider organization. Needs a provider key with 'infrastructure:admin'. Default: `Provider`. |
+| Event Names or IDs | Options | Yes | Choose from the list, or specify IDs using an [expression](https://docs.n8n.io/code/expressions/). n8n loads the list from your account. |
+| Timestamp Tolerance (Seconds) | Number | No | How far the signed delivery time may be from the clock of this n8n instance before the delivery is dropped, from 1 to 900. Default: `300`. |
+
+### Events for a provider key
+
+| Event | When it is sent |
+|---|---|
+| `instance.created` | An instance was created. Not sent for instances that already existed when LetzCloud first read your account. |
+| `instance.updated` | An instance changed state, or one of the details LetzCloud shows for it changed. |
+| `instance.deleted` | An instance was deleted. |
+
+### Events for a customer key
+
+| Event | When it is sent |
+|---|---|
+| `instance.created` | An instance was created. Not sent for instances that already existed when LetzCloud first read your account. |
+| `instance.updated` | An instance changed state, or one of the details LetzCloud shows for it changed. |
+| `instance.deleted` | An instance was deleted. |
+| `usage_alert.triggered` | A usage alert of the customer fired. Sent only for an alert whose notification channels include webhooks. |
+| `invoice.finalized` | An invoice of the customer was issued (finalized) in LetzBill. |
+| `invoice.payment_failed` | A payment attempt on an invoice of the customer was refused. |
+
+<!-- vale on -->
+<!-- END GENERATED: trigger reference -->

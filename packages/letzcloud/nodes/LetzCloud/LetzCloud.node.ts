@@ -12,7 +12,7 @@ export class LetzCloud implements INodeType {
 		version: 1,
 		subtitle: '={{$parameter["operation"] + ": " + $parameter["resource"]}}',
 		description:
-			'Manage instances, volumes, snapshots, networks, Kubernetes clusters, containers, databases and DNS records on a LetzCloud appliance, and read your own invoices, usage and wallet',
+			'Manage instances, volumes, snapshots, networks, Kubernetes clusters, containers, databases and DNS records in LetzCloud, and read your own invoices, usage and wallet',
 		defaults: {
 			name: 'LetzCloud',
 		},
