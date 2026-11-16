@@ -2,6 +2,7 @@
 	"about": "The operations of the LetzBill node. The generator (tools/generate-operations.mjs) reads this file and the OpenAPI document named in 'openapi', checks every name here against that document, and writes 'output'. A field, path or parameter this file names that the document lacks fails the generator.",
 	"openapi": "openapi/letzbill.openapi.json",
 	"output": "nodes/LetzBill/generated/operations.ts",
+	"service": "LetzBill",
 	"runtimeImport": "../shared/runtime",
 	"defaultResource": "customer",
 	"resources": [

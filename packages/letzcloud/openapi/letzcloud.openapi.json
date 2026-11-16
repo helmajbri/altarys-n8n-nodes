@@ -1,0 +1,7768 @@
+{
+	"openapi": "3.1.0",
+	"info": {
+		"title": "LetzCloud appliance API",
+		"version": "1.0.0",
+		"x-scope": "Subset: the operations in scope.manifest.json and the routes the credential, the trigger and the wait operations call. Derived from the appliance API route and schema definitions. Replace it with the exported document once that is published; the generator reads either."
+	},
+	"paths": {
+		"/.well-known/letzcloud-appliance": {
+			"get": {
+				"operationId": "well_known_appliance",
+				"responses": {
+					"200": {
+						"description": "Successful Response",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/WellKnownApplianceResponse"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/v1/vms": {
+			"get": {
+				"operationId": "list_vms",
+				"parameters": [
+					{
+						"name": "page",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"type": "integer",
+							"minimum": 1,
+							"default": 1
+						}
+					},
+					{
+						"name": "page_size",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"type": "integer",
+							"minimum": 1,
+							"maximum": 500,
+							"default": 50
+						}
+					},
+					{
+						"name": "state",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"anyOf": [
+								{
+									"type": "string"
+								},
+								{
+									"type": "null"
+								}
+							],
+							"default": null
+						}
+					},
+					{
+						"name": "zone_id",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"anyOf": [
+								{
+									"type": "string"
+								},
+								{
+									"type": "null"
+								}
+							],
+							"default": null
+						}
+					},
+					{
+						"name": "search",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"anyOf": [
+								{
+									"type": "string"
+								},
+								{
+									"type": "null"
+								}
+							],
+							"default": null
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Successful Response",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/PaginatedResponse"
+								}
+							}
+						}
+					}
+				}
+			},
+			"post": {
+				"operationId": "create_vm",
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/VmCreate"
+							}
+						}
+					}
+				},
+				"responses": {
+					"202": {
+						"description": "Successful Response",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/VmAsyncJobResponse"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/v1/vms/{vm_id}": {
+			"get": {
+				"operationId": "get_vm",
+				"parameters": [
+					{
+						"name": "vm_id",
+						"in": "path",
+						"required": true,
+						"schema": {
+							"type": "string",
+							"format": "uuid"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Successful Response",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Vm"
+								}
+							}
+						}
+					}
+				}
+			},
+			"delete": {
+				"operationId": "delete_vm",
+				"parameters": [
+					{
+						"name": "vm_id",
+						"in": "path",
+						"required": true,
+						"schema": {
+							"type": "string",
+							"format": "uuid"
+						}
+					},
+					{
+						"name": "expunge",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"type": "boolean",
+							"default": false
+						}
+					}
+				],
+				"responses": {
+					"202": {
+						"description": "Successful Response",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/VmAsyncJobResponse"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/v1/vms/{vm_id}/state": {
+			"put": {
+				"operationId": "update_vm_state",
+				"parameters": [
+					{
+						"name": "vm_id",
+						"in": "path",
+						"required": true,
+						"schema": {
+							"type": "string",
+							"format": "uuid"
+						}
+					}
+				],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/VmStateUpdate"
+							}
+						}
+					}
+				},
+				"responses": {
+					"202": {
+						"description": "Successful Response",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/VmAsyncJobResponse"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/v1/storage/volumes": {
+			"get": {
+				"operationId": "list_volumes",
+				"parameters": [
+					{
+						"name": "page",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"type": "integer",
+							"minimum": 1,
+							"default": 1
+						}
+					},
+					{
+						"name": "page_size",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"type": "integer",
+							"minimum": 1,
+							"maximum": 500,
+							"default": 50
+						}
+					},
+					{
+						"name": "state",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"anyOf": [
+								{
+									"type": "string"
+								},
+								{
+									"type": "null"
+								}
+							],
+							"default": null
+						}
+					},
+					{
+						"name": "zone_id",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"anyOf": [
+								{
+									"type": "string"
+								},
+								{
+									"type": "null"
+								}
+							],
+							"default": null
+						}
+					},
+					{
+						"name": "type",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"anyOf": [
+								{
+									"type": "string"
+								},
+								{
+									"type": "null"
+								}
+							],
+							"default": null
+						}
+					},
+					{
+						"name": "vm_id",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"anyOf": [
+								{
+									"type": "string"
+								},
+								{
+									"type": "null"
+								}
+							],
+							"default": null
+						}
+					},
+					{
+						"name": "search",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"anyOf": [
+								{
+									"type": "string"
+								},
+								{
+									"type": "null"
+								}
+							],
+							"default": null
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Successful Response",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/PaginatedResponse"
+								}
+							}
+						}
+					}
+				}
+			},
+			"post": {
+				"operationId": "create_volume",
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/VolumeCreate"
+							}
+						}
+					}
+				},
+				"responses": {
+					"202": {
+						"description": "Successful Response",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/VolumeAsyncJobResponse"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/v1/storage/volumes/{volume_id}": {
+			"get": {
+				"operationId": "get_volume",
+				"parameters": [
+					{
+						"name": "volume_id",
+						"in": "path",
+						"required": true,
+						"schema": {
+							"type": "string",
+							"format": "uuid"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Successful Response",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Volume"
+								}
+							}
+						}
+					}
+				}
+			},
+			"delete": {
+				"operationId": "delete_volume",
+				"parameters": [
+					{
+						"name": "volume_id",
+						"in": "path",
+						"required": true,
+						"schema": {
+							"type": "string",
+							"format": "uuid"
+						}
+					}
+				],
+				"responses": {
+					"202": {
+						"description": "Successful Response",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/VolumeAsyncJobResponse"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/v1/storage/snapshots": {
+			"get": {
+				"operationId": "list_snapshots",
+				"parameters": [
+					{
+						"name": "volume_id",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"anyOf": [
+								{
+									"type": "string"
+								},
+								{
+									"type": "null"
+								}
+							],
+							"default": null
+						}
+					},
+					{
+						"name": "zone_id",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"anyOf": [
+								{
+									"type": "string"
+								},
+								{
+									"type": "null"
+								}
+							],
+							"default": null
+						}
+					},
+					{
+						"name": "snapshot_type",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"anyOf": [
+								{
+									"type": "string"
+								},
+								{
+									"type": "null"
+								}
+							],
+							"default": null
+						}
+					},
+					{
+						"name": "state",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"anyOf": [
+								{
+									"type": "string"
+								},
+								{
+									"type": "null"
+								}
+							],
+							"default": null
+						}
+					},
+					{
+						"name": "search",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"anyOf": [
+								{
+									"type": "string"
+								},
+								{
+									"type": "null"
+								}
+							],
+							"default": null
+						}
+					},
+					{
+						"name": "page",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"type": "integer",
+							"minimum": 1,
+							"default": 1
+						}
+					},
+					{
+						"name": "page_size",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"type": "integer",
+							"minimum": 1,
+							"maximum": 500,
+							"default": 50
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Successful Response",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/PaginatedResponse_VolumeSnapshotRead_"
+								}
+							}
+						}
+					}
+				}
+			},
+			"post": {
+				"operationId": "create_snapshot",
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/SnapshotCreateRequest"
+							}
+						}
+					}
+				},
+				"responses": {
+					"202": {
+						"description": "Successful Response",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/VolumeAsyncJobResponse"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/v1/storage/snapshots/{snapshot_id}": {
+			"delete": {
+				"operationId": "delete_snapshot",
+				"parameters": [
+					{
+						"name": "snapshot_id",
+						"in": "path",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"responses": {
+					"202": {
+						"description": "Successful Response",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/VolumeAsyncJobResponse"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/v1/network/networks": {
+			"get": {
+				"operationId": "list_networks",
+				"parameters": [
+					{
+						"name": "page",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"type": "integer",
+							"minimum": 1,
+							"default": 1
+						}
+					},
+					{
+						"name": "page_size",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"type": "integer",
+							"minimum": 1,
+							"maximum": 500,
+							"default": 50
+						}
+					},
+					{
+						"name": "search",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"anyOf": [
+								{
+									"type": "string"
+								},
+								{
+									"type": "null"
+								}
+							],
+							"default": null
+						}
+					},
+					{
+						"name": "type",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"anyOf": [
+								{
+									"type": "string"
+								},
+								{
+									"type": "null"
+								}
+							],
+							"default": null
+						}
+					},
+					{
+						"name": "zone_id",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"anyOf": [
+								{
+									"type": "string"
+								},
+								{
+									"type": "null"
+								}
+							],
+							"default": null
+						}
+					},
+					{
+						"name": "vpc_id",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"anyOf": [
+								{
+									"type": "string"
+								},
+								{
+									"type": "null"
+								}
+							],
+							"default": null
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Successful Response",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/PaginatedResponse"
+								}
+							}
+						}
+					}
+				}
+			},
+			"post": {
+				"operationId": "create_network",
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/NetworkCreate"
+							}
+						}
+					}
+				},
+				"responses": {
+					"202": {
+						"description": "Successful Response",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/NetworkAsyncJobResponse"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/v1/network/networks/{network_id}": {
+			"get": {
+				"operationId": "get_network",
+				"parameters": [
+					{
+						"name": "network_id",
+						"in": "path",
+						"required": true,
+						"schema": {
+							"type": "string",
+							"format": "uuid"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Successful Response",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Network"
+								}
+							}
+						}
+					}
+				}
+			},
+			"delete": {
+				"operationId": "delete_network",
+				"parameters": [
+					{
+						"name": "network_id",
+						"in": "path",
+						"required": true,
+						"schema": {
+							"type": "string",
+							"format": "uuid"
+						}
+					}
+				],
+				"responses": {
+					"202": {
+						"description": "Successful Response",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/NetworkAsyncJobResponse"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/v1/kubernetes/clusters": {
+			"get": {
+				"operationId": "list_kubernetes_clusters",
+				"parameters": [
+					{
+						"name": "zone_id",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"anyOf": [
+								{
+									"type": "string"
+								},
+								{
+									"type": "null"
+								}
+							],
+							"default": null
+						}
+					},
+					{
+						"name": "state",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"anyOf": [
+								{
+									"type": "string"
+								},
+								{
+									"type": "null"
+								}
+							],
+							"default": null
+						}
+					},
+					{
+						"name": "name",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"anyOf": [
+								{
+									"type": "string"
+								},
+								{
+									"type": "null"
+								}
+							],
+							"default": null
+						}
+					},
+					{
+						"name": "page",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"type": "integer",
+							"minimum": 1,
+							"default": 1
+						}
+					},
+					{
+						"name": "page_size",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"type": "integer",
+							"minimum": 1,
+							"maximum": 500,
+							"default": 50
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Successful Response",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/PaginatedResponse"
+								}
+							}
+						}
+					}
+				}
+			},
+			"post": {
+				"operationId": "create_kubernetes_cluster",
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/KubernetesClusterCreate"
+							}
+						}
+					}
+				},
+				"responses": {
+					"202": {
+						"description": "Successful Response",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/KubernetesClusterAsyncJobResponse"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/v1/kubernetes/clusters/{cluster_id}": {
+			"get": {
+				"operationId": "get_kubernetes_cluster",
+				"parameters": [
+					{
+						"name": "cluster_id",
+						"in": "path",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Successful Response",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/KubernetesClusterDetail"
+								}
+							}
+						}
+					}
+				}
+			},
+			"delete": {
+				"operationId": "delete_kubernetes_cluster",
+				"parameters": [
+					{
+						"name": "cluster_id",
+						"in": "path",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"responses": {
+					"202": {
+						"description": "Successful Response",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/KubernetesClusterAsyncJobResponse"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/v1/containers": {
+			"get": {
+				"operationId": "list_containers",
+				"parameters": [
+					{
+						"name": "page",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"type": "integer",
+							"minimum": 1,
+							"default": 1
+						}
+					},
+					{
+						"name": "page_size",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"type": "integer",
+							"minimum": 1,
+							"maximum": 500,
+							"default": 50
+						}
+					},
+					{
+						"name": "status",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"anyOf": [
+								{
+									"type": "string"
+								},
+								{
+									"type": "null"
+								}
+							],
+							"default": null
+						}
+					},
+					{
+						"name": "search",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"anyOf": [
+								{
+									"type": "string"
+								},
+								{
+									"type": "null"
+								}
+							],
+							"default": null
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Successful Response",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ContainerList"
+								}
+							}
+						}
+					}
+				}
+			},
+			"post": {
+				"operationId": "create_container",
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/ContainerCreate"
+							}
+						}
+					}
+				},
+				"responses": {
+					"201": {
+						"description": "Successful Response",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ContainerRead"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/v1/containers/{container_id}": {
+			"get": {
+				"operationId": "get_container",
+				"parameters": [
+					{
+						"name": "container_id",
+						"in": "path",
+						"required": true,
+						"schema": {
+							"type": "string",
+							"format": "uuid"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Successful Response",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ContainerRead"
+								}
+							}
+						}
+					}
+				}
+			},
+			"delete": {
+				"operationId": "delete_container",
+				"parameters": [
+					{
+						"name": "container_id",
+						"in": "path",
+						"required": true,
+						"schema": {
+							"type": "string",
+							"format": "uuid"
+						}
+					}
+				],
+				"responses": {
+					"202": {
+						"description": "Successful Response",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ContainerRead"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/v1/databases": {
+			"get": {
+				"operationId": "list_database_clusters",
+				"parameters": [
+					{
+						"name": "page",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"type": "integer",
+							"minimum": 1,
+							"default": 1
+						}
+					},
+					{
+						"name": "page_size",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"type": "integer",
+							"minimum": 1,
+							"maximum": 500,
+							"default": 50
+						}
+					},
+					{
+						"name": "engine",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"anyOf": [
+								{
+									"type": "string"
+								},
+								{
+									"type": "null"
+								}
+							],
+							"default": null
+						}
+					},
+					{
+						"name": "status",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"anyOf": [
+								{
+									"type": "string"
+								},
+								{
+									"type": "null"
+								}
+							],
+							"default": null
+						}
+					},
+					{
+						"name": "search",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"anyOf": [
+								{
+									"type": "string",
+									"maxLength": 255
+								},
+								{
+									"type": "null"
+								}
+							],
+							"default": null
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Successful Response",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/DatabaseClusterList"
+								}
+							}
+						}
+					}
+				}
+			},
+			"post": {
+				"operationId": "create_database_cluster",
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/DatabaseClusterCreate"
+							}
+						}
+					}
+				},
+				"responses": {
+					"201": {
+						"description": "Successful Response",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/DatabaseClusterRead"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/v1/databases/{cluster_id}": {
+			"get": {
+				"operationId": "get_database_cluster",
+				"parameters": [
+					{
+						"name": "cluster_id",
+						"in": "path",
+						"required": true,
+						"schema": {
+							"type": "string",
+							"format": "uuid"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Successful Response",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/DatabaseClusterRead"
+								}
+							}
+						}
+					}
+				}
+			},
+			"delete": {
+				"operationId": "delete_database_cluster",
+				"parameters": [
+					{
+						"name": "cluster_id",
+						"in": "path",
+						"required": true,
+						"schema": {
+							"type": "string",
+							"format": "uuid"
+						}
+					}
+				],
+				"responses": {
+					"204": {
+						"description": "Successful Response"
+					},
+					"202": {
+						"description": "Native workload removal accepted and awaiting confirmation"
+					}
+				}
+			}
+		},
+		"/api/v1/dns/zones": {
+			"get": {
+				"operationId": "list_dns_zones",
+				"parameters": [
+					{
+						"name": "page",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"type": "integer",
+							"minimum": 1,
+							"default": 1
+						}
+					},
+					{
+						"name": "page_size",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"type": "integer",
+							"minimum": 1,
+							"maximum": 500,
+							"default": 50
+						}
+					},
+					{
+						"name": "search",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"anyOf": [
+								{
+									"type": "string"
+								},
+								{
+									"type": "null"
+								}
+							],
+							"default": null
+						}
+					},
+					{
+						"name": "plane",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"anyOf": [
+								{
+									"type": "string"
+								},
+								{
+									"type": "null"
+								}
+							],
+							"default": null
+						}
+					},
+					{
+						"name": "status",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"anyOf": [
+								{
+									"type": "string"
+								},
+								{
+									"type": "null"
+								}
+							],
+							"default": null
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Successful Response",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/DnsZoneList"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/v1/dns/zones/{zone_id}/records": {
+			"get": {
+				"operationId": "list_dns_records",
+				"parameters": [
+					{
+						"name": "zone_id",
+						"in": "path",
+						"required": true,
+						"schema": {
+							"type": "string",
+							"format": "uuid"
+						}
+					},
+					{
+						"name": "page",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"type": "integer",
+							"minimum": 1,
+							"default": 1
+						}
+					},
+					{
+						"name": "page_size",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"type": "integer",
+							"minimum": 1,
+							"maximum": 500,
+							"default": 50
+						}
+					},
+					{
+						"name": "record_type",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"anyOf": [
+								{
+									"type": "string"
+								},
+								{
+									"type": "null"
+								}
+							],
+							"default": null
+						}
+					},
+					{
+						"name": "search",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"anyOf": [
+								{
+									"type": "string"
+								},
+								{
+									"type": "null"
+								}
+							],
+							"default": null
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Successful Response",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/DnsRecordList"
+								}
+							}
+						}
+					}
+				}
+			},
+			"post": {
+				"operationId": "create_dns_record",
+				"parameters": [
+					{
+						"name": "zone_id",
+						"in": "path",
+						"required": true,
+						"schema": {
+							"type": "string",
+							"format": "uuid"
+						}
+					}
+				],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/DnsRecordCreate"
+							}
+						}
+					}
+				},
+				"responses": {
+					"201": {
+						"description": "Successful Response",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/DnsRecordRead"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/v1/dns/zones/{zone_id}/records/{record_id}": {
+			"put": {
+				"operationId": "update_dns_record",
+				"parameters": [
+					{
+						"name": "zone_id",
+						"in": "path",
+						"required": true,
+						"schema": {
+							"type": "string",
+							"format": "uuid"
+						}
+					},
+					{
+						"name": "record_id",
+						"in": "path",
+						"required": true,
+						"schema": {
+							"type": "string",
+							"format": "uuid"
+						}
+					}
+				],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/DnsRecordUpdate"
+							}
+						}
+					}
+				},
+				"responses": {
+					"200": {
+						"description": "Successful Response",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/DnsRecordRead"
+								}
+							}
+						}
+					}
+				}
+			},
+			"delete": {
+				"operationId": "delete_dns_record",
+				"parameters": [
+					{
+						"name": "zone_id",
+						"in": "path",
+						"required": true,
+						"schema": {
+							"type": "string",
+							"format": "uuid"
+						}
+					},
+					{
+						"name": "record_id",
+						"in": "path",
+						"required": true,
+						"schema": {
+							"type": "string",
+							"format": "uuid"
+						}
+					}
+				],
+				"responses": {
+					"204": {
+						"description": "Successful Response"
+					}
+				}
+			}
+		},
+		"/api/v1/l3/billing/invoices": {
+			"get": {
+				"operationId": "list_l3_invoices",
+				"parameters": [
+					{
+						"name": "page",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"type": "integer",
+							"minimum": 1,
+							"default": 1
+						}
+					},
+					{
+						"name": "per_page",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"type": "integer",
+							"minimum": 1,
+							"maximum": 100,
+							"default": 20
+						}
+					},
+					{
+						"name": "q",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"anyOf": [
+								{
+									"type": "string",
+									"minLength": 1,
+									"maxLength": 100
+								},
+								{
+									"type": "null"
+								}
+							],
+							"default": null
+						}
+					},
+					{
+						"name": "status",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"anyOf": [
+								{
+									"type": "string"
+								},
+								{
+									"type": "null"
+								}
+							],
+							"default": null
+						}
+					},
+					{
+						"name": "subscription_id",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"anyOf": [
+								{
+									"type": "string"
+								},
+								{
+									"type": "null"
+								}
+							],
+							"default": null
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Successful Response",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/L3InvoiceListResponse"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/v1/l3/billing/usage": {
+			"get": {
+				"operationId": "get_l3_usage",
+				"parameters": [
+					{
+						"name": "period",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"type": "string",
+							"default": "current_month"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Successful Response",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/L3UsageReportResponse"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/v1/l3/billing/wallet": {
+			"get": {
+				"operationId": "get_l3_wallet",
+				"responses": {
+					"200": {
+						"description": "Successful Response",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/L3WalletResponse"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/v1/jobs/{job_id}": {
+			"get": {
+				"operationId": "query_async_job",
+				"parameters": [
+					{
+						"name": "job_id",
+						"in": "path",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Successful Response",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/AsyncJobQueryResult"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/v1/webhooks/event_types": {
+			"get": {
+				"operationId": "list_event_types",
+				"responses": {
+					"200": {
+						"description": "Successful Response",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/WebhookEventTypesResponse"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/v1/webhooks/endpoints": {
+			"get": {
+				"operationId": "list_endpoints",
+				"parameters": [
+					{
+						"name": "page",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"type": "integer",
+							"minimum": 1,
+							"default": 1
+						}
+					},
+					{
+						"name": "per_page",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"type": "integer",
+							"minimum": 1,
+							"maximum": 100,
+							"default": 20
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Successful Response",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/PaginatedWebhookEndpointResponse"
+								}
+							}
+						}
+					}
+				}
+			},
+			"post": {
+				"operationId": "create_endpoint",
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/WebhookEndpointCreate"
+							}
+						}
+					}
+				},
+				"responses": {
+					"201": {
+						"description": "Successful Response",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/WebhookEndpointCreatedResponse"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/v1/webhooks/endpoints/{endpoint_id}": {
+			"delete": {
+				"operationId": "delete_endpoint",
+				"parameters": [
+					{
+						"name": "endpoint_id",
+						"in": "path",
+						"required": true,
+						"schema": {
+							"type": "string",
+							"format": "uuid"
+						}
+					}
+				],
+				"responses": {
+					"204": {
+						"description": "Successful Response"
+					}
+				}
+			}
+		},
+		"/api/v1/l3/webhooks/event_types": {
+			"get": {
+				"operationId": "list_l3_event_types",
+				"responses": {
+					"200": {
+						"description": "Successful Response",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/WebhookEventTypesResponse"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/v1/l3/webhooks/endpoints": {
+			"get": {
+				"operationId": "list_l3_endpoints",
+				"parameters": [
+					{
+						"name": "page",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"type": "integer",
+							"minimum": 1,
+							"default": 1
+						}
+					},
+					{
+						"name": "per_page",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"type": "integer",
+							"minimum": 1,
+							"maximum": 100,
+							"default": 20
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Successful Response",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/PaginatedL3WebhookEndpointResponse"
+								}
+							}
+						}
+					}
+				}
+			},
+			"post": {
+				"operationId": "create_l3_endpoint",
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/WebhookEndpointCreate"
+							}
+						}
+					}
+				},
+				"responses": {
+					"201": {
+						"description": "Successful Response",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/L3WebhookEndpointCreatedResponse"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/v1/l3/webhooks/endpoints/{endpoint_id}": {
+			"delete": {
+				"operationId": "delete_l3_endpoint",
+				"parameters": [
+					{
+						"name": "endpoint_id",
+						"in": "path",
+						"required": true,
+						"schema": {
+							"type": "string",
+							"format": "uuid"
+						}
+					}
+				],
+				"responses": {
+					"204": {
+						"description": "Successful Response"
+					}
+				}
+			}
+		}
+	},
+	"components": {
+		"schemas": {
+			"AsyncJobQueryResult": {
+				"properties": {
+					"job_id": {
+						"title": "Job Id",
+						"type": "string"
+					},
+					"job_status": {
+						"title": "Job Status",
+						"type": "integer"
+					},
+					"job_result": {
+						"anyOf": [
+							{},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Job Result"
+					},
+					"job_result_code": {
+						"anyOf": [
+							{
+								"type": "integer"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Job Result Code"
+					},
+					"job_result_type": {
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Job Result Type"
+					},
+					"job_instance_type": {
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Job Instance Type"
+					},
+					"job_instance_id": {
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Job Instance Id"
+					},
+					"resource_label": {
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Resource Label"
+					},
+					"created": {
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Created"
+					}
+				},
+				"required": [
+					"job_id",
+					"job_status"
+				],
+				"title": "AsyncJobQueryResult",
+				"type": "object"
+			},
+			"ContainerCondition": {
+				"properties": {
+					"type": {
+						"title": "Type",
+						"type": "string"
+					},
+					"status": {
+						"title": "Status",
+						"type": "string"
+					},
+					"reason": {
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Reason"
+					},
+					"message": {
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Message"
+					},
+					"last_transition_time": {
+						"anyOf": [
+							{
+								"format": "date-time",
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Last Transition Time"
+					}
+				},
+				"required": [
+					"type",
+					"status"
+				],
+				"title": "ContainerCondition",
+				"type": "object"
+			},
+			"ContainerCreate": {
+				"properties": {
+					"l3_customer_id": {
+						"anyOf": [
+							{
+								"format": "uuid",
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "L3 Customer Id"
+					},
+					"name": {
+						"examples": [
+							"my-web-app"
+						],
+						"maxLength": 128,
+						"minLength": 1,
+						"title": "Name",
+						"type": "string"
+					},
+					"container_image": {
+						"examples": [
+							"nginx:latest"
+						],
+						"maxLength": 512,
+						"minLength": 1,
+						"title": "Container Image",
+						"type": "string"
+					},
+					"registry_url": {
+						"anyOf": [
+							{
+								"maxLength": 512,
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Registry Url"
+					},
+					"registry_credential_id": {
+						"anyOf": [
+							{
+								"format": "uuid",
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Registry Credential Id"
+					},
+					"port": {
+						"default": 8080,
+						"maximum": 65535,
+						"minimum": 1,
+						"title": "Port",
+						"type": "integer"
+					},
+					"protocol": {
+						"default": "http",
+						"title": "Protocol",
+						"type": "string"
+					},
+					"environment_variables": {
+						"anyOf": [
+							{
+								"additionalProperties": {
+									"type": "string"
+								},
+								"type": "object"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Environment Variables"
+					},
+					"container_size": {
+						"default": "small",
+						"title": "Container Size",
+						"type": "string"
+					},
+					"custom_cpu_millicores": {
+						"anyOf": [
+							{
+								"maximum": 32000,
+								"minimum": 100,
+								"type": "integer"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Custom Cpu Millicores"
+					},
+					"custom_memory_mb": {
+						"anyOf": [
+							{
+								"maximum": 65536,
+								"minimum": 64,
+								"type": "integer"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Custom Memory Mb"
+					},
+					"min_replicas": {
+						"default": 1,
+						"maximum": 100,
+						"minimum": 0,
+						"title": "Min Replicas",
+						"type": "integer"
+					},
+					"max_replicas": {
+						"default": 1,
+						"maximum": 100,
+						"minimum": 1,
+						"title": "Max Replicas",
+						"type": "integer"
+					},
+					"health_check_path": {
+						"anyOf": [
+							{
+								"maxLength": 255,
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": "/health",
+						"title": "Health Check Path"
+					},
+					"health_check_port": {
+						"anyOf": [
+							{
+								"maximum": 65535,
+								"minimum": 1,
+								"type": "integer"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Health Check Port"
+					},
+					"volume_mounts": {
+						"anyOf": [
+							{
+								"items": {
+									"$ref": "#/components/schemas/VolumeMountCreate"
+								},
+								"type": "array"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Volume Mounts"
+					}
+				},
+				"required": [
+					"name",
+					"container_image"
+				],
+				"title": "ContainerCreate",
+				"type": "object"
+			},
+			"ContainerList": {
+				"properties": {
+					"items": {
+						"items": {
+							"$ref": "#/components/schemas/ContainerRead"
+						},
+						"title": "Items",
+						"type": "array"
+					},
+					"total": {
+						"title": "Total",
+						"type": "integer"
+					},
+					"page": {
+						"title": "Page",
+						"type": "integer"
+					},
+					"page_size": {
+						"title": "Page Size",
+						"type": "integer"
+					},
+					"total_pages": {
+						"title": "Total Pages",
+						"type": "integer"
+					}
+				},
+				"required": [
+					"items",
+					"total",
+					"page",
+					"page_size",
+					"total_pages"
+				],
+				"title": "ContainerList",
+				"type": "object"
+			},
+			"ContainerRead": {
+				"properties": {
+					"id": {
+						"format": "uuid",
+						"title": "Id",
+						"type": "string"
+					},
+					"organization_id": {
+						"format": "uuid",
+						"title": "Organization Id",
+						"type": "string"
+					},
+					"name": {
+						"title": "Name",
+						"type": "string"
+					},
+					"slug": {
+						"title": "Slug",
+						"type": "string"
+					},
+					"container_image": {
+						"title": "Container Image",
+						"type": "string"
+					},
+					"registry_url": {
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Registry Url"
+					},
+					"registry_credential_id": {
+						"anyOf": [
+							{
+								"format": "uuid",
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Registry Credential Id"
+					},
+					"port": {
+						"title": "Port",
+						"type": "integer"
+					},
+					"protocol": {
+						"title": "Protocol",
+						"type": "string"
+					},
+					"environment_variables": {
+						"anyOf": [
+							{
+								"additionalProperties": true,
+								"type": "object"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Environment Variables"
+					},
+					"container_size": {
+						"title": "Container Size",
+						"type": "string"
+					},
+					"custom_cpu_millicores": {
+						"anyOf": [
+							{
+								"type": "integer"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Custom Cpu Millicores"
+					},
+					"custom_memory_mb": {
+						"anyOf": [
+							{
+								"type": "integer"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Custom Memory Mb"
+					},
+					"cpu_millicores": {
+						"title": "Cpu Millicores",
+						"type": "integer"
+					},
+					"memory_mb": {
+						"title": "Memory Mb",
+						"type": "integer"
+					},
+					"min_replicas": {
+						"title": "Min Replicas",
+						"type": "integer"
+					},
+					"max_replicas": {
+						"title": "Max Replicas",
+						"type": "integer"
+					},
+					"current_replicas": {
+						"title": "Current Replicas",
+						"type": "integer"
+					},
+					"desired_replicas": {
+						"anyOf": [
+							{
+								"type": "integer"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Desired Replicas"
+					},
+					"job_id": {
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Job Id"
+					},
+					"health_check_path": {
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Health Check Path"
+					},
+					"health_check_port": {
+						"anyOf": [
+							{
+								"type": "integer"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Health Check Port"
+					},
+					"status": {
+						"title": "Status",
+						"type": "string"
+					},
+					"status_message": {
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Status Message"
+					},
+					"k8s_deployment_name": {
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "K8S Deployment Name"
+					},
+					"k8s_namespace": {
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "K8S Namespace"
+					},
+					"k8s_service_name": {
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "K8S Service Name"
+					},
+					"endpoint_url": {
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Endpoint Url"
+					},
+					"internal_endpoint_url": {
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Internal Endpoint Url"
+					},
+					"cluster_ip": {
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Cluster Ip"
+					},
+					"volume_mounts": {
+						"items": {
+							"$ref": "#/components/schemas/VolumeMountRead"
+						},
+						"title": "Volume Mounts",
+						"type": "array"
+					},
+					"created_at": {
+						"format": "date-time",
+						"title": "Created At",
+						"type": "string"
+					},
+					"updated_at": {
+						"format": "date-time",
+						"title": "Updated At",
+						"type": "string"
+					},
+					"generation": {
+						"anyOf": [
+							{
+								"type": "integer"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Generation"
+					},
+					"observed_generation": {
+						"anyOf": [
+							{
+								"type": "integer"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Observed Generation"
+					},
+					"reconcile_state": {
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Reconcile State"
+					},
+					"last_reconciled_at": {
+						"anyOf": [
+							{
+								"format": "date-time",
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Last Reconciled At"
+					},
+					"next_retry_at": {
+						"anyOf": [
+							{
+								"format": "date-time",
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Next Retry At"
+					},
+					"conditions": {
+						"anyOf": [
+							{
+								"items": {
+									"$ref": "#/components/schemas/ContainerCondition"
+								},
+								"type": "array"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Conditions"
+					},
+					"restart_count": {
+						"anyOf": [
+							{
+								"type": "integer"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Restart Count"
+					}
+				},
+				"required": [
+					"id",
+					"organization_id",
+					"name",
+					"slug",
+					"container_image",
+					"port",
+					"protocol",
+					"container_size",
+					"cpu_millicores",
+					"memory_mb",
+					"min_replicas",
+					"max_replicas",
+					"current_replicas",
+					"status",
+					"created_at",
+					"updated_at"
+				],
+				"title": "ContainerRead",
+				"type": "object"
+			},
+			"DatabaseClusterCreate": {
+				"properties": {
+					"l3_customer_id": {
+						"anyOf": [
+							{
+								"format": "uuid",
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "L3 Customer Id"
+					},
+					"name": {
+						"examples": [
+							"my-postgres-cluster"
+						],
+						"maxLength": 128,
+						"minLength": 1,
+						"title": "Name",
+						"type": "string"
+					},
+					"engine": {
+						"title": "Engine",
+						"type": "string"
+					},
+					"engine_version": {
+						"maxLength": 20,
+						"minLength": 1,
+						"title": "Engine Version",
+						"type": "string"
+					},
+					"tier": {
+						"default": "dev",
+						"title": "Tier",
+						"type": "string"
+					},
+					"placement_mode": {
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Placement Mode"
+					},
+					"node_count": {
+						"anyOf": [
+							{
+								"maximum": 20,
+								"minimum": 1,
+								"type": "integer"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Node Count"
+					},
+					"cpu_cores_per_node": {
+						"anyOf": [
+							{
+								"maximum": 64,
+								"minimum": 1,
+								"type": "integer"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Cpu Cores Per Node"
+					},
+					"memory_gb_per_node": {
+						"anyOf": [
+							{
+								"maximum": 512,
+								"minimum": 1,
+								"type": "integer"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Memory Gb Per Node"
+					},
+					"storage_gb_per_node": {
+						"anyOf": [
+							{
+								"maximum": 10000,
+								"minimum": 10,
+								"type": "integer"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Storage Gb Per Node"
+					},
+					"storage_type": {
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Storage Type"
+					},
+					"region": {
+						"default": "default",
+						"maxLength": 64,
+						"title": "Region",
+						"type": "string"
+					},
+					"zone_id": {
+						"anyOf": [
+							{
+								"maxLength": 64,
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Zone Id"
+					},
+					"ha_enabled": {
+						"anyOf": [
+							{
+								"type": "boolean"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Ha Enabled"
+					},
+					"read_replicas": {
+						"default": 0,
+						"maximum": 10,
+						"minimum": 0,
+						"title": "Read Replicas",
+						"type": "integer"
+					},
+					"kms_key_id": {
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Kms Key Id"
+					}
+				},
+				"required": [
+					"name",
+					"engine",
+					"engine_version"
+				],
+				"title": "DatabaseClusterCreate",
+				"type": "object"
+			},
+			"DatabaseClusterList": {
+				"properties": {
+					"items": {
+						"items": {
+							"$ref": "#/components/schemas/DatabaseClusterRead"
+						},
+						"title": "Items",
+						"type": "array"
+					},
+					"total": {
+						"title": "Total",
+						"type": "integer"
+					},
+					"page": {
+						"title": "Page",
+						"type": "integer"
+					},
+					"page_size": {
+						"title": "Page Size",
+						"type": "integer"
+					},
+					"total_pages": {
+						"title": "Total Pages",
+						"type": "integer"
+					}
+				},
+				"required": [
+					"items",
+					"total",
+					"page",
+					"page_size",
+					"total_pages"
+				],
+				"title": "DatabaseClusterList",
+				"type": "object"
+			},
+			"DatabaseClusterRead": {
+				"properties": {
+					"id": {
+						"format": "uuid",
+						"title": "Id",
+						"type": "string"
+					},
+					"organization_id": {
+						"format": "uuid",
+						"title": "Organization Id",
+						"type": "string"
+					},
+					"name": {
+						"title": "Name",
+						"type": "string"
+					},
+					"engine": {
+						"title": "Engine",
+						"type": "string"
+					},
+					"engine_version": {
+						"title": "Engine Version",
+						"type": "string"
+					},
+					"tier": {
+						"title": "Tier",
+						"type": "string"
+					},
+					"placement_mode": {
+						"default": "cloudstack",
+						"title": "Placement Mode",
+						"type": "string"
+					},
+					"node_count": {
+						"title": "Node Count",
+						"type": "integer"
+					},
+					"cpu_cores_per_node": {
+						"title": "Cpu Cores Per Node",
+						"type": "integer"
+					},
+					"memory_gb_per_node": {
+						"title": "Memory Gb Per Node",
+						"type": "integer"
+					},
+					"storage_gb_per_node": {
+						"title": "Storage Gb Per Node",
+						"type": "integer"
+					},
+					"storage_type": {
+						"title": "Storage Type",
+						"type": "string"
+					},
+					"region": {
+						"title": "Region",
+						"type": "string"
+					},
+					"zone_id": {
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Zone Id"
+					},
+					"connection_host": {
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Connection Host"
+					},
+					"connection_port": {
+						"anyOf": [
+							{
+								"type": "integer"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Connection Port"
+					},
+					"admin_username": {
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Admin Username"
+					},
+					"ha_enabled": {
+						"title": "Ha Enabled",
+						"type": "boolean"
+					},
+					"read_replicas": {
+						"title": "Read Replicas",
+						"type": "integer"
+					},
+					"status": {
+						"title": "Status",
+						"type": "string"
+					},
+					"status_message": {
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Status Message"
+					},
+					"public_access_enabled": {
+						"default": false,
+						"title": "Public Access Enabled",
+						"type": "boolean"
+					},
+					"internal_fqdn": {
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Internal Fqdn"
+					},
+					"read_replica_fqdn": {
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Read Replica Fqdn"
+					},
+					"nodes": {
+						"items": {
+							"$ref": "#/components/schemas/DatabaseNodeRead"
+						},
+						"title": "Nodes",
+						"type": "array"
+					},
+					"node_summary": {
+						"additionalProperties": true,
+						"title": "Node Summary",
+						"type": "object"
+					},
+					"maintenance_window": {
+						"anyOf": [
+							{
+								"$ref": "#/components/schemas/MaintenanceWindow"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null
+					},
+					"restored_from_backup_id": {
+						"anyOf": [
+							{
+								"format": "uuid",
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Restored From Backup Id"
+					},
+					"encryption": {
+						"anyOf": [
+							{
+								"$ref": "#/components/schemas/DatabaseEncryptionInfo"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null
+					},
+					"created_at": {
+						"format": "date-time",
+						"title": "Created At",
+						"type": "string"
+					},
+					"updated_at": {
+						"format": "date-time",
+						"title": "Updated At",
+						"type": "string"
+					}
+				},
+				"required": [
+					"id",
+					"organization_id",
+					"name",
+					"engine",
+					"engine_version",
+					"tier",
+					"node_count",
+					"cpu_cores_per_node",
+					"memory_gb_per_node",
+					"storage_gb_per_node",
+					"storage_type",
+					"region",
+					"ha_enabled",
+					"read_replicas",
+					"status",
+					"created_at",
+					"updated_at"
+				],
+				"title": "DatabaseClusterRead",
+				"type": "object"
+			},
+			"DatabaseEncryptionInfo": {
+				"properties": {
+					"enabled": {
+						"title": "Enabled",
+						"type": "boolean"
+					},
+					"backend": {
+						"title": "Backend",
+						"type": "string"
+					},
+					"kms_key_id": {
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Kms Key Id"
+					},
+					"short_id": {
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Short Id"
+					},
+					"kms_key_alias": {
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Kms Key Alias"
+					},
+					"algorithm": {
+						"default": "AES-256-GCM",
+						"title": "Algorithm",
+						"type": "string"
+					},
+					"last_rotated_at": {
+						"anyOf": [
+							{
+								"format": "date-time",
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Last Rotated At"
+					}
+				},
+				"required": [
+					"enabled",
+					"backend"
+				],
+				"title": "DatabaseEncryptionInfo",
+				"type": "object"
+			},
+			"DatabaseNodeRead": {
+				"properties": {
+					"id": {
+						"format": "uuid",
+						"title": "Id",
+						"type": "string"
+					},
+					"cluster_id": {
+						"format": "uuid",
+						"title": "Cluster Id",
+						"type": "string"
+					},
+					"node_role": {
+						"title": "Node Role",
+						"type": "string"
+					},
+					"cloudstack_vm_id": {
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Cloudstack Vm Id"
+					},
+					"ip_address": {
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Ip Address"
+					},
+					"port": {
+						"anyOf": [
+							{
+								"type": "integer"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Port"
+					},
+					"status": {
+						"title": "Status",
+						"type": "string"
+					},
+					"status_message": {
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Status Message"
+					},
+					"zone_id": {
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Zone Id"
+					},
+					"zone_name": {
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Zone Name"
+					},
+					"cpu_cores": {
+						"anyOf": [
+							{
+								"type": "integer"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Cpu Cores"
+					},
+					"memory_gb": {
+						"anyOf": [
+							{
+								"type": "integer"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Memory Gb"
+					},
+					"replication_lag_seconds": {
+						"anyOf": [
+							{
+								"type": "number"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Replication Lag Seconds"
+					},
+					"created_at": {
+						"format": "date-time",
+						"title": "Created At",
+						"type": "string"
+					},
+					"updated_at": {
+						"format": "date-time",
+						"title": "Updated At",
+						"type": "string"
+					}
+				},
+				"required": [
+					"id",
+					"cluster_id",
+					"node_role",
+					"status",
+					"created_at",
+					"updated_at"
+				],
+				"title": "DatabaseNodeRead",
+				"type": "object"
+			},
+			"DnsRecordCreate": {
+				"properties": {
+					"name": {
+						"examples": [
+							"www",
+							"@",
+							"mail"
+						],
+						"maxLength": 253,
+						"minLength": 1,
+						"title": "Name",
+						"type": "string"
+					},
+					"record_type": {
+						"title": "Record Type",
+						"type": "string"
+					},
+					"content": {
+						"minLength": 1,
+						"title": "Content",
+						"type": "string"
+					},
+					"ttl": {
+						"default": 3600,
+						"maximum": 604800,
+						"minimum": 60,
+						"title": "Ttl",
+						"type": "integer"
+					},
+					"priority": {
+						"anyOf": [
+							{
+								"maximum": 65535,
+								"minimum": 0,
+								"type": "integer"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Priority"
+					},
+					"weight": {
+						"anyOf": [
+							{
+								"maximum": 65535,
+								"minimum": 0,
+								"type": "integer"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Weight"
+					},
+					"port": {
+						"anyOf": [
+							{
+								"maximum": 65535,
+								"minimum": 0,
+								"type": "integer"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Port"
+					},
+					"flags": {
+						"anyOf": [
+							{
+								"maximum": 255,
+								"minimum": 0,
+								"type": "integer"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Flags"
+					},
+					"tag": {
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Tag"
+					},
+					"disabled": {
+						"default": false,
+						"title": "Disabled",
+						"type": "boolean"
+					}
+				},
+				"required": [
+					"name",
+					"record_type",
+					"content"
+				],
+				"title": "DnsRecordCreate",
+				"type": "object"
+			},
+			"DnsRecordList": {
+				"properties": {
+					"items": {
+						"items": {
+							"$ref": "#/components/schemas/DnsRecordRead"
+						},
+						"title": "Items",
+						"type": "array"
+					},
+					"total": {
+						"title": "Total",
+						"type": "integer"
+					},
+					"page": {
+						"title": "Page",
+						"type": "integer"
+					},
+					"page_size": {
+						"title": "Page Size",
+						"type": "integer"
+					},
+					"total_pages": {
+						"title": "Total Pages",
+						"type": "integer"
+					}
+				},
+				"required": [
+					"items",
+					"total",
+					"page",
+					"page_size",
+					"total_pages"
+				],
+				"title": "DnsRecordList",
+				"type": "object"
+			},
+			"DnsRecordRead": {
+				"properties": {
+					"id": {
+						"format": "uuid",
+						"title": "Id",
+						"type": "string"
+					},
+					"zone_id": {
+						"format": "uuid",
+						"title": "Zone Id",
+						"type": "string"
+					},
+					"name": {
+						"title": "Name",
+						"type": "string"
+					},
+					"record_type": {
+						"title": "Record Type",
+						"type": "string"
+					},
+					"content": {
+						"title": "Content",
+						"type": "string"
+					},
+					"ttl": {
+						"title": "Ttl",
+						"type": "integer"
+					},
+					"priority": {
+						"anyOf": [
+							{
+								"type": "integer"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Priority"
+					},
+					"weight": {
+						"anyOf": [
+							{
+								"type": "integer"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Weight"
+					},
+					"port": {
+						"anyOf": [
+							{
+								"type": "integer"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Port"
+					},
+					"flags": {
+						"anyOf": [
+							{
+								"type": "integer"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Flags"
+					},
+					"tag": {
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Tag"
+					},
+					"disabled": {
+						"title": "Disabled",
+						"type": "boolean"
+					},
+					"auto_registered": {
+						"default": false,
+						"title": "Auto Registered",
+						"type": "boolean"
+					},
+					"resource_type": {
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Resource Type"
+					},
+					"resource_id": {
+						"anyOf": [
+							{
+								"format": "uuid",
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Resource Id"
+					},
+					"cloudstack_nic_id": {
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Cloudstack Nic Id"
+					},
+					"created_at": {
+						"format": "date-time",
+						"title": "Created At",
+						"type": "string"
+					},
+					"updated_at": {
+						"format": "date-time",
+						"title": "Updated At",
+						"type": "string"
+					}
+				},
+				"required": [
+					"id",
+					"zone_id",
+					"name",
+					"record_type",
+					"content",
+					"ttl",
+					"disabled",
+					"created_at",
+					"updated_at"
+				],
+				"title": "DnsRecordRead",
+				"type": "object"
+			},
+			"DnsRecordUpdate": {
+				"properties": {
+					"name": {
+						"anyOf": [
+							{
+								"maxLength": 253,
+								"minLength": 1,
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Name"
+					},
+					"content": {
+						"anyOf": [
+							{
+								"minLength": 1,
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Content"
+					},
+					"ttl": {
+						"anyOf": [
+							{
+								"maximum": 604800,
+								"minimum": 60,
+								"type": "integer"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Ttl"
+					},
+					"priority": {
+						"anyOf": [
+							{
+								"maximum": 65535,
+								"minimum": 0,
+								"type": "integer"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Priority"
+					},
+					"weight": {
+						"anyOf": [
+							{
+								"maximum": 65535,
+								"minimum": 0,
+								"type": "integer"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Weight"
+					},
+					"port": {
+						"anyOf": [
+							{
+								"maximum": 65535,
+								"minimum": 0,
+								"type": "integer"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Port"
+					},
+					"flags": {
+						"anyOf": [
+							{
+								"maximum": 255,
+								"minimum": 0,
+								"type": "integer"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Flags"
+					},
+					"tag": {
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Tag"
+					},
+					"disabled": {
+						"anyOf": [
+							{
+								"type": "boolean"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Disabled"
+					}
+				},
+				"title": "DnsRecordUpdate",
+				"type": "object"
+			},
+			"DnsZoneImportResult": {
+				"properties": {
+					"records_imported": {
+						"title": "Records Imported",
+						"type": "integer"
+					},
+					"records_skipped": {
+						"title": "Records Skipped",
+						"type": "integer"
+					},
+					"errors": {
+						"items": {
+							"type": "string"
+						},
+						"title": "Errors",
+						"type": "array"
+					}
+				},
+				"required": [
+					"records_imported",
+					"records_skipped"
+				],
+				"title": "DnsZoneImportResult",
+				"type": "object"
+			},
+			"DnsZoneList": {
+				"properties": {
+					"items": {
+						"items": {
+							"$ref": "#/components/schemas/DnsZoneRead"
+						},
+						"title": "Items",
+						"type": "array"
+					},
+					"total": {
+						"title": "Total",
+						"type": "integer"
+					},
+					"page": {
+						"title": "Page",
+						"type": "integer"
+					},
+					"page_size": {
+						"title": "Page Size",
+						"type": "integer"
+					},
+					"total_pages": {
+						"title": "Total Pages",
+						"type": "integer"
+					}
+				},
+				"required": [
+					"items",
+					"total",
+					"page",
+					"page_size",
+					"total_pages"
+				],
+				"title": "DnsZoneList",
+				"type": "object"
+			},
+			"DnsZoneRead": {
+				"properties": {
+					"id": {
+						"format": "uuid",
+						"title": "Id",
+						"type": "string"
+					},
+					"organization_id": {
+						"format": "uuid",
+						"title": "Organization Id",
+						"type": "string"
+					},
+					"domain_name": {
+						"title": "Domain Name",
+						"type": "string"
+					},
+					"zone_type": {
+						"title": "Zone Type",
+						"type": "string"
+					},
+					"plane": {
+						"default": "public",
+						"title": "Plane",
+						"type": "string"
+					},
+					"nameservers": {
+						"anyOf": [
+							{
+								"items": {
+									"type": "string"
+								},
+								"type": "array"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Nameservers"
+					},
+					"soa_record": {
+						"anyOf": [
+							{
+								"additionalProperties": true,
+								"type": "object"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Soa Record"
+					},
+					"dnssec_enabled": {
+						"title": "Dnssec Enabled",
+						"type": "boolean"
+					},
+					"status": {
+						"title": "Status",
+						"type": "string"
+					},
+					"provider_zone_id": {
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Provider Zone Id"
+					},
+					"status_message": {
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Status Message"
+					},
+					"ownership_token": {
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Ownership Token"
+					},
+					"ownership_verified_at": {
+						"anyOf": [
+							{
+								"format": "date-time",
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Ownership Verified At"
+					},
+					"record_name": {
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Record Name"
+					},
+					"record_count": {
+						"default": 0,
+						"title": "Record Count",
+						"type": "integer"
+					},
+					"auto_created": {
+						"default": false,
+						"title": "Auto Created",
+						"type": "boolean"
+					},
+					"l3_customer_id": {
+						"anyOf": [
+							{
+								"format": "uuid",
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "L3 Customer Id"
+					},
+					"customer_name": {
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Customer Name"
+					},
+					"soa_serial": {
+						"anyOf": [
+							{
+								"type": "integer"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Soa Serial"
+					},
+					"soa_minimum_ttl": {
+						"anyOf": [
+							{
+								"type": "integer"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Soa Minimum Ttl"
+					},
+					"soa_ttl": {
+						"anyOf": [
+							{
+								"type": "integer"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Soa Ttl"
+					},
+					"default_ttl": {
+						"anyOf": [
+							{
+								"type": "integer"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Default Ttl"
+					},
+					"tags": {
+						"anyOf": [
+							{
+								"additionalProperties": {
+									"type": "string"
+								},
+								"type": "object"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Tags"
+					},
+					"masters": {
+						"anyOf": [
+							{
+								"items": {
+									"type": "string"
+								},
+								"type": "array"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Masters"
+					},
+					"zone_import": {
+						"anyOf": [
+							{
+								"$ref": "#/components/schemas/DnsZoneImportResult"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null
+					},
+					"created_at": {
+						"format": "date-time",
+						"title": "Created At",
+						"type": "string"
+					},
+					"updated_at": {
+						"format": "date-time",
+						"title": "Updated At",
+						"type": "string"
+					}
+				},
+				"required": [
+					"id",
+					"organization_id",
+					"domain_name",
+					"zone_type",
+					"dnssec_enabled",
+					"status",
+					"created_at",
+					"updated_at"
+				],
+				"title": "DnsZoneRead",
+				"type": "object"
+			},
+			"KubernetesClusterAsyncJobResponse": {
+				"properties": {
+					"job_id": {
+						"title": "Job Id",
+						"type": "string"
+					},
+					"job_status": {
+						"title": "Job Status",
+						"type": "integer"
+					},
+					"job_result": {
+						"anyOf": [
+							{
+								"additionalProperties": true,
+								"type": "object"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Job Result"
+					},
+					"message": {
+						"title": "Message",
+						"type": "string"
+					}
+				},
+				"required": [
+					"job_id",
+					"job_status",
+					"message"
+				],
+				"title": "KubernetesClusterAsyncJobResponse",
+				"type": "object"
+			},
+			"KubernetesClusterCreate": {
+				"properties": {
+					"name": {
+						"title": "Name",
+						"type": "string"
+					},
+					"description": {
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Description"
+					},
+					"kubernetes_version_id": {
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Kubernetes Version Id"
+					},
+					"service_offering_id": {
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Service Offering Id"
+					},
+					"zone_id": {
+						"title": "Zone Id",
+						"type": "string"
+					},
+					"network_id": {
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Network Id"
+					},
+					"size": {
+						"default": 1,
+						"minimum": 1,
+						"title": "Size",
+						"type": "integer"
+					},
+					"control_plane_nodes": {
+						"default": 1,
+						"maximum": 3,
+						"minimum": 1,
+						"title": "Control Plane Nodes",
+						"type": "integer"
+					},
+					"master_nodes": {
+						"anyOf": [
+							{
+								"minimum": 1,
+								"type": "integer"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Master Nodes"
+					},
+					"ssh_keypair": {
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Ssh Keypair"
+					},
+					"external_load_balancer": {
+						"anyOf": [
+							{
+								"type": "boolean"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": false,
+						"title": "External Load Balancer"
+					},
+					"docker_registry_username": {
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Docker Registry Username"
+					},
+					"docker_registry_password": {
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Docker Registry Password"
+					},
+					"docker_registry_url": {
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Docker Registry Url"
+					},
+					"node_pools": {
+						"anyOf": [
+							{
+								"items": {
+									"$ref": "#/components/schemas/NodePoolCreate"
+								},
+								"type": "array"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Node Pools"
+					},
+					"tags": {
+						"anyOf": [
+							{
+								"additionalProperties": {
+									"type": "string"
+								},
+								"type": "object"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Tags"
+					},
+					"cluster_type": {
+						"anyOf": [
+							{
+								"enum": [
+									"CloudManaged",
+									"ExternalManaged"
+								],
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Cluster Type"
+					},
+					"node_root_disk_size": {
+						"anyOf": [
+							{
+								"minimum": 1,
+								"type": "integer"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Node Root Disk Size"
+					},
+					"enable_csi": {
+						"anyOf": [
+							{
+								"type": "boolean"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Enable Csi"
+					},
+					"etcd_nodes": {
+						"anyOf": [
+							{
+								"maximum": 5,
+								"minimum": 0,
+								"type": "integer"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Etcd Nodes"
+					},
+					"project_id": {
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Project Id"
+					},
+					"node_offerings": {
+						"anyOf": [
+							{
+								"additionalProperties": {
+									"type": "string"
+								},
+								"type": "object"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Node Offerings"
+					},
+					"node_templates": {
+						"anyOf": [
+							{
+								"additionalProperties": {
+									"type": "string"
+								},
+								"type": "object"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Node Templates"
+					}
+				},
+				"required": [
+					"name",
+					"zone_id"
+				],
+				"title": "KubernetesClusterCreate",
+				"type": "object"
+			},
+			"KubernetesClusterDetail": {
+				"properties": {
+					"id": {
+						"title": "Id",
+						"type": "string"
+					},
+					"name": {
+						"title": "Name",
+						"type": "string"
+					},
+					"description": {
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Description"
+					},
+					"state": {
+						"title": "State",
+						"type": "string"
+					},
+					"zone_id": {
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Zone Id"
+					},
+					"zone_name": {
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Zone Name"
+					},
+					"kubernetes_version_id": {
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Kubernetes Version Id"
+					},
+					"kubernetes_version_name": {
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Kubernetes Version Name"
+					},
+					"service_offering_id": {
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Service Offering Id"
+					},
+					"service_offering_name": {
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Service Offering Name"
+					},
+					"network_id": {
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Network Id"
+					},
+					"network_name": {
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Network Name"
+					},
+					"size": {
+						"anyOf": [
+							{
+								"type": "integer"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Size"
+					},
+					"master_nodes": {
+						"anyOf": [
+							{
+								"type": "integer"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Master Nodes"
+					},
+					"control_plane_nodes": {
+						"anyOf": [
+							{
+								"type": "integer"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Control Plane Nodes"
+					},
+					"total_node_count": {
+						"anyOf": [
+							{
+								"type": "integer"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Total Node Count"
+					},
+					"endpoint": {
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Endpoint"
+					},
+					"console_endpoint": {
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Console Endpoint"
+					},
+					"autoscaling_enabled": {
+						"default": false,
+						"title": "Autoscaling Enabled",
+						"type": "boolean"
+					},
+					"min_size": {
+						"anyOf": [
+							{
+								"type": "integer"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Min Size"
+					},
+					"max_size": {
+						"anyOf": [
+							{
+								"type": "integer"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Max Size"
+					},
+					"node_pools": {
+						"anyOf": [
+							{
+								"items": {
+									"$ref": "#/components/schemas/NodePool"
+								},
+								"type": "array"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Node Pools"
+					},
+					"cpu_total": {
+						"anyOf": [
+							{
+								"type": "integer"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Cpu Total"
+					},
+					"memory_total": {
+						"anyOf": [
+							{
+								"type": "integer"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Memory Total"
+					},
+					"keypair": {
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Keypair"
+					},
+					"tags": {
+						"anyOf": [
+							{
+								"additionalProperties": {
+									"type": "string"
+								},
+								"type": "object"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Tags"
+					},
+					"created": {
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Created"
+					},
+					"account": {
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Account"
+					},
+					"domain": {
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Domain"
+					},
+					"customer_name": {
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Customer Name"
+					},
+					"ip_address": {
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Ip Address"
+					},
+					"ip_address_name": {
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Ip Address Name"
+					},
+					"associated_network_name": {
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Associated Network Name"
+					},
+					"vm_ids": {
+						"anyOf": [
+							{
+								"items": {
+									"type": "string"
+								},
+								"type": "array"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Vm Ids"
+					},
+					"virtual_machines": {
+						"anyOf": [
+							{
+								"items": {
+									"additionalProperties": true,
+									"type": "object"
+								},
+								"type": "array"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Virtual Machines"
+					},
+					"supported_upgrade_versions": {
+						"anyOf": [
+							{
+								"items": {
+									"type": "string"
+								},
+								"type": "array"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Supported Upgrade Versions"
+					}
+				},
+				"required": [
+					"id",
+					"name",
+					"state"
+				],
+				"title": "KubernetesClusterDetail",
+				"type": "object"
+			},
+			"L3InvoiceItem": {
+				"properties": {
+					"id": {
+						"format": "uuid",
+						"title": "Id",
+						"type": "string"
+					},
+					"letzbill_invoice_id": {
+						"title": "Letzbill Invoice Id",
+						"type": "string"
+					},
+					"invoice_number": {
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Invoice Number"
+					},
+					"amount_cents": {
+						"title": "Amount Cents",
+						"type": "integer"
+					},
+					"currency": {
+						"title": "Currency",
+						"type": "string"
+					},
+					"status": {
+						"title": "Status",
+						"type": "string"
+					},
+					"invoice_date": {
+						"anyOf": [
+							{
+								"format": "date-time",
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Invoice Date"
+					},
+					"due_date": {
+						"anyOf": [
+							{
+								"format": "date-time",
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Due Date"
+					},
+					"pdf_url": {
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Pdf Url"
+					},
+					"paid_at": {
+						"anyOf": [
+							{
+								"format": "date-time",
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Paid At"
+					},
+					"payment_failed_at": {
+						"anyOf": [
+							{
+								"format": "date-time",
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Payment Failed At"
+					},
+					"has_pdf": {
+						"readOnly": true,
+						"title": "Has Pdf",
+						"type": "boolean"
+					}
+				},
+				"required": [
+					"id",
+					"letzbill_invoice_id",
+					"amount_cents",
+					"currency",
+					"status",
+					"has_pdf"
+				],
+				"title": "L3InvoiceItem",
+				"type": "object"
+			},
+			"L3InvoiceListResponse": {
+				"properties": {
+					"data": {
+						"items": {
+							"$ref": "#/components/schemas/L3InvoiceItem"
+						},
+						"title": "Data",
+						"type": "array"
+					},
+					"total": {
+						"default": 0,
+						"title": "Total",
+						"type": "integer"
+					},
+					"page": {
+						"default": 1,
+						"title": "Page",
+						"type": "integer"
+					},
+					"per_page": {
+						"default": 20,
+						"title": "Per Page",
+						"type": "integer"
+					}
+				},
+				"title": "L3InvoiceListResponse",
+				"type": "object"
+			},
+			"L3UsageCharge": {
+				"properties": {
+					"metric_code": {
+						"title": "Metric Code",
+						"type": "string"
+					},
+					"name": {
+						"title": "Name",
+						"type": "string"
+					},
+					"quantity": {
+						"title": "Quantity",
+						"type": "number"
+					},
+					"amount_cents": {
+						"title": "Amount Cents",
+						"type": "integer"
+					}
+				},
+				"required": [
+					"metric_code",
+					"name",
+					"quantity",
+					"amount_cents"
+				],
+				"title": "L3UsageCharge",
+				"type": "object"
+			},
+			"L3UsagePlanRow": {
+				"properties": {
+					"plan": {
+						"title": "Plan",
+						"type": "string"
+					},
+					"name": {
+						"title": "Name",
+						"type": "string"
+					},
+					"amount_cents": {
+						"title": "Amount Cents",
+						"type": "integer"
+					},
+					"charges": {
+						"items": {
+							"$ref": "#/components/schemas/L3UsageCharge"
+						},
+						"title": "Charges",
+						"type": "array"
+					}
+				},
+				"required": [
+					"plan",
+					"name",
+					"amount_cents"
+				],
+				"title": "L3UsagePlanRow",
+				"type": "object"
+			},
+			"L3UsageQuantity": {
+				"properties": {
+					"metric_code": {
+						"title": "Metric Code",
+						"type": "string"
+					},
+					"name": {
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Name"
+					},
+					"quantity": {
+						"title": "Quantity",
+						"type": "number"
+					},
+					"unit": {
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Unit"
+					}
+				},
+				"required": [
+					"metric_code",
+					"quantity"
+				],
+				"title": "L3UsageQuantity",
+				"type": "object"
+			},
+			"L3UsageReportResponse": {
+				"properties": {
+					"period": {
+						"title": "Period",
+						"type": "string"
+					},
+					"period_start": {
+						"anyOf": [
+							{
+								"format": "date-time",
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Period Start"
+					},
+					"period_end": {
+						"anyOf": [
+							{
+								"format": "date-time",
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Period End"
+					},
+					"metrics": {
+						"items": {
+							"$ref": "#/components/schemas/UsageMetricSummary"
+						},
+						"title": "Metrics",
+						"type": "array"
+					},
+					"total_records": {
+						"default": 0,
+						"title": "Total Records",
+						"type": "integer"
+					},
+					"resources": {
+						"items": {
+							"$ref": "#/components/schemas/L3UsageResourceRow"
+						},
+						"title": "Resources",
+						"type": "array"
+					},
+					"plans": {
+						"items": {
+							"$ref": "#/components/schemas/L3UsagePlanRow"
+						},
+						"title": "Plans",
+						"type": "array"
+					},
+					"usage_amount_cents": {
+						"anyOf": [
+							{
+								"type": "integer"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Usage Amount Cents"
+					},
+					"currency": {
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Currency"
+					},
+					"cost_reason": {
+						"anyOf": [
+							{
+								"enum": [
+									"previous_period_invoiced",
+									"rating_unavailable",
+									"mixed_currency",
+									"not_reconciled"
+								],
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Cost Reason"
+					}
+				},
+				"required": [
+					"period"
+				],
+				"title": "L3UsageReportResponse",
+				"type": "object"
+			},
+			"L3UsageResourceRow": {
+				"properties": {
+					"resource_id": {
+						"title": "Resource Id",
+						"type": "string"
+					},
+					"name": {
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Name"
+					},
+					"resource_type": {
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Resource Type"
+					},
+					"plan": {
+						"title": "Plan",
+						"type": "string"
+					},
+					"account_level": {
+						"default": false,
+						"title": "Account Level",
+						"type": "boolean"
+					},
+					"quantities": {
+						"items": {
+							"$ref": "#/components/schemas/L3UsageQuantity"
+						},
+						"title": "Quantities",
+						"type": "array"
+					}
+				},
+				"required": [
+					"resource_id",
+					"plan"
+				],
+				"title": "L3UsageResourceRow",
+				"type": "object"
+			},
+			"L3WalletResponse": {
+				"properties": {
+					"wallet_id": {
+						"title": "Wallet Id",
+						"type": "string"
+					},
+					"balance": {
+						"$ref": "#/components/schemas/WalletMoneyCents"
+					},
+					"recurring_top_up": {
+						"anyOf": [
+							{
+								"$ref": "#/components/schemas/WalletRecurringTopUpInfo"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null
+					}
+				},
+				"required": [
+					"wallet_id",
+					"balance"
+				],
+				"title": "L3WalletResponse",
+				"type": "object"
+			},
+			"L3WebhookEndpointCreatedResponse": {
+				"properties": {
+					"id": {
+						"format": "uuid",
+						"title": "Id",
+						"type": "string"
+					},
+					"url": {
+						"title": "Url",
+						"type": "string"
+					},
+					"event_types": {
+						"items": {
+							"type": "string"
+						},
+						"title": "Event Types",
+						"type": "array"
+					},
+					"active": {
+						"title": "Active",
+						"type": "boolean"
+					},
+					"max_attempts": {
+						"title": "Max Attempts",
+						"type": "integer"
+					},
+					"configured_secret": {
+						"title": "Configured Secret",
+						"type": "boolean"
+					},
+					"created_at": {
+						"format": "date-time",
+						"title": "Created At",
+						"type": "string"
+					},
+					"updated_at": {
+						"format": "date-time",
+						"title": "Updated At",
+						"type": "string"
+					},
+					"secret": {
+						"title": "Secret",
+						"type": "string"
+					}
+				},
+				"required": [
+					"id",
+					"url",
+					"event_types",
+					"active",
+					"max_attempts",
+					"configured_secret",
+					"created_at",
+					"updated_at",
+					"secret"
+				],
+				"title": "L3WebhookEndpointCreatedResponse",
+				"type": "object"
+			},
+			"L3WebhookEndpointResponse": {
+				"properties": {
+					"id": {
+						"format": "uuid",
+						"title": "Id",
+						"type": "string"
+					},
+					"url": {
+						"title": "Url",
+						"type": "string"
+					},
+					"event_types": {
+						"items": {
+							"type": "string"
+						},
+						"title": "Event Types",
+						"type": "array"
+					},
+					"active": {
+						"title": "Active",
+						"type": "boolean"
+					},
+					"max_attempts": {
+						"title": "Max Attempts",
+						"type": "integer"
+					},
+					"configured_secret": {
+						"title": "Configured Secret",
+						"type": "boolean"
+					},
+					"created_at": {
+						"format": "date-time",
+						"title": "Created At",
+						"type": "string"
+					},
+					"updated_at": {
+						"format": "date-time",
+						"title": "Updated At",
+						"type": "string"
+					}
+				},
+				"required": [
+					"id",
+					"url",
+					"event_types",
+					"active",
+					"max_attempts",
+					"configured_secret",
+					"created_at",
+					"updated_at"
+				],
+				"title": "L3WebhookEndpointResponse",
+				"type": "object"
+			},
+			"MaintenanceWindow": {
+				"properties": {
+					"day_of_week": {
+						"title": "Day Of Week",
+						"type": "string"
+					},
+					"start_time": {
+						"title": "Start Time",
+						"type": "string"
+					},
+					"duration_minutes": {
+						"maximum": 720,
+						"minimum": 30,
+						"title": "Duration Minutes",
+						"type": "integer"
+					}
+				},
+				"required": [
+					"day_of_week",
+					"start_time",
+					"duration_minutes"
+				],
+				"title": "MaintenanceWindow",
+				"type": "object"
+			},
+			"Network": {
+				"properties": {
+					"name": {
+						"title": "Name",
+						"type": "string"
+					},
+					"display_text": {
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Display Text"
+					},
+					"id": {
+						"format": "uuid",
+						"title": "Id",
+						"type": "string"
+					},
+					"state": {
+						"title": "State",
+						"type": "string"
+					},
+					"type": {
+						"title": "Type",
+						"type": "string"
+					},
+					"cidr": {
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Cidr"
+					},
+					"gateway": {
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Gateway"
+					},
+					"netmask": {
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Netmask"
+					},
+					"network_domain": {
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Network Domain"
+					},
+					"network_offering_name": {
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Network Offering Name"
+					},
+					"zone_name": {
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Zone Name"
+					},
+					"zone_id": {
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Zone Id"
+					},
+					"vlan": {
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Vlan"
+					},
+					"dns1": {
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Dns1"
+					},
+					"dns2": {
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Dns2"
+					},
+					"vpc_id": {
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Vpc Id"
+					},
+					"acl_id": {
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Acl Id"
+					},
+					"acl_name": {
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Acl Name"
+					}
+				},
+				"required": [
+					"name",
+					"id",
+					"state",
+					"type"
+				],
+				"title": "Network",
+				"type": "object"
+			},
+			"NetworkAsyncJobResponse": {
+				"properties": {
+					"job_id": {
+						"title": "Job Id",
+						"type": "string"
+					},
+					"job_status": {
+						"title": "Job Status",
+						"type": "integer"
+					},
+					"job_result": {
+						"anyOf": [
+							{
+								"additionalProperties": true,
+								"type": "object"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Job Result"
+					},
+					"message": {
+						"default": "Async job initiated",
+						"title": "Message",
+						"type": "string"
+					}
+				},
+				"required": [
+					"job_id",
+					"job_status"
+				],
+				"title": "NetworkAsyncJobResponse",
+				"type": "object"
+			},
+			"NetworkCreate": {
+				"properties": {
+					"name": {
+						"title": "Name",
+						"type": "string"
+					},
+					"display_text": {
+						"title": "Display Text",
+						"type": "string"
+					},
+					"network_offering_id": {
+						"format": "uuid",
+						"title": "Network Offering Id",
+						"type": "string"
+					},
+					"zone_id": {
+						"format": "uuid",
+						"title": "Zone Id",
+						"type": "string"
+					},
+					"gateway": {
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Gateway"
+					},
+					"netmask": {
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Netmask"
+					},
+					"start_ip": {
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Start Ip"
+					},
+					"end_ip": {
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "End Ip"
+					},
+					"vpc_id": {
+						"anyOf": [
+							{
+								"format": "uuid",
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Vpc Id"
+					},
+					"acl_id": {
+						"anyOf": [
+							{
+								"format": "uuid",
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Acl Id"
+					},
+					"network_domain": {
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Network Domain"
+					}
+				},
+				"required": [
+					"name",
+					"display_text",
+					"network_offering_id",
+					"zone_id"
+				],
+				"title": "NetworkCreate",
+				"type": "object"
+			},
+			"NodePool": {
+				"properties": {
+					"name": {
+						"title": "Name",
+						"type": "string"
+					},
+					"size": {
+						"default": 1,
+						"minimum": 1,
+						"title": "Size",
+						"type": "integer"
+					},
+					"service_offering_id": {
+						"title": "Service Offering Id",
+						"type": "string"
+					},
+					"id": {
+						"title": "Id",
+						"type": "string"
+					},
+					"cluster_id": {
+						"title": "Cluster Id",
+						"type": "string"
+					},
+					"state": {
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "State"
+					},
+					"min_size": {
+						"anyOf": [
+							{
+								"type": "integer"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Min Size"
+					},
+					"max_size": {
+						"anyOf": [
+							{
+								"type": "integer"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Max Size"
+					},
+					"autoscaling_enabled": {
+						"default": false,
+						"title": "Autoscaling Enabled",
+						"type": "boolean"
+					},
+					"service_offering_name": {
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Service Offering Name"
+					},
+					"created": {
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Created"
+					}
+				},
+				"required": [
+					"name",
+					"service_offering_id",
+					"id",
+					"cluster_id"
+				],
+				"title": "NodePool",
+				"type": "object"
+			},
+			"NodePoolCreate": {
+				"properties": {
+					"name": {
+						"title": "Name",
+						"type": "string"
+					},
+					"size": {
+						"default": 1,
+						"minimum": 1,
+						"title": "Size",
+						"type": "integer"
+					},
+					"service_offering_id": {
+						"title": "Service Offering Id",
+						"type": "string"
+					},
+					"min_size": {
+						"anyOf": [
+							{
+								"minimum": 0,
+								"type": "integer"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Min Size"
+					},
+					"max_size": {
+						"anyOf": [
+							{
+								"minimum": 1,
+								"type": "integer"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Max Size"
+					}
+				},
+				"required": [
+					"name",
+					"service_offering_id"
+				],
+				"title": "NodePoolCreate",
+				"type": "object"
+			},
+			"PaginatedL3WebhookEndpointResponse": {
+				"properties": {
+					"items": {
+						"items": {
+							"$ref": "#/components/schemas/L3WebhookEndpointResponse"
+						},
+						"title": "Items",
+						"type": "array"
+					},
+					"total": {
+						"title": "Total",
+						"type": "integer"
+					},
+					"page": {
+						"title": "Page",
+						"type": "integer"
+					},
+					"per_page": {
+						"title": "Per Page",
+						"type": "integer"
+					}
+				},
+				"required": [
+					"items",
+					"total",
+					"page",
+					"per_page"
+				],
+				"title": "PaginatedL3WebhookEndpointResponse",
+				"type": "object"
+			},
+			"PaginatedResponse": {
+				"properties": {
+					"items": {
+						"items": {},
+						"title": "Items",
+						"type": "array"
+					},
+					"total": {
+						"title": "Total",
+						"type": "integer"
+					},
+					"page": {
+						"title": "Page",
+						"type": "integer"
+					},
+					"page_size": {
+						"title": "Page Size",
+						"type": "integer"
+					},
+					"total_pages": {
+						"title": "Total Pages",
+						"type": "integer"
+					}
+				},
+				"required": [
+					"items",
+					"total",
+					"page",
+					"page_size",
+					"total_pages"
+				],
+				"title": "PaginatedResponse",
+				"type": "object"
+			},
+			"PaginatedResponse_VolumeSnapshotRead_": {
+				"properties": {
+					"items": {
+						"items": {
+							"$ref": "#/components/schemas/VolumeSnapshotRead"
+						},
+						"title": "Items",
+						"type": "array"
+					},
+					"total": {
+						"title": "Total",
+						"type": "integer"
+					},
+					"page": {
+						"title": "Page",
+						"type": "integer"
+					},
+					"page_size": {
+						"title": "Page Size",
+						"type": "integer"
+					},
+					"total_pages": {
+						"title": "Total Pages",
+						"type": "integer"
+					}
+				},
+				"required": [
+					"items",
+					"total",
+					"page",
+					"page_size",
+					"total_pages"
+				],
+				"title": "PaginatedResponse[VolumeSnapshotRead]",
+				"type": "object"
+			},
+			"PaginatedWebhookEndpointResponse": {
+				"properties": {
+					"items": {
+						"items": {
+							"$ref": "#/components/schemas/WebhookEndpointResponse"
+						},
+						"title": "Items",
+						"type": "array"
+					},
+					"total": {
+						"title": "Total",
+						"type": "integer"
+					},
+					"page": {
+						"title": "Page",
+						"type": "integer"
+					},
+					"per_page": {
+						"title": "Per Page",
+						"type": "integer"
+					}
+				},
+				"required": [
+					"items",
+					"total",
+					"page",
+					"per_page"
+				],
+				"title": "PaginatedWebhookEndpointResponse",
+				"type": "object"
+			},
+			"SnapshotCreateRequest": {
+				"properties": {
+					"volume_id": {
+						"title": "Volume Id",
+						"type": "string"
+					},
+					"name": {
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Name"
+					},
+					"location_type": {
+						"anyOf": [
+							{
+								"enum": [
+									"primary",
+									"secondary"
+								],
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Location Type"
+					},
+					"policy_id": {
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Policy Id"
+					}
+				},
+				"required": [
+					"volume_id"
+				],
+				"title": "SnapshotCreateRequest",
+				"type": "object"
+			},
+			"SnapshotEntryIntervalType": {
+				"enum": [
+					"MANUAL",
+					"HOURLY",
+					"DAILY",
+					"WEEKLY",
+					"MONTHLY"
+				],
+				"title": "SnapshotEntryIntervalType",
+				"type": "string"
+			},
+			"UsageMetricSummary": {
+				"properties": {
+					"metric_code": {
+						"title": "Metric Code",
+						"type": "string"
+					},
+					"metric_description": {
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Metric Description"
+					},
+					"name": {
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Name"
+					},
+					"aggregation": {
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Aggregation"
+					},
+					"total_value": {
+						"title": "Total Value",
+						"type": "number"
+					},
+					"unit": {
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Unit"
+					},
+					"record_count": {
+						"default": 0,
+						"title": "Record Count",
+						"type": "integer"
+					},
+					"amount_cents": {
+						"anyOf": [
+							{
+								"type": "integer"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Amount Cents"
+					},
+					"currency": {
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Currency"
+					}
+				},
+				"required": [
+					"metric_code",
+					"total_value"
+				],
+				"title": "UsageMetricSummary",
+				"type": "object"
+			},
+			"Vm": {
+				"properties": {
+					"name": {
+						"title": "Name",
+						"type": "string"
+					},
+					"display_name": {
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Display Name"
+					},
+					"id": {
+						"format": "uuid",
+						"title": "Id",
+						"type": "string"
+					},
+					"state": {
+						"title": "State",
+						"type": "string"
+					},
+					"zone_name": {
+						"title": "Zone Name",
+						"type": "string"
+					},
+					"zone_id": {
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Zone Id"
+					},
+					"service_offering_name": {
+						"title": "Service Offering Name",
+						"type": "string"
+					},
+					"service_offering_id": {
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Service Offering Id"
+					},
+					"template_name": {
+						"title": "Template Name",
+						"type": "string"
+					},
+					"template_id": {
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Template Id"
+					},
+					"hypervisor": {
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Hypervisor"
+					},
+					"ip_address": {
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Ip Address"
+					},
+					"created": {
+						"title": "Created",
+						"type": "string"
+					},
+					"cpunumber": {
+						"anyOf": [
+							{
+								"type": "integer"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Cpunumber"
+					},
+					"memory": {
+						"anyOf": [
+							{
+								"type": "integer"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Memory"
+					},
+					"hostname": {
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Hostname"
+					},
+					"cpu_used_percent": {
+						"anyOf": [
+							{
+								"type": "number"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Cpu Used Percent"
+					},
+					"memory_used_percent": {
+						"anyOf": [
+							{
+								"type": "number"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Memory Used Percent"
+					},
+					"ha_enable": {
+						"anyOf": [
+							{
+								"type": "boolean"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Ha Enable"
+					},
+					"group": {
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Group"
+					},
+					"nic": {
+						"default": [],
+						"items": {
+							"$ref": "#/components/schemas/VmNic"
+						},
+						"title": "Nic",
+						"type": "array"
+					},
+					"volumes": {
+						"default": [],
+						"items": {
+							"$ref": "#/components/schemas/VmVolume"
+						},
+						"title": "Volumes",
+						"type": "array"
+					},
+					"public_ip_addresses": {
+						"anyOf": [
+							{
+								"items": {
+									"type": "string"
+								},
+								"type": "array"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Public Ip Addresses"
+					},
+					"tags": {
+						"anyOf": [
+							{
+								"additionalProperties": {
+									"type": "string"
+								},
+								"type": "object"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Tags"
+					}
+				},
+				"required": [
+					"name",
+					"id",
+					"state",
+					"zone_name",
+					"service_offering_name",
+					"template_name",
+					"created"
+				],
+				"title": "Vm",
+				"type": "object"
+			},
+			"VmAsyncJobResponse": {
+				"properties": {
+					"job_id": {
+						"title": "Job Id",
+						"type": "string"
+					},
+					"job_status": {
+						"title": "Job Status",
+						"type": "integer"
+					},
+					"job_result": {
+						"anyOf": [
+							{
+								"additionalProperties": true,
+								"type": "object"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Job Result"
+					},
+					"message": {
+						"default": "Async job initiated",
+						"title": "Message",
+						"type": "string"
+					}
+				},
+				"required": [
+					"job_id",
+					"job_status"
+				],
+				"title": "VmAsyncJobResponse",
+				"type": "object"
+			},
+			"VmCreate": {
+				"properties": {
+					"service_offering_id": {
+						"format": "uuid",
+						"title": "Service Offering Id",
+						"type": "string"
+					},
+					"template_id": {
+						"format": "uuid",
+						"title": "Template Id",
+						"type": "string"
+					},
+					"zone_id": {
+						"format": "uuid",
+						"title": "Zone Id",
+						"type": "string"
+					},
+					"name": {
+						"title": "Name",
+						"type": "string"
+					},
+					"display_name": {
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Display Name"
+					},
+					"network_ids": {
+						"anyOf": [
+							{
+								"items": {
+									"format": "uuid",
+									"type": "string"
+								},
+								"type": "array"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Network Ids"
+					},
+					"disk_offering_id": {
+						"anyOf": [
+							{
+								"format": "uuid",
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Disk Offering Id"
+					},
+					"user_data": {
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "User Data"
+					},
+					"keypair": {
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Keypair"
+					},
+					"root_disk_size": {
+						"anyOf": [
+							{
+								"minimum": 1,
+								"type": "integer"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Root Disk Size"
+					},
+					"ip_address": {
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Ip Address"
+					},
+					"ip6_address": {
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Ip6 Address"
+					},
+					"mac_address": {
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Mac Address"
+					},
+					"affinity_group_ids": {
+						"anyOf": [
+							{
+								"items": {
+									"format": "uuid",
+									"type": "string"
+								},
+								"type": "array"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Affinity Group Ids"
+					},
+					"security_group_ids": {
+						"anyOf": [
+							{
+								"items": {
+									"format": "uuid",
+									"type": "string"
+								},
+								"type": "array"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Security Group Ids"
+					},
+					"host_id": {
+						"anyOf": [
+							{
+								"format": "uuid",
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Host Id"
+					},
+					"start_vm": {
+						"anyOf": [
+							{
+								"type": "boolean"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Start Vm"
+					},
+					"extra_config": {
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Extra Config"
+					},
+					"dynamic_scaling_enabled": {
+						"anyOf": [
+							{
+								"type": "boolean"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Dynamic Scaling Enabled"
+					},
+					"boot_type": {
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Boot Type"
+					},
+					"boot_mode": {
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Boot Mode"
+					},
+					"project_id": {
+						"anyOf": [
+							{
+								"format": "uuid",
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Project Id"
+					},
+					"keyboard": {
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Keyboard"
+					}
+				},
+				"required": [
+					"service_offering_id",
+					"template_id",
+					"zone_id",
+					"name"
+				],
+				"title": "VmCreate",
+				"type": "object"
+			},
+			"VmNic": {
+				"properties": {
+					"id": {
+						"title": "Id",
+						"type": "string"
+					},
+					"network_id": {
+						"title": "Network Id",
+						"type": "string"
+					},
+					"network_name": {
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Network Name"
+					},
+					"ip_address": {
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Ip Address"
+					},
+					"gateway": {
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Gateway"
+					},
+					"netmask": {
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Netmask"
+					},
+					"mac_address": {
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Mac Address"
+					},
+					"is_default": {
+						"default": false,
+						"title": "Is Default",
+						"type": "boolean"
+					},
+					"type": {
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Type"
+					}
+				},
+				"required": [
+					"id",
+					"network_id"
+				],
+				"title": "VmNic",
+				"type": "object"
+			},
+			"VmStateUpdate": {
+				"properties": {
+					"action": {
+						"title": "Action",
+						"type": "string"
+					},
+					"force": {
+						"default": false,
+						"title": "Force",
+						"type": "boolean"
+					}
+				},
+				"required": [
+					"action"
+				],
+				"title": "VmStateUpdate",
+				"type": "object"
+			},
+			"VmVolume": {
+				"properties": {
+					"id": {
+						"title": "Id",
+						"type": "string"
+					},
+					"name": {
+						"title": "Name",
+						"type": "string"
+					},
+					"type": {
+						"title": "Type",
+						"type": "string"
+					},
+					"size": {
+						"title": "Size",
+						"type": "integer"
+					},
+					"state": {
+						"title": "State",
+						"type": "string"
+					},
+					"storage_type": {
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Storage Type"
+					},
+					"disk_offering_name": {
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Disk Offering Name"
+					},
+					"device_id": {
+						"anyOf": [
+							{
+								"type": "integer"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Device Id"
+					}
+				},
+				"required": [
+					"id",
+					"name",
+					"type",
+					"size",
+					"state"
+				],
+				"title": "VmVolume",
+				"type": "object"
+			},
+			"Volume": {
+				"properties": {
+					"name": {
+						"title": "Name",
+						"type": "string"
+					},
+					"id": {
+						"format": "uuid",
+						"title": "Id",
+						"type": "string"
+					},
+					"state": {
+						"title": "State",
+						"type": "string"
+					},
+					"size": {
+						"title": "Size",
+						"type": "integer"
+					},
+					"size_bytes": {
+						"anyOf": [
+							{
+								"type": "integer"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Size Bytes"
+					},
+					"volume_type": {
+						"title": "Volume Type",
+						"type": "string"
+					},
+					"vm_display_name": {
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Vm Display Name"
+					},
+					"created": {
+						"title": "Created",
+						"type": "string"
+					},
+					"disk_offering_name": {
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Disk Offering Name"
+					},
+					"zone_id": {
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Zone Id"
+					},
+					"zone_name": {
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Zone Name"
+					},
+					"vm_id": {
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Vm Id"
+					},
+					"device_id": {
+						"anyOf": [
+							{
+								"type": "integer"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Device Id"
+					},
+					"disk_offering_id": {
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Disk Offering Id"
+					},
+					"min_iops": {
+						"anyOf": [
+							{
+								"type": "integer"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Min Iops"
+					},
+					"max_iops": {
+						"anyOf": [
+							{
+								"type": "integer"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Max Iops"
+					},
+					"provisioning_type": {
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Provisioning Type"
+					},
+					"encrypted": {
+						"default": false,
+						"title": "Encrypted",
+						"type": "boolean"
+					}
+				},
+				"required": [
+					"name",
+					"id",
+					"state",
+					"size",
+					"volume_type",
+					"created"
+				],
+				"title": "Volume",
+				"type": "object"
+			},
+			"VolumeAsyncJobResponse": {
+				"properties": {
+					"job_id": {
+						"title": "Job Id",
+						"type": "string"
+					},
+					"job_status": {
+						"title": "Job Status",
+						"type": "integer"
+					},
+					"job_result": {
+						"anyOf": [
+							{
+								"additionalProperties": true,
+								"type": "object"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Job Result"
+					},
+					"message": {
+						"default": "Async job initiated",
+						"title": "Message",
+						"type": "string"
+					}
+				},
+				"required": [
+					"job_id",
+					"job_status"
+				],
+				"title": "VolumeAsyncJobResponse",
+				"type": "object"
+			},
+			"VolumeCreate": {
+				"properties": {
+					"name": {
+						"title": "Name",
+						"type": "string"
+					},
+					"disk_offering_id": {
+						"format": "uuid",
+						"title": "Disk Offering Id",
+						"type": "string"
+					},
+					"zone_id": {
+						"format": "uuid",
+						"title": "Zone Id",
+						"type": "string"
+					},
+					"size": {
+						"anyOf": [
+							{
+								"type": "integer"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Size"
+					},
+					"min_iops": {
+						"anyOf": [
+							{
+								"type": "integer"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Min Iops"
+					},
+					"max_iops": {
+						"anyOf": [
+							{
+								"type": "integer"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Max Iops"
+					},
+					"encrypt": {
+						"default": false,
+						"title": "Encrypt",
+						"type": "boolean"
+					},
+					"attach_to_vm_id": {
+						"anyOf": [
+							{
+								"format": "uuid",
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Attach To Vm Id"
+					}
+				},
+				"required": [
+					"name",
+					"disk_offering_id",
+					"zone_id"
+				],
+				"title": "VolumeCreate",
+				"type": "object"
+			},
+			"VolumeMountCreate": {
+				"properties": {
+					"mount_path": {
+						"examples": [
+							"/data"
+						],
+						"maxLength": 512,
+						"minLength": 1,
+						"title": "Mount Path",
+						"type": "string"
+					},
+					"size_gb": {
+						"default": 10,
+						"maximum": 10000,
+						"minimum": 1,
+						"title": "Size Gb",
+						"type": "integer"
+					},
+					"storage_class": {
+						"default": "standard",
+						"maxLength": 64,
+						"title": "Storage Class",
+						"type": "string"
+					}
+				},
+				"required": [
+					"mount_path"
+				],
+				"title": "VolumeMountCreate",
+				"type": "object"
+			},
+			"VolumeMountRead": {
+				"properties": {
+					"id": {
+						"format": "uuid",
+						"title": "Id",
+						"type": "string"
+					},
+					"container_id": {
+						"format": "uuid",
+						"title": "Container Id",
+						"type": "string"
+					},
+					"mount_path": {
+						"title": "Mount Path",
+						"type": "string"
+					},
+					"pvc_name": {
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Pvc Name"
+					},
+					"size_gb": {
+						"title": "Size Gb",
+						"type": "integer"
+					},
+					"storage_class": {
+						"title": "Storage Class",
+						"type": "string"
+					},
+					"created_at": {
+						"format": "date-time",
+						"title": "Created At",
+						"type": "string"
+					}
+				},
+				"required": [
+					"id",
+					"container_id",
+					"mount_path",
+					"size_gb",
+					"storage_class",
+					"created_at"
+				],
+				"title": "VolumeMountRead",
+				"type": "object"
+			},
+			"VolumeSnapshotRead": {
+				"properties": {
+					"id": {
+						"title": "Id",
+						"type": "string"
+					},
+					"name": {
+						"title": "Name",
+						"type": "string"
+					},
+					"volume_id": {
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Volume Id"
+					},
+					"volume_name": {
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Volume Name"
+					},
+					"volume_size_bytes": {
+						"anyOf": [
+							{
+								"type": "integer"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Volume Size Bytes"
+					},
+					"state": {
+						"title": "State",
+						"type": "string"
+					},
+					"snapshot_type": {
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Snapshot Type"
+					},
+					"interval_type": {
+						"anyOf": [
+							{
+								"$ref": "#/components/schemas/SnapshotEntryIntervalType"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null
+					},
+					"size": {
+						"default": 0,
+						"title": "Size",
+						"type": "integer"
+					},
+					"created": {
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Created"
+					},
+					"zone_id": {
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Zone Id"
+					},
+					"zone_name": {
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Zone Name"
+					},
+					"policy_id": {
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Policy Id"
+					}
+				},
+				"required": [
+					"id",
+					"name",
+					"state"
+				],
+				"title": "VolumeSnapshotRead",
+				"type": "object"
+			},
+			"WalletMoneyCents": {
+				"properties": {
+					"amount": {
+						"anyOf": [
+							{
+								"type": "integer"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Amount"
+					},
+					"currency": {
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Currency"
+					}
+				},
+				"title": "WalletMoneyCents",
+				"type": "object"
+			},
+			"WalletRecurringTopUpInfo": {
+				"properties": {
+					"threshold": {
+						"$ref": "#/components/schemas/WalletMoneyCents"
+					},
+					"amount": {
+						"$ref": "#/components/schemas/WalletMoneyCents"
+					}
+				},
+				"required": [
+					"threshold",
+					"amount"
+				],
+				"title": "WalletRecurringTopUpInfo",
+				"type": "object"
+			},
+			"WebhookEndpointCreate": {
+				"properties": {
+					"url": {
+						"maxLength": 2048,
+						"title": "Url",
+						"type": "string"
+					},
+					"event_types": {
+						"items": {
+							"type": "string"
+						},
+						"title": "Event Types",
+						"type": "array"
+					},
+					"secret": {
+						"anyOf": [
+							{
+								"maxLength": 256,
+								"minLength": 16,
+								"type": "string"
+							},
+							{
+								"type": "null"
+							}
+						],
+						"default": null,
+						"title": "Secret"
+					},
+					"active": {
+						"default": true,
+						"title": "Active",
+						"type": "boolean"
+					},
+					"max_attempts": {
+						"default": 5,
+						"maximum": 20,
+						"minimum": 1,
+						"title": "Max Attempts",
+						"type": "integer"
+					}
+				},
+				"required": [
+					"url"
+				],
+				"title": "WebhookEndpointCreate",
+				"type": "object"
+			},
+			"WebhookEndpointCreatedResponse": {
+				"properties": {
+					"id": {
+						"format": "uuid",
+						"title": "Id",
+						"type": "string"
+					},
+					"organization_id": {
+						"format": "uuid",
+						"title": "Organization Id",
+						"type": "string"
+					},
+					"url": {
+						"title": "Url",
+						"type": "string"
+					},
+					"event_types": {
+						"items": {
+							"type": "string"
+						},
+						"title": "Event Types",
+						"type": "array"
+					},
+					"active": {
+						"title": "Active",
+						"type": "boolean"
+					},
+					"max_attempts": {
+						"title": "Max Attempts",
+						"type": "integer"
+					},
+					"configured_secret": {
+						"title": "Configured Secret",
+						"type": "boolean"
+					},
+					"created_at": {
+						"format": "date-time",
+						"title": "Created At",
+						"type": "string"
+					},
+					"updated_at": {
+						"format": "date-time",
+						"title": "Updated At",
+						"type": "string"
+					},
+					"secret": {
+						"title": "Secret",
+						"type": "string"
+					},
+					"warning": {
+						"default": "Store this secret securely. It cannot be retrieved again.",
+						"title": "Warning",
+						"type": "string"
+					}
+				},
+				"required": [
+					"id",
+					"organization_id",
+					"url",
+					"event_types",
+					"active",
+					"max_attempts",
+					"configured_secret",
+					"created_at",
+					"updated_at",
+					"secret"
+				],
+				"title": "WebhookEndpointCreatedResponse",
+				"type": "object"
+			},
+			"WebhookEndpointResponse": {
+				"properties": {
+					"id": {
+						"format": "uuid",
+						"title": "Id",
+						"type": "string"
+					},
+					"organization_id": {
+						"format": "uuid",
+						"title": "Organization Id",
+						"type": "string"
+					},
+					"url": {
+						"title": "Url",
+						"type": "string"
+					},
+					"event_types": {
+						"items": {
+							"type": "string"
+						},
+						"title": "Event Types",
+						"type": "array"
+					},
+					"active": {
+						"title": "Active",
+						"type": "boolean"
+					},
+					"max_attempts": {
+						"title": "Max Attempts",
+						"type": "integer"
+					},
+					"configured_secret": {
+						"title": "Configured Secret",
+						"type": "boolean"
+					},
+					"created_at": {
+						"format": "date-time",
+						"title": "Created At",
+						"type": "string"
+					},
+					"updated_at": {
+						"format": "date-time",
+						"title": "Updated At",
+						"type": "string"
+					}
+				},
+				"required": [
+					"id",
+					"organization_id",
+					"url",
+					"event_types",
+					"active",
+					"max_attempts",
+					"configured_secret",
+					"created_at",
+					"updated_at"
+				],
+				"title": "WebhookEndpointResponse",
+				"type": "object"
+			},
+			"WebhookEventTypeInfo": {
+				"properties": {
+					"type": {
+						"title": "Type",
+						"type": "string"
+					},
+					"object_type": {
+						"title": "Object Type",
+						"type": "string"
+					},
+					"description": {
+						"title": "Description",
+						"type": "string"
+					},
+					"payload_schema": {
+						"title": "Payload Schema",
+						"type": "string"
+					}
+				},
+				"required": [
+					"type",
+					"object_type",
+					"description",
+					"payload_schema"
+				],
+				"title": "WebhookEventTypeInfo",
+				"type": "object"
+			},
+			"WebhookEventTypesResponse": {
+				"properties": {
+					"items": {
+						"items": {
+							"$ref": "#/components/schemas/WebhookEventTypeInfo"
+						},
+						"title": "Items",
+						"type": "array"
+					},
+					"total": {
+						"title": "Total",
+						"type": "integer"
+					}
+				},
+				"required": [
+					"items",
+					"total"
+				],
+				"title": "WebhookEventTypesResponse",
+				"type": "object"
+			},
+			"WellKnownApplianceResponse": {
+				"properties": {
+					"appliance_public_key": {
+						"title": "Appliance Public Key",
+						"type": "string"
+					},
+					"bundle_version": {
+						"title": "Bundle Version",
+						"type": "string"
+					},
+					"fingerprint": {
+						"title": "Fingerprint",
+						"type": "string"
+					}
+				},
+				"required": [
+					"appliance_public_key",
+					"bundle_version",
+					"fingerprint"
+				],
+				"title": "WellKnownApplianceResponse",
+				"type": "object"
+			}
+		}
+	}
+}

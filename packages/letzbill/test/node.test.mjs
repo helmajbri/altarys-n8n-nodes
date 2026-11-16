@@ -78,6 +78,55 @@ test('an ID that is not a UUID is refused before it reaches the path', async () 
 	assert.ok(get.routing.send.preSend.length >= 2, 'customer.get checks its ID');
 });
 
+test('a free-form path ID cannot be a dot segment or a path', async () => {
+	const guard = runtime.requireSafePathSegments(['externalId']);
+	for (const bad of ['.', '..', '', '   ', 'a/b', '../customers', 'a\\b']) {
+		await assert.rejects(guard.call(single({ externalId: bad }), { url: '/x' }), /must be an ID/, JSON.stringify(bad));
+	}
+	for (const good of ['ext-42', 'order.2026.01', '...', 'a..b']) {
+		const ok = await guard.call(single({ externalId: good }), { url: '/x' });
+		assert.equal(ok.url, '/x');
+	}
+	const expected = {
+		'customer.getByExternalId': ['externalId'],
+		'subscription.getByExternalId': ['externalId'],
+		'usageEvent.get': ['transactionId'],
+	};
+	for (const [key, names] of Object.entries(expected)) {
+		const [resource, operation] = key.split('.');
+		const spec = operationSpecs.find((s) => s.resource === resource && s.operation === operation);
+		assert.deepEqual(spec.safeParameters, names, key);
+		const preSend = optionFor(resource, operation).routing.send.preSend;
+		await assert.rejects(
+			(async () => {
+				let options = { baseURL: BASE, url: '/x', headers: {}, body: {} };
+				for (const step of preSend) options = await step.call(single({ [names[0]]: '..' }), options);
+			})(),
+			/must be an ID/,
+			key,
+		);
+	}
+	// Every path parameter is checked one way or the other.
+	for (const spec of operationSpecs) {
+		const names = [...spec.path.matchAll(/\{([^}]+)\}/g)].map((m) => m[1].replace(/_([a-z0-9])/g, (_, c) => c.toUpperCase()));
+		assert.deepEqual([...spec.uuidParameters, ...spec.safeParameters].sort(), names.sort(), `${spec.resource}.${spec.operation}`);
+	}
+});
+
+test('the credential refuses an http:// API URL before any request carries the key', async () => {
+	const credential = new LetzBillApi();
+	const hidden = credential.properties.find((p) => p.type === 'hidden');
+	assert.equal(hidden.typeOptions.expirable, true, 'n8n runs preAuthentication only with an expirable field');
+	assert.equal(hidden.default, '', 'an empty value makes it run before every request');
+	const sent = [];
+	const helper = { helpers: { httpRequest: async (options) => sent.push(options) } };
+	for (const baseUrl of ['http://billing.example.com', 'billing.example.com', '', ' HTTP://billing.example.com']) {
+		await assert.rejects(credential.preAuthentication.call(helper, { baseUrl, apiKey: 'fb_x' }), /'https:\/\/'/, baseUrl);
+	}
+	assert.deepEqual(await credential.preAuthentication.call(helper, { baseUrl: BASE, apiKey: 'fb_x' }), {});
+	assert.deepEqual(sent, []);
+});
+
 test('a credential with a plain http:// API URL is refused', async () => {
 	await assert.rejects(runtime.requireHttps.call(single(), { baseURL: 'http://billing.example.com', url: '/x' }), /https/);
 	await assert.rejects(runtime.requireHttps.call(single(), { url: '/x' }), /https/);
@@ -156,7 +205,7 @@ test('Return All stops on a server that keeps returning full pages', async () =>
 	// Distinct full pages forever: stops at the page cap.
 	let calls = 0;
 	await assert.rejects(
-		runtime.paginateByPage(1, 5).call(
+		runtime.paginateByPage(1, 'per_page', 5).call(
 			ctx(async (requestData) => {
 				calls += 1;
 				return [{ json: { page: requestData.options.qs.page } }];
@@ -228,7 +277,10 @@ test('role, lifecycle, quota and validation refusals are told apart', () => {
 
 test('the credential sends the key as a bearer token and tests with a read-only call', () => {
 	const credential = new LetzBillApi();
-	assert.equal(credential.authenticate.properties.headers.Authorization, '=Bearer {{$credentials.apiKey}}');
+	assert.equal(
+		credential.authenticate.properties.headers.Authorization,
+		'={{ $credentials.httpsCheck === "" ? "Bearer " + $credentials.apiKey : "" }}',
+	);
 	assert.equal(credential.test.request.method, 'GET');
 	assert.equal(credential.test.request.url, '/api/v1/webhooks/event_types');
 	const key = credential.properties.find((p) => p.name === 'apiKey');

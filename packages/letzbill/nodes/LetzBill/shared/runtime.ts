@@ -27,6 +27,9 @@ export interface GeneratedOperationSpec {
 	itemSchema: string;
 	outputOmit: string[];
 	minorUnitInputs: string[];
+	inheritCurrency: string[];
+	uuidParameters: string[];
+	safeParameters: string[];
 }
 
 const IDEMPOTENCY_KEY_PATTERN = /^[A-Za-z0-9_.:-]{1,255}$/;
@@ -204,7 +207,7 @@ export const MAX_PAGES = 10000;
  * instead of looping, when a page repeats the one before it (the server ignored `page`) or when
  * maxPages pages were all full.
  */
-export function paginateByPage(perPage: number, maxPages = MAX_PAGES) {
+export function paginateByPage(perPage: number, perPageParameter = 'per_page', maxPages = MAX_PAGES) {
 	return async function (
 		this: IExecutePaginationFunctions,
 		requestData: DeclarativeRestApiSettings.ResultOptions,
@@ -212,7 +215,7 @@ export function paginateByPage(perPage: number, maxPages = MAX_PAGES) {
 		const results: INodeExecutionData[] = [];
 		let previous = '';
 		for (let page = 1; page <= maxPages; page++) {
-			requestData.options.qs = { ...(requestData.options.qs ?? {}), page, per_page: perPage };
+			requestData.options.qs = { ...(requestData.options.qs ?? {}), page, [perPageParameter]: perPage };
 			const pageItems = await this.makeRoutingRequest(requestData);
 			if (pageItems.length < perPage) {
 				results.push(...pageItems);
@@ -251,6 +254,33 @@ export function requireUuids(parameters: string[]) {
 					`'${name}' must be a LetzBill ID (a UUID) [Item ${this.getItemIndex()}]`,
 					{
 						description: 'e.g. 3f2b8c1e-5d4a-4f6b-9c2d-1a2b3c4d5e6f',
+						itemIndex: this.getItemIndex(),
+					},
+				);
+			}
+		}
+		return requestOptions;
+	};
+}
+
+/**
+ * Refuses a path ID that is empty, '.', '..' or holds a slash or a backslash. The ID is
+ * URL-encoded into the path, but a dot segment survives encoding and would move the request to
+ * another route on the same host.
+ */
+export function requireSafePathSegments(parameters: string[]) {
+	return async function (
+		this: IExecuteSingleFunctions,
+		requestOptions: IHttpRequestOptions,
+	): Promise<IHttpRequestOptions> {
+		for (const name of parameters) {
+			const value = String(this.getNodeParameter(name, '') ?? '');
+			if (value.trim() === '' || value === '.' || value === '..' || /[/\\]/.test(value)) {
+				throw new NodeOperationError(
+					this.getNode(),
+					`'${name}' must be an ID, not empty, '.', '..' or a path [Item ${this.getItemIndex()}]`,
+					{
+						description: 'Use the ID exactly as LetzBill shows it, without slashes',
 						itemIndex: this.getItemIndex(),
 					},
 				);

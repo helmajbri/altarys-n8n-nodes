@@ -1,0 +1,575 @@
+{
+	"about": "The operations of the LetzCloud node. The generator (tools/generate-operations.mjs) reads this file and the OpenAPI document named in 'openapi', checks every name here against that document, and writes 'output'. A field, path or parameter this file names that the document lacks fails the generator. 'handWritten' lists the routes the credential, the trigger and the wait operations call, with the fields that code reads or sends.",
+	"openapi": "openapi/letzcloud.openapi.json",
+	"output": "nodes/LetzCloud/generated/operations.ts",
+	"service": "LetzCloud",
+	"runtimeImport": "../shared/runtime",
+	"defaultResource": "instance",
+	"acronyms": {
+		"acl": "ACL",
+		"cpu": "CPU",
+		"csi": "CSI",
+		"dns": "DNS",
+		"gb": "GB",
+		"ha": "HA",
+		"iops": "IOPS",
+		"ip": "IP",
+		"ip6": "IPv6",
+		"kms": "KMS",
+		"l3": "L3",
+		"q": "Search",
+		"mac": "MAC",
+		"mb": "MB",
+		"ssh": "SSH",
+		"ttl": "TTL",
+		"vm": "VM",
+		"vpc": "VPC"
+	},
+	"resources": [
+		{ "value": "container", "name": "Container" },
+		{ "value": "database", "name": "Database" },
+		{ "value": "dnsRecord", "name": "DNS Record" },
+		{ "value": "dnsZone", "name": "DNS Zone" },
+		{ "value": "instance", "name": "Instance" },
+		{ "value": "invoice", "name": "Invoice" },
+		{ "value": "kubernetesCluster", "name": "Kubernetes Cluster" },
+		{ "value": "network", "name": "Network" },
+		{ "value": "snapshot", "name": "Snapshot" },
+		{ "value": "usage", "name": "Usage" },
+		{ "value": "volume", "name": "Volume" },
+		{ "value": "wallet", "name": "Wallet" }
+	],
+	"booleanCopy": {
+		"disabled": "Whether the DNS record is disabled",
+		"dynamic_scaling_enabled": "Whether CPU and memory can be changed while the instance runs",
+		"enable_csi": "Whether to install the CSI driver for persistent volumes",
+		"encrypt": "Whether to encrypt the volume",
+		"expunge": "Whether to remove the instance at once instead of keeping it recoverable for a while",
+		"external_load_balancer": "Whether to use an external load balancer for the control plane",
+		"force": "Whether to force the action, such as a hard stop",
+		"ha_enabled": "Whether the database runs with high availability",
+		"start_vm": "Whether to start the instance once it is created"
+	},
+	"fieldOptions": {
+		"VmStateUpdate.action": ["start", "stop", "reboot"]
+	},
+	"parameterNames": {
+		"VmStateUpdate.action": "stateAction"
+	},
+	"money": {
+		"currencyField": "^(currency|.+_currency|.+_currencies)$",
+		"minorUnitField": "_cents$",
+		"majorUnitField": "(^|_)amount$",
+		"inputCurrencyFrom": {},
+		"minorUnitFields": {
+			"WalletMoneyCents": {
+				"amount": "integer minor units; the schema is the appliance's money-in-cents object"
+			}
+		},
+		"inheritCurrency": {
+			"L3UsageCharge": "currency",
+			"L3UsagePlanRow": "currency"
+		},
+		"outputOmit": {},
+		"notMoney": {
+			"WalletRecurringTopUpInfo": {
+				"amount": "an object that holds the amount in minor units and its currency"
+			}
+		}
+	},
+	"handWritten": [
+		{
+			"method": "GET",
+			"path": "/.well-known/letzcloud-appliance",
+			"fields": { "WellKnownApplianceResponse": ["appliance_public_key", "fingerprint"] }
+		},
+		{ "method": "GET", "path": "/api/v1/vms" },
+		{ "method": "GET", "path": "/api/v1/vms/{vm_id}", "fields": { "Vm": ["id", "state"] } },
+		{
+			"method": "POST",
+			"path": "/api/v1/kubernetes/clusters",
+			"fields": { "KubernetesClusterAsyncJobResponse": ["job_id"] }
+		},
+		{
+			"method": "GET",
+			"path": "/api/v1/jobs/{job_id}",
+			"fields": { "AsyncJobQueryResult": ["job_id", "job_status", "job_result"] }
+		},
+		{
+			"method": "GET",
+			"path": "/api/v1/kubernetes/clusters/{cluster_id}",
+			"fields": { "KubernetesClusterDetail": ["id", "name", "state"] }
+		},
+		{
+			"method": "GET",
+			"path": "/api/v1/webhooks/event_types",
+			"fields": { "WebhookEventTypesResponse": ["items"], "WebhookEventTypeInfo": ["type", "description"] }
+		},
+		{
+			"method": "GET",
+			"path": "/api/v1/webhooks/endpoints",
+			"fields": {
+				"PaginatedWebhookEndpointResponse": ["items", "page", "per_page", "total"],
+				"WebhookEndpointResponse": ["id", "url", "event_types", "active"]
+			}
+		},
+		{
+			"method": "POST",
+			"path": "/api/v1/webhooks/endpoints",
+			"fields": { "WebhookEndpointCreate": ["url", "event_types"], "WebhookEndpointCreatedResponse": ["id", "secret"] }
+		},
+		{ "method": "DELETE", "path": "/api/v1/webhooks/endpoints/{endpoint_id}" },
+		{ "method": "GET", "path": "/api/v1/l3/webhooks/event_types" },
+		{
+			"method": "GET",
+			"path": "/api/v1/l3/webhooks/endpoints",
+			"fields": {
+				"PaginatedL3WebhookEndpointResponse": ["items", "page", "per_page", "total"],
+				"L3WebhookEndpointResponse": ["id", "url", "event_types", "active"]
+			}
+		},
+		{
+			"method": "POST",
+			"path": "/api/v1/l3/webhooks/endpoints",
+			"fields": { "L3WebhookEndpointCreatedResponse": ["id", "secret"] }
+		},
+		{ "method": "DELETE", "path": "/api/v1/l3/webhooks/endpoints/{endpoint_id}" }
+	],
+	"operations": [
+		{
+			"resource": "instance",
+			"value": "changeState",
+			"name": "Change State",
+			"action": "Change instance state",
+			"description": "Start, stop or reboot an instance. LetzCloud answers at once with a job; use Wait for State to wait until the instance has the new state.",
+			"method": "PUT",
+			"path": "/api/v1/vms/{vm_id}/state",
+			"idempotency": "none",
+			"body": { "required": ["action"], "exclude": {} }
+		},
+		{
+			"resource": "instance",
+			"value": "create",
+			"name": "Create",
+			"action": "Create instance",
+			"description": "Create an instance. LetzCloud answers at once with a job; the instance appears in Get Many while it is created.",
+			"method": "POST",
+			"path": "/api/v1/vms",
+			"idempotency": "none",
+			"body": {
+				"required": ["name", "service_offering_id", "template_id", "zone_id"],
+				"exclude": { "host_id": "placement on a named host is for cloud administrators" }
+			}
+		},
+		{
+			"resource": "instance",
+			"value": "delete",
+			"name": "Delete",
+			"action": "Delete instance",
+			"description": "Delete an instance. Its root disk goes with it; with Expunge it cannot be recovered.",
+			"method": "DELETE",
+			"path": "/api/v1/vms/{vm_id}",
+			"idempotency": "none",
+			"destructive": true,
+			"query": ["expunge"]
+		},
+		{
+			"resource": "instance",
+			"value": "get",
+			"name": "Get",
+			"action": "Get instance",
+			"description": "Get an instance by ID",
+			"method": "GET",
+			"path": "/api/v1/vms/{vm_id}",
+			"idempotency": "none"
+		},
+		{
+			"resource": "instance",
+			"value": "getAll",
+			"name": "Get Many",
+			"action": "Get many instances",
+			"description": "Get many instances",
+			"method": "GET",
+			"path": "/api/v1/vms",
+			"idempotency": "none",
+			"list": { "items": "items", "perPage": "page_size" },
+			"query": ["search", "state", "zone_id"]
+		},
+		{
+			"resource": "instance",
+			"value": "waitForState",
+			"name": "Wait for State",
+			"action": "Wait for instance state",
+			"description": "Wait until an instance is running or stopped, reading it again at an interval until a time limit",
+			"method": "GET",
+			"path": "/api/v1/vms/{vm_id}",
+			"idempotency": "none",
+			"custom": true,
+			"uses": [{ "method": "GET", "path": "/api/v1/vms/{vm_id}" }]
+		},
+		{
+			"resource": "volume",
+			"value": "create",
+			"name": "Create",
+			"action": "Create volume",
+			"description": "Create a volume, and attach it to an instance if one is named",
+			"method": "POST",
+			"path": "/api/v1/storage/volumes",
+			"idempotency": "none",
+			"body": { "required": ["disk_offering_id", "name", "zone_id"], "exclude": {} }
+		},
+		{
+			"resource": "volume",
+			"value": "delete",
+			"name": "Delete",
+			"action": "Delete volume",
+			"description": "Delete a volume. The data on it is lost.",
+			"method": "DELETE",
+			"path": "/api/v1/storage/volumes/{volume_id}",
+			"idempotency": "none",
+			"destructive": true
+		},
+		{
+			"resource": "volume",
+			"value": "get",
+			"name": "Get",
+			"action": "Get volume",
+			"description": "Get a volume by ID",
+			"method": "GET",
+			"path": "/api/v1/storage/volumes/{volume_id}",
+			"idempotency": "none"
+		},
+		{
+			"resource": "volume",
+			"value": "getAll",
+			"name": "Get Many",
+			"action": "Get many volumes",
+			"description": "Get many volumes",
+			"method": "GET",
+			"path": "/api/v1/storage/volumes",
+			"idempotency": "none",
+			"list": { "items": "items", "perPage": "page_size" },
+			"query": ["search", "state", "type", "vm_id", "zone_id"]
+		},
+		{
+			"resource": "snapshot",
+			"value": "create",
+			"name": "Create",
+			"action": "Create snapshot",
+			"description": "Create a snapshot of a volume",
+			"method": "POST",
+			"path": "/api/v1/storage/snapshots",
+			"idempotency": "none",
+			"body": { "required": ["volume_id"], "exclude": {} }
+		},
+		{
+			"resource": "snapshot",
+			"value": "delete",
+			"name": "Delete",
+			"action": "Delete snapshot",
+			"description": "Delete a volume snapshot. The volume cannot be restored from it afterwards.",
+			"method": "DELETE",
+			"path": "/api/v1/storage/snapshots/{snapshot_id}",
+			"idempotency": "none",
+			"destructive": true
+		},
+		{
+			"resource": "snapshot",
+			"value": "getAll",
+			"name": "Get Many",
+			"action": "Get many snapshots",
+			"description": "Get many volume snapshots",
+			"method": "GET",
+			"path": "/api/v1/storage/snapshots",
+			"idempotency": "none",
+			"list": { "items": "items", "perPage": "page_size" },
+			"query": ["search", "snapshot_type", "state", "volume_id", "zone_id"]
+		},
+		{
+			"resource": "network",
+			"value": "create",
+			"name": "Create",
+			"action": "Create network",
+			"description": "Create a network",
+			"method": "POST",
+			"path": "/api/v1/network/networks",
+			"idempotency": "none",
+			"body": { "required": ["display_text", "name", "network_offering_id", "zone_id"], "exclude": {} }
+		},
+		{
+			"resource": "network",
+			"value": "delete",
+			"name": "Delete",
+			"action": "Delete network",
+			"description": "Delete a network. Instances can no longer connect to it.",
+			"method": "DELETE",
+			"path": "/api/v1/network/networks/{network_id}",
+			"idempotency": "none",
+			"destructive": true
+		},
+		{
+			"resource": "network",
+			"value": "get",
+			"name": "Get",
+			"action": "Get network",
+			"description": "Get a network by ID",
+			"method": "GET",
+			"path": "/api/v1/network/networks/{network_id}",
+			"idempotency": "none"
+		},
+		{
+			"resource": "network",
+			"value": "getAll",
+			"name": "Get Many",
+			"action": "Get many networks",
+			"description": "Get many networks",
+			"method": "GET",
+			"path": "/api/v1/network/networks",
+			"idempotency": "none",
+			"list": { "items": "items", "perPage": "page_size" },
+			"query": ["search", "type", "vpc_id", "zone_id"]
+		},
+		{
+			"resource": "kubernetesCluster",
+			"value": "create",
+			"name": "Create",
+			"action": "Create kubernetes cluster",
+			"description": "Create a Kubernetes cluster. LetzCloud answers at once with a job; pass its job ID to Wait Until Running to wait for the cluster.",
+			"method": "POST",
+			"path": "/api/v1/kubernetes/clusters",
+			"idempotency": "none",
+			"body": {
+				"required": ["name", "zone_id"],
+				"exclude": { "master_nodes": "deprecated; Control Plane Nodes replaces it" }
+			}
+		},
+		{
+			"resource": "kubernetesCluster",
+			"value": "delete",
+			"name": "Delete",
+			"action": "Delete kubernetes cluster",
+			"description": "Delete a Kubernetes cluster. Its nodes and the workloads on them are removed.",
+			"method": "DELETE",
+			"path": "/api/v1/kubernetes/clusters/{cluster_id}",
+			"idempotency": "none",
+			"destructive": true
+		},
+		{
+			"resource": "kubernetesCluster",
+			"value": "get",
+			"name": "Get",
+			"action": "Get kubernetes cluster",
+			"description": "Get a Kubernetes cluster by ID",
+			"method": "GET",
+			"path": "/api/v1/kubernetes/clusters/{cluster_id}",
+			"idempotency": "none"
+		},
+		{
+			"resource": "kubernetesCluster",
+			"value": "getAll",
+			"name": "Get Many",
+			"action": "Get many kubernetes clusters",
+			"description": "Get many Kubernetes clusters",
+			"method": "GET",
+			"path": "/api/v1/kubernetes/clusters",
+			"idempotency": "none",
+			"list": { "items": "items", "perPage": "page_size" },
+			"query": ["name", "state", "zone_id"]
+		},
+		{
+			"resource": "kubernetesCluster",
+			"value": "waitUntilRunning",
+			"name": "Wait Until Running",
+			"action": "Wait until kubernetes cluster is running",
+			"description": "Wait until the cluster a Create made is running: reads the create job for the cluster ID, then the cluster, until a time limit",
+			"method": "GET",
+			"path": "/api/v1/jobs/{job_id}",
+			"idempotency": "none",
+			"custom": true,
+			"uses": [
+				{ "method": "GET", "path": "/api/v1/jobs/{job_id}" },
+				{ "method": "GET", "path": "/api/v1/kubernetes/clusters/{cluster_id}" }
+			]
+		},
+		{
+			"resource": "container",
+			"value": "create",
+			"name": "Create",
+			"action": "Create container",
+			"description": "Create a container from an image",
+			"method": "POST",
+			"path": "/api/v1/containers",
+			"idempotency": "none",
+			"body": { "required": ["container_image", "name"], "exclude": {} }
+		},
+		{
+			"resource": "container",
+			"value": "delete",
+			"name": "Delete",
+			"action": "Delete container",
+			"description": "Delete a container. It stops serving and its replicas are removed.",
+			"method": "DELETE",
+			"path": "/api/v1/containers/{container_id}",
+			"idempotency": "none",
+			"destructive": true
+		},
+		{
+			"resource": "container",
+			"value": "get",
+			"name": "Get",
+			"action": "Get container",
+			"description": "Get a container by ID",
+			"method": "GET",
+			"path": "/api/v1/containers/{container_id}",
+			"idempotency": "none"
+		},
+		{
+			"resource": "container",
+			"value": "getAll",
+			"name": "Get Many",
+			"action": "Get many containers",
+			"description": "Get many containers",
+			"method": "GET",
+			"path": "/api/v1/containers",
+			"idempotency": "none",
+			"list": { "items": "items", "perPage": "page_size" },
+			"query": ["search", "status"]
+		},
+		{
+			"resource": "database",
+			"value": "create",
+			"name": "Create",
+			"action": "Create database",
+			"description": "Create a managed database cluster",
+			"method": "POST",
+			"path": "/api/v1/databases",
+			"idempotency": "none",
+			"body": { "required": ["engine", "engine_version", "name"], "exclude": {} }
+		},
+		{
+			"resource": "database",
+			"value": "delete",
+			"name": "Delete",
+			"action": "Delete database",
+			"description": "Delete a managed database cluster. Its data is lost; the removal can finish after the node returns.",
+			"method": "DELETE",
+			"path": "/api/v1/databases/{cluster_id}",
+			"idempotency": "none",
+			"destructive": true,
+			"output": "deleted"
+		},
+		{
+			"resource": "database",
+			"value": "get",
+			"name": "Get",
+			"action": "Get database",
+			"description": "Get a managed database cluster by ID",
+			"method": "GET",
+			"path": "/api/v1/databases/{cluster_id}",
+			"idempotency": "none"
+		},
+		{
+			"resource": "database",
+			"value": "getAll",
+			"name": "Get Many",
+			"action": "Get many databases",
+			"description": "Get many managed database clusters",
+			"method": "GET",
+			"path": "/api/v1/databases",
+			"idempotency": "none",
+			"list": { "items": "items", "perPage": "page_size" },
+			"query": ["engine", "search", "status"]
+		},
+		{
+			"resource": "dnsZone",
+			"value": "getAll",
+			"name": "Get Many",
+			"action": "Get many DNS zones",
+			"description": "Get many DNS zones, for example to find the zone of a record",
+			"method": "GET",
+			"path": "/api/v1/dns/zones",
+			"idempotency": "none",
+			"list": { "items": "items", "perPage": "page_size" },
+			"query": ["plane", "search", "status"]
+		},
+		{
+			"resource": "dnsRecord",
+			"value": "create",
+			"name": "Create",
+			"action": "Create DNS record",
+			"description": "Create a DNS record in a zone",
+			"method": "POST",
+			"path": "/api/v1/dns/zones/{zone_id}/records",
+			"idempotency": "none",
+			"body": { "required": ["content", "name", "record_type"], "exclude": {} }
+		},
+		{
+			"resource": "dnsRecord",
+			"value": "delete",
+			"name": "Delete",
+			"action": "Delete DNS record",
+			"description": "Delete a DNS record. The name stops resolving to it.",
+			"method": "DELETE",
+			"path": "/api/v1/dns/zones/{zone_id}/records/{record_id}",
+			"idempotency": "none",
+			"destructive": true,
+			"output": "deleted"
+		},
+		{
+			"resource": "dnsRecord",
+			"value": "getAll",
+			"name": "Get Many",
+			"action": "Get many DNS records",
+			"description": "Get many DNS records of a zone",
+			"method": "GET",
+			"path": "/api/v1/dns/zones/{zone_id}/records",
+			"idempotency": "none",
+			"list": { "items": "items", "perPage": "page_size" },
+			"query": ["record_type", "search"]
+		},
+		{
+			"resource": "dnsRecord",
+			"value": "update",
+			"name": "Update",
+			"action": "Update DNS record",
+			"description": "Update a DNS record",
+			"method": "PUT",
+			"path": "/api/v1/dns/zones/{zone_id}/records/{record_id}",
+			"idempotency": "none",
+			"body": { "required": [], "exclude": {} }
+		},
+		{
+			"resource": "invoice",
+			"value": "getAll",
+			"name": "Get Many",
+			"action": "Get many invoices",
+			"description": "Get many of your own invoices. Needs a customer key.",
+			"method": "GET",
+			"path": "/api/v1/l3/billing/invoices",
+			"idempotency": "none",
+			"list": { "items": "data" },
+			"query": ["q", "status", "subscription_id"]
+		},
+		{
+			"resource": "usage",
+			"value": "get",
+			"name": "Get",
+			"action": "Get usage",
+			"description": "Get your own usage and its cost for a period. Needs a customer key.",
+			"method": "GET",
+			"path": "/api/v1/l3/billing/usage",
+			"idempotency": "none",
+			"query": ["period"]
+		},
+		{
+			"resource": "wallet",
+			"value": "get",
+			"name": "Get",
+			"action": "Get wallet",
+			"description": "Get your own wallet balance. Needs a customer key.",
+			"method": "GET",
+			"path": "/api/v1/l3/billing/wallet",
+			"idempotency": "none"
+		}
+	]
+}

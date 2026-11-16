@@ -14,7 +14,8 @@
 # each release), and only for a tag whose commit is already on main.
 #
 # Release: in packages/<name>, run `npm run release`. It bumps the version, commits, and pushes
-# the tag "<name>-v<version>" (see .release-it.json), which starts this workflow.
+# the tag "<name>-v<version>" (see .release-it.json), which starts this workflow. Each package has
+# its own tag prefix (letzbill-v, letzcloud-v) and is published on its own.
 
 name: Publish
 
@@ -22,6 +23,7 @@ on:
   push:
     tags:
       - 'letzbill-v*.*.*'
+      - 'letzcloud-v*.*.*'
 
 jobs:
   publish:

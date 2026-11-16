@@ -13,8 +13,8 @@
 // node-param-operation-option-action-miscased, so a generated name that lint would refuse is
 // refused here first.
 
-import { readFileSync, writeFileSync } from 'node:fs';
-import { join, resolve } from 'node:path';
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 export class GeneratorError extends Error {
@@ -89,14 +89,14 @@ const ACRONYMS = new Map([
 	['cc', 'CC'],
 ]);
 
-export function displayNameFor(field) {
+export function displayNameFor(field, acronyms = ACRONYMS) {
 	const parts = field.split('_').filter(Boolean);
 	let minorUnits = false;
 	if (parts.length > 1 && parts[parts.length - 1] === 'cents') {
 		parts.pop();
 		minorUnits = true;
 	}
-	const words = parts.map((p) => ACRONYMS.get(p) ?? p);
+	const words = parts.map((p) => acronyms.get(p) ?? p);
 	const name = titleCase(words.join(' '));
 	return minorUnits ? `${name} (Minor Units)` : name;
 }
@@ -181,20 +181,36 @@ const inlineList = (items) => `[${items.map(quote).join(', ')}]`;
 
 const JSON_VALUE = '={{ typeof $value === "string" ? JSON.parse($value) : $value }}';
 
+const SECRET_FIELD = /(password|secret|token)$/i;
+
 export function generate({ manifest, openapi, openapiName = manifest.openapi }) {
 	const problems = [];
 	const { components, deref, solid, isDecimal } = makeSchemaTools(openapi);
+	const service = typeof manifest.service === 'string' && manifest.service ? manifest.service : '';
+	if (!service) problems.push("the manifest has no 'service' name");
+	const acronyms = new Map([...ACRONYMS, ...Object.entries(manifest.acronyms ?? {})]);
+	const display = (field) => displayNameFor(field, acronyms);
 	const money = manifest.money;
 	const minorRe = new RegExp(money.minorUnitField);
 	const majorRe = new RegExp(money.majorUnitField);
 	const currencyRe = new RegExp(money.currencyField);
 	const omitFor = (title) => money.outputOmit[title] ?? {};
 	const notMoneyFor = (title) => money.notMoney[title] ?? {};
+	// Integer minor-unit amounts whose name does not end in the minor-unit suffix.
+	const minorUnitFields = money.minorUnitFields ?? {};
+	const isMinor = (title, field) => minorRe.test(field) || Boolean(minorUnitFields[title]?.[field]);
+	// Objects that carry amounts but leave the currency to an enclosing object: the node copies it in.
+	const inheritCurrency = money.inheritCurrency ?? {};
+	const fieldOptions = manifest.fieldOptions ?? {};
+	// n8n parameter names for body fields whose own name n8n's lint reserves (an options parameter
+	// named 'action' is read as an operation list). The request still sends the field's own name.
+	const parameterNames = manifest.parameterNames ?? {};
 
 	// Every schema the money rules name must still carry the field they name.
 	for (const [kind, table] of [
 		['outputOmit', money.outputOmit],
 		['notMoney', money.notMoney],
+		['minorUnitFields', minorUnitFields],
 	]) {
 		for (const [title, fields] of Object.entries(table)) {
 			const s = components[title];
@@ -213,13 +229,40 @@ export function generate({ manifest, openapi, openapiName = manifest.openapi }) 
 			problems.push(`money.inputCurrencyFrom: ${title} has no field '${f}'`);
 		}
 	}
+	for (const [title, fields] of Object.entries(minorUnitFields)) {
+		for (const f of Object.keys(fields)) {
+			const s = components[title]?.properties?.[f];
+			if (s && solid(s).type !== 'integer') problems.push(`money.minorUnitFields: ${title}.${f} is not an integer`);
+		}
+	}
+	for (const [title, field] of Object.entries(inheritCurrency)) {
+		if (!components[title]) problems.push(`money.inheritCurrency: schema ${title} is not in ${openapiName}`);
+		else if (components[title].properties?.[field]) {
+			problems.push(`money.inheritCurrency: ${title} has its own '${field}'; remove the entry`);
+		}
+	}
+	for (const [key, name] of Object.entries(parameterNames)) {
+		const [title, f] = key.split('.');
+		if (!components[title]?.properties?.[f]) problems.push(`parameterNames: ${title} has no field '${f}'`);
+		if (typeof name !== 'string' || !IDENT.test(name)) problems.push(`parameterNames: ${key} is not a parameter name`);
+	}
+	for (const [key, values] of Object.entries(fieldOptions)) {
+		const [title, f] = key.split('.');
+		const s = components[title]?.properties?.[f];
+		if (!s) problems.push(`fieldOptions: ${title} has no field '${f}'`);
+		else if (solid(s).type !== 'string') problems.push(`fieldOptions: ${title}.${f} is not a string`);
+		if (!Array.isArray(values) || values.length === 0) problems.push(`fieldOptions: ${key} lists no values`);
+	}
 
-	// Output money audit: walk a response schema; returns the paths to omit, relative to an item.
-	const auditOutput = (schema, where, prefix, seen) => {
+	// Output money audit: walk a response schema; returns the paths to omit, relative to an item,
+	// and records in `inherit` the objects that take their currency from an enclosing object.
+	const auditOutput = (schema, where, prefix, seen, ancestorFields = new Set(), inherit = []) => {
 		const s = solid(schema);
-		if (s.type === 'array') return auditOutput(s.items, where, `${prefix}[]`, seen);
+		if (s.type === 'array') return auditOutput(s.items, where, `${prefix}[]`, seen, ancestorFields, inherit);
 		if (Array.isArray(s.anyOf)) {
-			const branches = s.anyOf.flatMap((branch) => auditOutput(branch, where, prefix, seen));
+			const branches = s.anyOf.flatMap((branch) =>
+				auditOutput(branch, where, prefix, seen, ancestorFields, inherit),
+			);
 			return [...new Set(branches)];
 		}
 		if (!s.properties) return [];
@@ -231,6 +274,19 @@ export function generate({ manifest, openapi, openapiName = manifest.openapi }) 
 		const paths = [];
 		let keptMinor = false;
 		let hasCurrency = false;
+		const inheritField = inheritCurrency[title];
+		if (inheritField) {
+			if (ancestorFields.has(inheritField)) {
+				hasCurrency = true;
+				const entry = `${prefix}=${inheritField}`;
+				if (!inherit.includes(entry)) inherit.push(entry);
+			} else {
+				problems.push(`${where}: ${title} takes '${inheritField}' from an enclosing object, but none has it`);
+			}
+		}
+		const nextAncestors = new Set(ancestorFields);
+		for (const field of Object.keys(s.properties)) if (currencyRe.test(field)) nextAncestors.add(field);
+		if (inheritField && hasCurrency) nextAncestors.add(inheritField);
 		for (const [field, raw] of Object.entries(s.properties)) {
 			const f = solid(raw);
 			const path = prefix ? `${prefix}.${field}` : field;
@@ -239,7 +295,7 @@ export function generate({ manifest, openapi, openapiName = manifest.openapi }) 
 				paths.push(path);
 				continue;
 			}
-			if (minorRe.test(field)) {
+			if (isMinor(title, field)) {
 				if (f.type !== 'integer') {
 					problems.push(`${where}: ${title}.${field} is minor units but not an integer`);
 				}
@@ -249,7 +305,7 @@ export function generate({ manifest, openapi, openapiName = manifest.openapi }) 
 					`${where}: ${title}.${field} looks like a major-unit amount; omit it or classify it in money.notMoney`,
 				);
 			}
-			paths.push(...auditOutput(raw, where, path, nextSeen));
+			paths.push(...auditOutput(raw, where, path, nextSeen, nextAncestors, inherit));
 		}
 		if (keptMinor && !hasCurrency) {
 			problems.push(`${where}: ${title} carries minor-unit amounts but no currency field`);
@@ -274,7 +330,7 @@ export function generate({ manifest, openapi, openapiName = manifest.openapi }) 
 		for (const [field, raw] of Object.entries(s.properties)) {
 			const path = prefix ? `${prefix}.${field}` : field;
 			if (excluded.has(path)) continue;
-			if (minorRe.test(field)) {
+			if (isMinor(title, field)) {
 				if (solid(raw).type !== 'integer') {
 					problems.push(`${where}: ${title}.${field} is minor units but not an integer`);
 				}
@@ -301,16 +357,21 @@ export function generate({ manifest, openapi, openapiName = manifest.openapi }) 
 	// One n8n parameter for one OpenAPI field.
 	const fieldParameter = (field, raw, ctx) => {
 		const s = solid(raw);
-		const p = { displayName: displayNameFor(field), name: camelName(field) };
+		const renamed = ctx.owner ? parameterNames[`${ctx.owner}.${field}`] : undefined;
+		const p = { displayName: display(field), name: typeof renamed === 'string' ? renamed : camelName(field) };
 		let jsonValue = false;
 		let description;
-		if (Array.isArray(s.enum)) {
-			const options = s.enum
+		const listed = ctx.owner ? fieldOptions[`${ctx.owner}.${field}`] : undefined;
+		const values = Array.isArray(s.enum) ? s.enum : Array.isArray(listed) && s.type === 'string' ? listed : null;
+		if (values) {
+			const options = values
 				.map((v) => ({ name: titleCase(String(v).replace(/_/g, ' ')), value: v }))
 				.sort((a, b) => compareNames(a.name, b.name));
 			p.type = 'options';
 			p.options = options;
-			p.default = s.enum.includes(s.default) ? s.default : options[0].value;
+			// A listed field defaults to the first value the manifest lists; an enum to its own default.
+			const first = values === listed ? listed[0] : options[0].value;
+			p.default = values.includes(s.default) ? s.default : first;
 		} else if (isDecimal(s)) {
 			p.type = 'string';
 			p.default = '';
@@ -328,6 +389,7 @@ export function generate({ manifest, openapi, openapiName = manifest.openapi }) 
 				p.placeholder = 'e.g. EUR';
 				description = 'Three-letter ISO 4217 currency code';
 			}
+			if (SECRET_FIELD.test(field)) p.typeOptions = { password: true };
 		} else if (s.type === 'integer') {
 			p.type = 'number';
 			p.default = typeof s.default === 'number' ? s.default : 0;
@@ -335,7 +397,7 @@ export function generate({ manifest, openapi, openapiName = manifest.openapi }) 
 			if (typeof s.minimum === 'number') p.typeOptions.minValue = s.minimum;
 			if (typeof s.exclusiveMinimum === 'number') p.typeOptions.minValue = s.exclusiveMinimum + 1;
 			if (typeof s.maximum === 'number') p.typeOptions.maxValue = s.maximum;
-			if (minorRe.test(field)) {
+			if (isMinor(ctx.owner ?? '', field)) {
 				const from = ctx.currencyFrom ? `, in ${ctx.currencyFrom}` : '';
 				description = `Amount in minor units of the currency as a whole number, e.g. 1250 for 12.50${from}`;
 			}
@@ -403,13 +465,46 @@ export function generate({ manifest, openapi, openapiName = manifest.openapi }) 
 		}
 		if (titleCase(m.name) !== m.name) problems.push(`${where}: name '${m.name}' is not Title Case`);
 		if (!isSentenceCase(m.action)) problems.push(`${where}: action '${m.action}' is not sentence case`);
+
+		// A custom operation is code in the node (customOperations). The generator lists it and checks
+		// that every route it calls is in the document; its parameters live next to that code.
+		if (m.custom) {
+			for (const used of m.uses ?? []) {
+				if (!openapi.paths?.[used.path]?.[used.method.toLowerCase()]) {
+					problems.push(`${where}: calls ${used.method} ${used.path}, which is not in ${openapiName}`);
+				}
+			}
+			if (!operationOptions.has(m.resource)) operationOptions.set(m.resource, []);
+			operationOptions.get(m.resource).push({ name: m.name, value: m.value, action: m.action, description: m.description });
+			specs.push({
+				resource: m.resource,
+				operation: m.value,
+				method: m.method,
+				path: m.path,
+				idempotency: m.idempotency,
+				destructive: Boolean(m.destructive),
+				output: 'custom',
+				root: '',
+				maxPerPage: 0,
+				itemSchema: '',
+				outputOmit: [],
+				minorUnitInputs: [],
+				inheritCurrency: [],
+				uuidParameters: [],
+				safeParameters: [],
+			});
+			continue;
+		}
+
 		const params = op.parameters ?? [];
 		const byIn = (where_) => params.filter((p) => p.in === where_);
 		const fields = [];
 
-		// Path parameters, in path order. A UUID-typed one is checked before the request.
+		// Path parameters, in path order, checked before the request: a UUID-typed one must be a UUID;
+		// any other one must not be '.', '..' or hold a slash, so it cannot reach another route.
 		const pathNames = [...m.path.matchAll(/\{([^}]+)\}/g)].map((x) => x[1]);
 		const uuidParameters = [];
+		const safeParameters = [];
 		let url = m.path;
 		for (const name of pathNames) {
 			const declared = byIn('path').find((p) => p.name === name);
@@ -417,10 +512,12 @@ export function generate({ manifest, openapi, openapiName = manifest.openapi }) 
 				problems.push(`${where}: path parameter '${name}' is not declared in ${openapiName}`);
 			} else if (solid(declared.schema).format === 'uuid') {
 				uuidParameters.push(camelName(name));
+			} else {
+				safeParameters.push(camelName(name));
 			}
 			url = url.replace(`{${name}}`, `{{encodeURIComponent($parameter["${camelName(name)}"])}}`);
 			fields.push({
-				displayName: displayNameFor(name),
+				displayName: display(name),
 				name: camelName(name),
 				type: 'string',
 				required: true,
@@ -433,6 +530,7 @@ export function generate({ manifest, openapi, openapiName = manifest.openapi }) 
 		// Request body.
 		const preSend = [code('requireHttps')];
 		if (uuidParameters.length) preSend.push(code(`requireUuids(${inlineList(uuidParameters)})`));
+		if (safeParameters.length) preSend.push(code(`requireSafePathSegments(${inlineList(safeParameters)})`));
 		const bodyFieldsRequired = [];
 		const bodyFieldsOptional = [];
 		let minorInputs = [];
@@ -470,7 +568,7 @@ export function generate({ manifest, openapi, openapiName = manifest.openapi }) 
 				if (f in m.body.exclude || f === idempotencyField) continue;
 				const required = (b.required ?? []).includes(f);
 				const currencyFrom = money.inputCurrencyFrom[`${b.title}.${f}`];
-				const p = fieldParameter(f, raw, { in: 'body', required, where, currencyFrom, excluded });
+				const p = fieldParameter(f, raw, { in: 'body', required, where, currencyFrom, excluded, owner: b.title });
 				(required ? bodyFieldsRequired : bodyFieldsOptional).push(p);
 			}
 			if (minorInputs.length) preSend.push(code(`requireIntegerMinorUnits(${inlineList(minorInputs)})`));
@@ -517,6 +615,7 @@ export function generate({ manifest, openapi, openapiName = manifest.openapi }) 
 
 		// Output.
 		let outputOmit = [];
+		let inherited = [];
 		const postReceive = [code('checkResponse')];
 		const request = { method: m.method, url };
 		let itemSchema;
@@ -554,18 +653,22 @@ export function generate({ manifest, openapi, openapiName = manifest.openapi }) 
 				postReceive.push({ type: 'rootProperty', properties: { property: rootPath } });
 			}
 			if (itemSchema) {
-				const omit = auditOutput(itemSchema, where, '', new Set());
+				const inherit = [];
+				const omit = auditOutput(itemSchema, where, '', new Set(), new Set(), inherit);
+				if (inherit.length) postReceive.push(code(`inheritCurrency(${inlineList(inherit)})`));
 				if (omit.length) postReceive.push(code(`omitMoneyFields(${inlineList(omit)})`));
 				outputOmit = omit;
+				inherited = inherit;
 			}
 		}
 		if (m.list) {
+			const perPageName = m.list.perPage ?? 'per_page';
 			const pageParam = byIn('query').find((p) => p.name === 'page');
-			const perPage = byIn('query').find((p) => p.name === 'per_page');
+			const perPage = byIn('query').find((p) => p.name === perPageName);
 			const max = perPage ? solid(perPage.schema).maximum : undefined;
-			if (!pageParam || !perPage) problems.push(`${where}: a list needs 'page' and 'per_page' query parameters`);
-			if (typeof max !== 'number') problems.push(`${where}: 'per_page' has no maximum`);
-			list = { items: m.list.items, maxPerPage: max ?? 0 };
+			if (!pageParam || !perPage) problems.push(`${where}: a list needs 'page' and '${perPageName}' query parameters`);
+			if (typeof max !== 'number') problems.push(`${where}: '${perPageName}' has no maximum`);
+			list = { items: m.list.items, maxPerPage: max ?? 0, perPage: perPageName };
 		}
 
 		const routing = { request };
@@ -585,7 +688,7 @@ export function generate({ manifest, openapi, openapiName = manifest.openapi }) 
 				type: 'string',
 				default: '',
 				description:
-					'Key LetzBill uses to recognise a retry of this request; leave empty to derive one from the workflow, execution and item',
+					`Key ${service} uses to recognise a retry of this request; leave empty to derive one from the workflow, execution and item`,
 				displayOptions: show(m.resource, m.value),
 			});
 		}
@@ -599,7 +702,13 @@ export function generate({ manifest, openapi, openapiName = manifest.openapi }) 
 				displayOptions: show(m.resource, m.value),
 				routing: {
 					send: { paginate: '={{ $value }}' },
-					operations: { pagination: code(`paginateByPage(${list.maxPerPage})`) },
+					operations: {
+						pagination: code(
+							list.perPage === 'per_page'
+								? `paginateByPage(${list.maxPerPage})`
+								: `paginateByPage(${list.maxPerPage}, ${quote(list.perPage)})`,
+						),
+					},
 				},
 			});
 			fields.push({
@@ -610,7 +719,7 @@ export function generate({ manifest, openapi, openapiName = manifest.openapi }) 
 				typeOptions: { minValue: 1, maxValue: list.maxPerPage },
 				description: 'Max number of results to return',
 				displayOptions: { show: { resource: [m.resource], operation: [m.value], returnAll: [false] } },
-				routing: { send: { type: 'query', property: 'per_page' }, output: { maxResults: '={{ $value }}' } },
+				routing: { send: { type: 'query', property: list.perPage }, output: { maxResults: '={{ $value }}' } },
 			});
 		}
 		if (queryProps.length) {
@@ -651,7 +760,24 @@ export function generate({ manifest, openapi, openapiName = manifest.openapi }) 
 			itemSchema: itemSchema ? (solid(itemSchema).title ?? '') : '',
 			outputOmit,
 			minorUnitInputs: minorInputs,
+			inheritCurrency: inherited,
+			uuidParameters,
+			safeParameters,
 		});
+	}
+
+	// Routes the hand-written code calls (credential test, trigger): each must be in the document,
+	// with every field that code reads or sends.
+	for (const route of manifest.handWritten ?? []) {
+		const where = `handWritten (${route.method} ${route.path})`;
+		if (!openapi.paths?.[route.path]?.[route.method.toLowerCase()]) {
+			problems.push(`${where}: the operation is not in ${openapiName}`);
+		}
+		for (const [title, names] of Object.entries(route.fields ?? {})) {
+			for (const f of names) {
+				if (!components[title]?.properties?.[f]) problems.push(`${where}: ${title} has no field '${f}'`);
+			}
+		}
 	}
 
 	if (problems.length) throw new GeneratorError(problems);
@@ -689,10 +815,12 @@ export function generate({ manifest, openapi, openapiName = manifest.openapi }) 
 	const helpers = [
 		'applyIdempotencyKey',
 		'checkResponse',
+		'inheritCurrency',
 		'omitMoneyFields',
 		'paginateByPage',
 		'requireHttps',
 		'requireIntegerMinorUnits',
+		'requireSafePathSegments',
 		'requireUuids',
 		'returnDeleted',
 	];
@@ -737,9 +865,14 @@ function main(argv) {
 	}
 	const target = join(packageDir, manifest.output);
 	if (mode === 'write') {
+		mkdirSync(dirname(target), { recursive: true });
 		writeFileSync(target, output);
 		console.log(`Wrote ${target}`);
 		return 0;
+	}
+	if (!existsSync(target)) {
+		console.error(`${target} does not exist. Run with --write and commit the result.`);
+		return 1;
 	}
 	const committed = readFileSync(target, 'utf8');
 	if (committed !== output) {

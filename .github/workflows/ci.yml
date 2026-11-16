@@ -24,6 +24,7 @@ jobs:
       matrix:
         package:
           - letzbill
+          - letzcloud
     defaults:
       run:
         working-directory: packages/${{ matrix.package }}
@@ -43,10 +44,37 @@ jobs:
         run: npm run guard
 
       - name: Generated operations match the OpenAPI document
+        id: generated
         run: npm run generate:check
 
+      - name: Write the generator output for review
+        # The check above only says the committed file differs; this keeps what the generator
+        # writes, so the difference can be read. The job still fails.
+        if: failure() && steps.generated.outcome == 'failure'
+        run: |
+          npm run generate
+          mkdir -p "$RUNNER_TEMP/generated"
+          cp nodes/*/generated/operations.ts "$RUNNER_TEMP/generated/"
+
+      - name: Keep the generator output
+        if: failure() && steps.generated.outcome == 'failure'
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: generated-operations-${{ matrix.package }}
+          path: ${{ runner.temp }}/generated/
+          if-no-files-found: ignore
+
       - name: Install dependencies
-        run: npm ci
+        # From the committed lockfile. A package without one is installed anyway so that lint,
+        # build and tests still report, and the last step fails the job.
+        run: |
+          if [ -f package-lock.json ]; then
+            npm ci
+          else
+            echo "::warning::packages/${{ matrix.package }} has no package-lock.json"
+            npm install --no-audit --no-fund
+            echo "LOCKFILE_MISSING=1" >> "$GITHUB_ENV"
+          fi
 
       - name: Lint (n8n-node lint, strict mode, n8n Cloud rules on)
         run: npm run lint
@@ -56,6 +84,12 @@ jobs:
 
       - name: Test
         run: npm test
+
+      - name: The package has a committed lockfile
+        if: env.LOCKFILE_MISSING == '1'
+        run: |
+          echo "packages/${{ matrix.package }}/package-lock.json is missing: run npm install in the package and commit the lockfile"
+          exit 1
 
   tools:
     name: Repository tools

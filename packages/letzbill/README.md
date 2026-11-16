@@ -24,8 +24,12 @@ Create a **LetzBill API** credential with:
 | API URL | The address of your LetzBill API, without `/api/v1`, for example `https://billing.example.com` |
 | API Key | A LetzBill API key. Keys start with `fb_`. |
 
-The API URL must use HTTPS. The nodes refuse a plain `http://` URL, because the key travels in
-every request and could be read and reused on the way.
+The API URL must use HTTPS. The credential refuses a plain `http://` URL before any request is
+sent, the **Test** button included, because the key travels in every request and could be read
+and reused on the way. The nodes check it again before each request. n8n runs the credential's
+check while its hidden **HTTPS Check** field is empty, which it always is in a credential made in
+the n8n editor; if that field were given a value (through the n8n API or an import), the
+credential sends no key at all.
 
 The key is sent as `Authorization: Bearer <key>`. Give the key only the permissions your
 workflows need: each operation needs one permission, for example `customer:read` to get
@@ -83,7 +87,9 @@ stops with a message if LetzBill sends the same page twice or is still sending f
 ### IDs
 
 IDs that LetzBill defines as UUIDs (customer, subscription, invoice, credit note, payment, wallet
-and webhook endpoint IDs) are checked before the request: anything else is refused.
+and webhook endpoint IDs) are checked before the request: anything else is refused. The IDs your
+own system gives (external IDs and usage-event transaction IDs) can be any text, except empty,
+`.`, `..` or text with a slash, which would point the request at another address.
 
 ### Refusals
 
