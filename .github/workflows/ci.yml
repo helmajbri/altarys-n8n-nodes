@@ -1,0 +1,74 @@
+# Lint, build and test every node package on each pull request and on main.
+# Based on the n8n-nodes-starter CI workflow (one package per repository), run per package here.
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  package:
+    name: Package ${{ matrix.package }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        package:
+          - letzbill
+    defaults:
+      run:
+        working-directory: packages/${{ matrix.package }}
+
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          persist-credentials: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: 'lts/*'
+
+      - name: Package guard
+        # Hard limits for a verified community node; needs no install.
+        run: npm run guard
+
+      - name: Generated operations match the OpenAPI document
+        run: npm run generate:check
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint (n8n-node lint, strict mode, n8n Cloud rules on)
+        run: npm run lint
+
+      - name: Build
+        run: npm run build
+
+      - name: Test
+        run: npm test
+
+  tools:
+    name: Repository tools
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          persist-credentials: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: 'lts/*'
+
+      - name: Test the generator and the package guard
+        run: node --test 'tools/test/*.test.mjs'

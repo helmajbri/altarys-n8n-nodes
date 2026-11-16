@@ -1,0 +1,7 @@
+{
+	"git": {
+		"tagName": "letzbill-v${version}",
+		"tagMatch": "letzbill-v*",
+		"commitMessage": "chore(letzbill): release ${version}"
+	}
+}

@@ -1,0 +1,529 @@
+{
+	"about": "The operations of the LetzBill node. The generator (tools/generate-operations.mjs) reads this file and the OpenAPI document named in 'openapi', checks every name here against that document, and writes 'output'. A field, path or parameter this file names that the document lacks fails the generator.",
+	"openapi": "openapi/letzbill.openapi.json",
+	"output": "nodes/LetzBill/generated/operations.ts",
+	"runtimeImport": "../shared/runtime",
+	"defaultResource": "customer",
+	"resources": [
+		{ "value": "creditNote", "name": "Credit Note" },
+		{ "value": "customer", "name": "Customer" },
+		{ "value": "invoice", "name": "Invoice" },
+		{ "value": "payment", "name": "Payment" },
+		{ "value": "subscription", "name": "Subscription" },
+		{ "value": "usageEvent", "name": "Usage Event" },
+		{ "value": "wallet", "name": "Wallet" },
+		{ "value": "webhookEndpoint", "name": "Webhook Endpoint" }
+	],
+	"booleanCopy": {
+		"active": "Whether the webhook endpoint is active",
+		"auto_collection": "Whether LetzBill collects payment for the subscription automatically",
+		"exclude_from_dunning_campaign": "Whether the customer is left out of dunning campaigns",
+		"include_metadata": "Whether to include the invoice metadata",
+		"include_snapshot": "Whether to include the customer snapshot taken when the invoice was issued",
+		"include_voided": "Whether to include voided usage events",
+		"invoice_requires_successful_payment": "Whether wallet top-up invoices wait for a successful payment",
+		"overdue": "Whether to return only overdue invoices",
+		"receipt_eligible": "Whether to return only succeeded payments that have no receipt yet",
+		"reset_consumed_credits": "Whether to reset the consumed credits of the wallet",
+		"skip_invoice_custom_sections": "Whether invoices for the customer leave out custom sections"
+	},
+	"money": {
+		"currencyField": "^(currency|.+_currency|.+_currencies)$",
+		"minorUnitField": "_cents$",
+		"majorUnitField": "(^|_)amount$",
+		"inputCurrencyFrom": {
+			"CommitmentTermsInput.amount_cents": "the currency of the subscription",
+			"CommitmentTermsInput.termination_charge_fixed_cents": "the currency of the subscription",
+			"CreditNoteCreate.credit_amount_cents": "the currency of the invoice being credited",
+			"CreditNoteCreate.refund_amount_cents": "the currency of the invoice being credited",
+			"CreditNoteItemInput.amount_cents": "the currency of the invoice being credited",
+			"OneOffFeeItem.unit_amount_cents": "the currency of the customer being invoiced"
+		},
+		"outputOmit": {
+			"CreditNoteResponse": {
+				"precise_coupons_adjustment_amount_cents": "fractional duplicate of coupons_adjustment_amount_cents",
+				"precise_taxes_amount_cents": "fractional duplicate of taxes_amount_cents"
+			},
+			"EventResponse": {
+				"precise_total_amount_cents": "fractional minor units without a currency"
+			},
+			"WalletResponse": {
+				"rate_amount": "major-unit duplicate of rate_amount_cents"
+			},
+			"WalletTransactionResponse": {
+				"amount": "major-unit duplicate of amount_cents"
+			}
+		},
+		"notMoney": {
+			"WalletTransactionResponse": {
+				"credit_amount": "wallet credits, not a currency amount"
+			}
+		}
+	},
+	"operations": [
+		{
+			"resource": "customer",
+			"value": "create",
+			"name": "Create",
+			"action": "Create customer",
+			"description": "Create a customer",
+			"method": "POST",
+			"path": "/api/v1/customers",
+			"idempotency": "none",
+			"body": { "required": ["external_id"], "exclude": {} }
+		},
+		{
+			"resource": "customer",
+			"value": "delete",
+			"name": "Delete",
+			"action": "Delete customer",
+			"description": "Delete a customer. LetzBill refuses when the customer has active subscriptions.",
+			"method": "DELETE",
+			"path": "/api/v1/customers/{customer_id}",
+			"idempotency": "none",
+			"destructive": true,
+			"output": "deleted"
+		},
+		{
+			"resource": "customer",
+			"value": "get",
+			"name": "Get",
+			"action": "Get customer",
+			"description": "Get a customer by ID",
+			"method": "GET",
+			"path": "/api/v1/customers/{customer_id}",
+			"idempotency": "none"
+		},
+		{
+			"resource": "customer",
+			"value": "getByExternalId",
+			"name": "Get by External ID",
+			"action": "Get customer by external ID",
+			"description": "Get a customer by the ID your system gave it",
+			"method": "GET",
+			"path": "/api/v1/customers/external/{external_id}",
+			"idempotency": "none"
+		},
+		{
+			"resource": "customer",
+			"value": "getAll",
+			"name": "Get Many",
+			"action": "Get many customers",
+			"description": "Get many customers",
+			"method": "GET",
+			"path": "/api/v1/customers",
+			"idempotency": "none",
+			"list": { "items": "customers" },
+			"query": ["email", "external_id", "search"]
+		},
+		{
+			"resource": "customer",
+			"value": "update",
+			"name": "Update",
+			"action": "Update customer",
+			"description": "Update a customer",
+			"method": "PUT",
+			"path": "/api/v1/customers/{customer_id}",
+			"idempotency": "none",
+			"body": { "required": [], "exclude": {} }
+		},
+		{
+			"resource": "subscription",
+			"value": "create",
+			"name": "Create",
+			"action": "Create subscription",
+			"description": "Create a subscription for a customer on a plan. Name the customer by ID or external ID and the plan by ID or code.",
+			"method": "POST",
+			"path": "/api/v1/subscriptions",
+			"idempotency": "none",
+			"body": {
+				"required": ["external_id"],
+				"exclude": { "organization_id": "the organization comes from the API key" }
+			}
+		},
+		{
+			"resource": "subscription",
+			"value": "get",
+			"name": "Get",
+			"action": "Get subscription",
+			"description": "Get a subscription by ID",
+			"method": "GET",
+			"path": "/api/v1/subscriptions/{subscription_id}",
+			"idempotency": "none"
+		},
+		{
+			"resource": "subscription",
+			"value": "getByExternalId",
+			"name": "Get by External ID",
+			"action": "Get subscription by external ID",
+			"description": "Get a subscription by the ID your system gave it",
+			"method": "GET",
+			"path": "/api/v1/subscriptions/external/{external_id}",
+			"idempotency": "none",
+			"query": ["customer_id"]
+		},
+		{
+			"resource": "subscription",
+			"value": "getAll",
+			"name": "Get Many",
+			"action": "Get many subscriptions",
+			"description": "Get many subscriptions",
+			"method": "GET",
+			"path": "/api/v1/subscriptions",
+			"idempotency": "none",
+			"list": { "items": "subscriptions" },
+			"query": ["customer_id", "external_id", "plan_id", "subscription_status"]
+		},
+		{
+			"resource": "subscription",
+			"value": "terminate",
+			"name": "Terminate",
+			"action": "Terminate subscription",
+			"description": "Terminate a subscription. Billing stops, and LetzBill can issue a final invoice or credit note.",
+			"method": "POST",
+			"path": "/api/v1/subscriptions/{subscription_id}/terminate",
+			"idempotency": "none",
+			"destructive": true,
+			"body": { "required": [], "exclude": {} }
+		},
+		{
+			"resource": "subscription",
+			"value": "update",
+			"name": "Update",
+			"action": "Update subscription",
+			"description": "Update a subscription",
+			"method": "PUT",
+			"path": "/api/v1/subscriptions/{subscription_id}",
+			"idempotency": "none",
+			"body": { "required": [], "exclude": {} }
+		},
+		{
+			"resource": "invoice",
+			"value": "createOneOff",
+			"name": "Create One-Off",
+			"action": "Create one off invoice",
+			"description": "Create a one-off invoice with manual line items",
+			"method": "POST",
+			"path": "/api/v1/invoices/one-off",
+			"idempotency": "none",
+			"body": { "required": ["customer_id", "fees"], "exclude": {} }
+		},
+		{
+			"resource": "invoice",
+			"value": "downloadPdf",
+			"name": "Download PDF",
+			"action": "Download invoice PDF",
+			"description": "Download the PDF of a finalized invoice",
+			"method": "GET",
+			"path": "/api/v1/invoices/{invoice_id}/pdf",
+			"idempotency": "none",
+			"output": "binary"
+		},
+		{
+			"resource": "invoice",
+			"value": "finalize",
+			"name": "Finalize",
+			"action": "Finalize invoice",
+			"description": "Finalize a draft invoice",
+			"method": "PUT",
+			"path": "/api/v1/invoices/{invoice_id}/finalize",
+			"idempotency": "none",
+			"body": { "required": [], "exclude": {} }
+		},
+		{
+			"resource": "invoice",
+			"value": "get",
+			"name": "Get",
+			"action": "Get invoice",
+			"description": "Get an invoice by ID",
+			"method": "GET",
+			"path": "/api/v1/invoices/{invoice_id}",
+			"idempotency": "none",
+			"query": ["include_metadata", "include_snapshot"]
+		},
+		{
+			"resource": "invoice",
+			"value": "getAll",
+			"name": "Get Many",
+			"action": "Get many invoices",
+			"description": "Get many invoices",
+			"method": "GET",
+			"path": "/api/v1/invoices",
+			"idempotency": "none",
+			"list": { "items": "invoices" },
+			"query": ["currency", "customer_id", "from_date", "invoice_status", "overdue", "search", "subscription_id", "to_date"]
+		},
+		{
+			"resource": "invoice",
+			"value": "send",
+			"name": "Send",
+			"action": "Send invoice",
+			"description": "Email a finalized invoice to the customer",
+			"method": "POST",
+			"path": "/api/v1/invoices/{invoice_id}/send",
+			"idempotency": "header",
+			"body": { "required": [], "exclude": {} }
+		},
+		{
+			"resource": "invoice",
+			"value": "void",
+			"name": "Void",
+			"action": "Void invoice",
+			"description": "Void a finalized invoice. Voiding cancels the invoice and records the reason.",
+			"method": "PUT",
+			"path": "/api/v1/invoices/{invoice_id}/void",
+			"idempotency": "none",
+			"destructive": true,
+			"body": { "required": ["reason"], "exclude": {} }
+		},
+		{
+			"resource": "creditNote",
+			"value": "create",
+			"name": "Create",
+			"action": "Create credit note",
+			"description": "Create a credit note against an invoice",
+			"method": "POST",
+			"path": "/api/v1/credit_notes",
+			"idempotency": "header",
+			"body": { "required": ["invoice_id", "items", "reason"], "exclude": {} }
+		},
+		{
+			"resource": "creditNote",
+			"value": "get",
+			"name": "Get",
+			"action": "Get credit note",
+			"description": "Get a credit note by ID",
+			"method": "GET",
+			"path": "/api/v1/credit_notes/{credit_note_id}",
+			"idempotency": "none"
+		},
+		{
+			"resource": "creditNote",
+			"value": "getAll",
+			"name": "Get Many",
+			"action": "Get many credit notes",
+			"description": "Get many credit notes",
+			"method": "GET",
+			"path": "/api/v1/credit_notes",
+			"idempotency": "none",
+			"list": { "items": "credit_notes" },
+			"query": ["credit_status", "customer_id", "invoice_id", "reason", "refund_status", "search", "status"]
+		},
+		{
+			"resource": "creditNote",
+			"value": "void",
+			"name": "Void",
+			"action": "Void credit note",
+			"description": "Void a credit note. It becomes inactive and can no longer be used.",
+			"method": "POST",
+			"path": "/api/v1/credit_notes/{credit_note_id}/void",
+			"idempotency": "none",
+			"destructive": true,
+			"body": { "required": [], "exclude": {} }
+		},
+		{
+			"resource": "payment",
+			"value": "create",
+			"name": "Create",
+			"action": "Create payment",
+			"description": "Record a manual payment or collect one through a payment provider",
+			"method": "POST",
+			"path": "/api/v1/payments",
+			"idempotency": "none",
+			"body": { "required": ["amount_cents", "amount_currency", "payable_id"], "exclude": {} }
+		},
+		{
+			"resource": "payment",
+			"value": "get",
+			"name": "Get",
+			"action": "Get payment",
+			"description": "Get a payment by ID",
+			"method": "GET",
+			"path": "/api/v1/payments/{payment_id}",
+			"idempotency": "none"
+		},
+		{
+			"resource": "payment",
+			"value": "getAll",
+			"name": "Get Many",
+			"action": "Get many payments",
+			"description": "Get many payments",
+			"method": "GET",
+			"path": "/api/v1/payments",
+			"idempotency": "none",
+			"list": { "items": "payments" },
+			"query": ["customer_id", "external_customer_id", "from_date", "invoice_id", "payment_status", "payment_type", "receipt_eligible", "search", "to_date"]
+		},
+		{
+			"resource": "payment",
+			"value": "refund",
+			"name": "Refund",
+			"action": "Refund payment",
+			"description": "Refund a payment in full or in part. LetzBill creates a credit note for an invoice payment and returns the money through the payment provider.",
+			"method": "POST",
+			"path": "/api/v1/payments/{payment_id}/refund",
+			"idempotency": "body:idempotency_key",
+			"destructive": true,
+			"body": {
+				"required": [],
+				"exclude": { "amount": "deprecated major-unit amount; use amount_cents" }
+			}
+		},
+		{
+			"resource": "wallet",
+			"value": "create",
+			"name": "Create",
+			"action": "Create wallet",
+			"description": "Create a prepaid wallet for a customer",
+			"method": "POST",
+			"path": "/api/v1/wallets",
+			"idempotency": "none",
+			"body": {
+				"required": ["external_customer_id"],
+				"exclude": { "rate_amount": "a major-unit amount; LetzBill applies its default rate when it is left out" }
+			}
+		},
+		{
+			"resource": "wallet",
+			"value": "get",
+			"name": "Get",
+			"action": "Get wallet",
+			"description": "Get a wallet by ID",
+			"method": "GET",
+			"path": "/api/v1/wallets/{wallet_id}",
+			"idempotency": "none"
+		},
+		{
+			"resource": "wallet",
+			"value": "getAll",
+			"name": "Get Many",
+			"action": "Get many wallets",
+			"description": "Get many wallets",
+			"method": "GET",
+			"path": "/api/v1/wallets",
+			"idempotency": "none",
+			"list": { "items": "wallets" },
+			"query": ["customer_id", "external_customer_id", "search", "status"]
+		},
+		{
+			"resource": "wallet",
+			"value": "getTransactions",
+			"name": "Get Transactions",
+			"action": "Get wallet transactions",
+			"description": "Get many transactions of a wallet",
+			"method": "GET",
+			"path": "/api/v1/wallets/{wallet_id}/transactions",
+			"idempotency": "none",
+			"list": { "items": "wallet_transactions" },
+			"query": ["search", "transaction_status", "transaction_type"]
+		},
+		{
+			"resource": "wallet",
+			"value": "topUp",
+			"name": "Top Up",
+			"action": "Top up wallet",
+			"description": "Add paid or granted credits to a wallet",
+			"method": "POST",
+			"path": "/api/v1/wallets/{wallet_id}/top_up",
+			"idempotency": "none",
+			"body": { "required": [], "exclude": {} }
+		},
+		{
+			"resource": "usageEvent",
+			"value": "create",
+			"name": "Create",
+			"action": "Create usage event",
+			"description": "Send a usage event. LetzBill records each transaction ID once, so a retry with the same ID is not counted twice.",
+			"method": "POST",
+			"path": "/api/v1/events",
+			"idempotency": "natural:transaction_id",
+			"body": {
+				"required": ["code", "transaction_id"],
+				"exclude": { "precise_total_amount_cents": "fractional minor units without a currency" }
+			}
+		},
+		{
+			"resource": "usageEvent",
+			"value": "createBatch",
+			"name": "Create Batch",
+			"action": "Create usage event batch",
+			"description": "Send up to 100 usage events in one request. Each event needs its own transaction ID.",
+			"method": "POST",
+			"path": "/api/v1/events/batch",
+			"idempotency": "natural:events[].transaction_id",
+			"body": {
+				"required": ["events"],
+				"exclude": { "events[].precise_total_amount_cents": "fractional minor units without a currency" }
+			}
+		},
+		{
+			"resource": "usageEvent",
+			"value": "get",
+			"name": "Get",
+			"action": "Get usage event",
+			"description": "Get a usage event by its transaction ID",
+			"method": "GET",
+			"path": "/api/v1/events/{transaction_id}",
+			"idempotency": "none",
+			"query": ["include_voided"]
+		},
+		{
+			"resource": "usageEvent",
+			"value": "getAll",
+			"name": "Get Many",
+			"action": "Get many usage events",
+			"description": "Get many usage events",
+			"method": "GET",
+			"path": "/api/v1/events",
+			"idempotency": "none",
+			"list": { "items": "events" },
+			"query": ["code", "external_customer_id", "external_subscription_id", "include_voided", "timestamp_from", "timestamp_to"]
+		},
+		{
+			"resource": "webhookEndpoint",
+			"value": "delete",
+			"name": "Delete",
+			"action": "Delete webhook endpoint",
+			"description": "Delete a webhook endpoint. LetzBill stops sending events to its URL.",
+			"method": "DELETE",
+			"path": "/api/v1/webhooks/endpoints/{endpoint_id}",
+			"idempotency": "none",
+			"destructive": true,
+			"output": "deleted"
+		},
+		{
+			"resource": "webhookEndpoint",
+			"value": "get",
+			"name": "Get",
+			"action": "Get webhook endpoint",
+			"description": "Get a webhook endpoint by ID",
+			"method": "GET",
+			"path": "/api/v1/webhooks/endpoints/{endpoint_id}",
+			"idempotency": "none",
+			"root": "data"
+		},
+		{
+			"resource": "webhookEndpoint",
+			"value": "getAll",
+			"name": "Get Many",
+			"action": "Get many webhook endpoints",
+			"description": "Get many webhook endpoints",
+			"method": "GET",
+			"path": "/api/v1/webhooks/endpoints",
+			"idempotency": "none",
+			"list": { "items": "data.items" },
+			"query": ["active", "event_type", "url"]
+		},
+		{
+			"resource": "webhookEndpoint",
+			"value": "sendTest",
+			"name": "Send Test",
+			"action": "Send webhook endpoint test",
+			"description": "Send a test delivery to a webhook endpoint",
+			"method": "POST",
+			"path": "/api/v1/webhooks/endpoints/{endpoint_id}/test",
+			"idempotency": "none",
+			"root": "data"
+		}
+	]
+}
