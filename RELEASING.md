@@ -92,7 +92,7 @@ After the first version of a package is on npm, let the workflow publish with a 
 
 5. Optionally, in the package's publishing access settings, select **Require two-factor authentication and disallow tokens**. The trusted publisher keeps working, because it doesn't use a stored token.
 
-You can also add the trusted publisher from the command line with npm 11.10.0 or later, after `npm login`. The command has no option for allowed actions, so check that field on npmjs.com afterwards:
+You can also add the trusted publisher from the command line with npm 11.10.0 or later, after `npm login`. The command has no option for allowed actions, so check that field on npmjs.com afterward:
 
 ```bash
 npm trust github @altarys/n8n-nodes-letzbill --file publish.yml --repo <owner>/<repo> --env npm-publish
