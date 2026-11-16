@@ -128,13 +128,16 @@ jobs:
           # compile on Node 26, so npx exits 1 without running the scan.
           node-version: '24'
 
-      - name: Wait until the version is on the registry
+      - name: Wait until the version can be downloaded
+        # npm lists a new version minutes before its tarball can be downloaded ("Your package is
+        # being processed"), and the scanner downloads it, so wait for the tarball itself.
         run: |
-          for attempt in $(seq 1 30); do
-            if npm view "$SPEC" version; then exit 0; fi
+          for attempt in $(seq 1 45); do
+            tarball=$(npm view "$SPEC" dist.tarball 2>/dev/null || true)
+            if [ -n "$tarball" ] && curl -fsS -o /dev/null "$tarball"; then exit 0; fi
             sleep 20
           done
-          echo "$SPEC did not appear on the registry"
+          echo "$SPEC could not be downloaded from the registry"
           exit 1
 
       - name: Scan the published version
