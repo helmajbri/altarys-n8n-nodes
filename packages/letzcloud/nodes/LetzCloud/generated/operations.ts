@@ -7,6 +7,7 @@ import {
 	type GeneratedOperationSpec,
 	checkResponse,
 	inheritCurrency,
+	omitMoneyFields,
 	paginateByPage,
 	requireHttps,
 	requireSafePathSegments,
@@ -215,6 +216,7 @@ export const generatedProperties: INodeProperties[] = [
 					output: {
 						postReceive: [
 							checkResponse,
+							omitMoneyFields(['nodes[].cloudstack_vm_id']),
 						],
 					},
 				},
@@ -262,6 +264,7 @@ export const generatedProperties: INodeProperties[] = [
 					output: {
 						postReceive: [
 							checkResponse,
+							omitMoneyFields(['nodes[].cloudstack_vm_id']),
 						],
 					},
 				},
@@ -290,6 +293,7 @@ export const generatedProperties: INodeProperties[] = [
 									property: 'items',
 								},
 							},
+							omitMoneyFields(['nodes[].cloudstack_vm_id']),
 						],
 					},
 				},
@@ -329,6 +333,7 @@ export const generatedProperties: INodeProperties[] = [
 					output: {
 						postReceive: [
 							checkResponse,
+							omitMoneyFields(['cloudstack_nic_id']),
 						],
 					},
 				},
@@ -382,6 +387,7 @@ export const generatedProperties: INodeProperties[] = [
 									property: 'items',
 								},
 							},
+							omitMoneyFields(['cloudstack_nic_id']),
 						],
 					},
 				},
@@ -405,6 +411,7 @@ export const generatedProperties: INodeProperties[] = [
 					output: {
 						postReceive: [
 							checkResponse,
+							omitMoneyFields(['cloudstack_nic_id']),
 						],
 					},
 				},
@@ -449,6 +456,7 @@ export const generatedProperties: INodeProperties[] = [
 									property: 'items',
 								},
 							},
+							omitMoneyFields(['l3_customer_id']),
 						],
 					},
 				},
@@ -1155,6 +1163,7 @@ export const generatedProperties: INodeProperties[] = [
 		type: 'string',
 		required: true,
 		default: '',
+		description: 'ID of the instance',
 		displayOptions: {
 			show: {
 				resource: [
@@ -1241,6 +1250,7 @@ export const generatedProperties: INodeProperties[] = [
 		type: 'string',
 		default: '',
 		required: true,
+		description: 'Host name of the instance',
 		routing: {
 			send: {
 				type: 'body',
@@ -1264,6 +1274,7 @@ export const generatedProperties: INodeProperties[] = [
 		type: 'string',
 		default: '',
 		required: true,
+		description: 'ID of the service offering, which sets the CPU and memory',
 		routing: {
 			send: {
 				type: 'body',
@@ -1287,6 +1298,7 @@ export const generatedProperties: INodeProperties[] = [
 		type: 'string',
 		default: '',
 		required: true,
+		description: 'ID of the template or operating system image',
 		routing: {
 			send: {
 				type: 'body',
@@ -1310,6 +1322,7 @@ export const generatedProperties: INodeProperties[] = [
 		type: 'string',
 		default: '',
 		required: true,
+		description: 'ID of the zone to create the instance in',
 		routing: {
 			send: {
 				type: 'body',
@@ -1363,6 +1376,7 @@ export const generatedProperties: INodeProperties[] = [
 				name: 'bootMode',
 				type: 'string',
 				default: '',
+				description: 'Either \'LEGACY\' or \'SECURE\'',
 				routing: {
 					send: {
 						type: 'body',
@@ -1375,6 +1389,7 @@ export const generatedProperties: INodeProperties[] = [
 				name: 'bootType',
 				type: 'string',
 				default: '',
+				description: 'Either \'UEFI\' or \'BIOS\'',
 				routing: {
 					send: {
 						type: 'body',
@@ -1387,6 +1402,7 @@ export const generatedProperties: INodeProperties[] = [
 				name: 'diskOfferingId',
 				type: 'string',
 				default: '',
+				description: 'ID of a disk offering for an additional data disk',
 				routing: {
 					send: {
 						type: 'body',
@@ -1399,6 +1415,7 @@ export const generatedProperties: INodeProperties[] = [
 				name: 'displayName',
 				type: 'string',
 				default: '',
+				description: 'Name shown for the instance',
 				routing: {
 					send: {
 						type: 'body',
@@ -1424,6 +1441,7 @@ export const generatedProperties: INodeProperties[] = [
 				name: 'extraConfig',
 				type: 'string',
 				default: '',
+				description: 'Extra cloud-init or configuration data',
 				routing: {
 					send: {
 						type: 'body',
@@ -1436,6 +1454,7 @@ export const generatedProperties: INodeProperties[] = [
 				name: 'ipAddress',
 				type: 'string',
 				default: '',
+				description: 'Fixed IPv4 address of the default network interface',
 				routing: {
 					send: {
 						type: 'body',
@@ -1448,6 +1467,7 @@ export const generatedProperties: INodeProperties[] = [
 				name: 'ip6Address',
 				type: 'string',
 				default: '',
+				description: 'IPv6 address of the default network interface',
 				routing: {
 					send: {
 						type: 'body',
@@ -1460,6 +1480,7 @@ export const generatedProperties: INodeProperties[] = [
 				name: 'keyboard',
 				type: 'string',
 				default: '',
+				description: 'Keyboard layout: de, de-ch, es, fi, fr, fr-be, fr-ch, is, it, jp, nl-be, no, pt, uk or us',
 				routing: {
 					send: {
 						type: 'body',
@@ -1472,6 +1493,7 @@ export const generatedProperties: INodeProperties[] = [
 				name: 'keypair',
 				type: 'string',
 				default: '',
+				description: 'Name of the SSH key pair to install',
 				routing: {
 					send: {
 						type: 'body',
@@ -1484,6 +1506,7 @@ export const generatedProperties: INodeProperties[] = [
 				name: 'macAddress',
 				type: 'string',
 				default: '',
+				description: 'MAC address of the default network interface',
 				routing: {
 					send: {
 						type: 'body',
@@ -1510,6 +1533,7 @@ export const generatedProperties: INodeProperties[] = [
 				name: 'projectId',
 				type: 'string',
 				default: '',
+				description: 'ID of the project to create the instance in',
 				routing: {
 					send: {
 						type: 'body',
@@ -1526,6 +1550,7 @@ export const generatedProperties: INodeProperties[] = [
 					numberPrecision: 0,
 					minValue: 1,
 				},
+				description: 'Root disk size in GB',
 				routing: {
 					send: {
 						type: 'body',
@@ -1565,6 +1590,7 @@ export const generatedProperties: INodeProperties[] = [
 				name: 'userData',
 				type: 'string',
 				default: '',
+				description: 'Cloud-init user data',
 				routing: {
 					send: {
 						type: 'body',
@@ -1580,6 +1606,7 @@ export const generatedProperties: INodeProperties[] = [
 		type: 'string',
 		required: true,
 		default: '',
+		description: 'ID of the instance',
 		displayOptions: {
 			show: {
 				resource: [
@@ -1629,6 +1656,7 @@ export const generatedProperties: INodeProperties[] = [
 		type: 'string',
 		required: true,
 		default: '',
+		description: 'ID of the instance',
 		displayOptions: {
 			show: {
 				resource: [
@@ -1720,6 +1748,7 @@ export const generatedProperties: INodeProperties[] = [
 				name: 'search',
 				type: 'string',
 				default: '',
+				description: 'Text to search for in names',
 				routing: {
 					send: {
 						type: 'query',
@@ -1732,6 +1761,7 @@ export const generatedProperties: INodeProperties[] = [
 				name: 'state',
 				type: 'string',
 				default: '',
+				description: 'Only instances in this state, such as Running or Stopped',
 				routing: {
 					send: {
 						type: 'query',
@@ -1744,6 +1774,7 @@ export const generatedProperties: INodeProperties[] = [
 				name: 'zoneId',
 				type: 'string',
 				default: '',
+				description: 'Only resources in this zone, by its ID',
 				routing: {
 					send: {
 						type: 'query',
@@ -1759,6 +1790,7 @@ export const generatedProperties: INodeProperties[] = [
 		type: 'string',
 		default: '',
 		required: true,
+		description: 'ID of the disk offering',
 		routing: {
 			send: {
 				type: 'body',
@@ -1782,6 +1814,7 @@ export const generatedProperties: INodeProperties[] = [
 		type: 'string',
 		default: '',
 		required: true,
+		description: 'Name of the volume',
 		routing: {
 			send: {
 				type: 'body',
@@ -1805,6 +1838,7 @@ export const generatedProperties: INodeProperties[] = [
 		type: 'string',
 		default: '',
 		required: true,
+		description: 'ID of the zone to create the volume in',
 		routing: {
 			send: {
 				type: 'body',
@@ -1844,6 +1878,7 @@ export const generatedProperties: INodeProperties[] = [
 				name: 'attachToVmId',
 				type: 'string',
 				default: '',
+				description: 'ID of an instance to attach the new volume to',
 				routing: {
 					send: {
 						type: 'body',
@@ -1872,6 +1907,7 @@ export const generatedProperties: INodeProperties[] = [
 				typeOptions: {
 					numberPrecision: 0,
 				},
+				description: 'Maximum IOPS of the volume',
 				routing: {
 					send: {
 						type: 'body',
@@ -1887,6 +1923,7 @@ export const generatedProperties: INodeProperties[] = [
 				typeOptions: {
 					numberPrecision: 0,
 				},
+				description: 'Minimum IOPS of the volume',
 				routing: {
 					send: {
 						type: 'body',
@@ -1902,6 +1939,7 @@ export const generatedProperties: INodeProperties[] = [
 				typeOptions: {
 					numberPrecision: 0,
 				},
+				description: 'Size in GB, needed for a disk offering with a custom size',
 				routing: {
 					send: {
 						type: 'body',
@@ -1917,6 +1955,7 @@ export const generatedProperties: INodeProperties[] = [
 		type: 'string',
 		required: true,
 		default: '',
+		description: 'ID of the volume',
 		displayOptions: {
 			show: {
 				resource: [
@@ -1934,6 +1973,7 @@ export const generatedProperties: INodeProperties[] = [
 		type: 'string',
 		required: true,
 		default: '',
+		description: 'ID of the volume',
 		displayOptions: {
 			show: {
 				resource: [
@@ -2025,6 +2065,7 @@ export const generatedProperties: INodeProperties[] = [
 				name: 'search',
 				type: 'string',
 				default: '',
+				description: 'Text to search for in names',
 				routing: {
 					send: {
 						type: 'query',
@@ -2037,6 +2078,7 @@ export const generatedProperties: INodeProperties[] = [
 				name: 'state',
 				type: 'string',
 				default: '',
+				description: 'Only volumes in this state',
 				routing: {
 					send: {
 						type: 'query',
@@ -2049,6 +2091,7 @@ export const generatedProperties: INodeProperties[] = [
 				name: 'type',
 				type: 'string',
 				default: '',
+				description: 'Either \'ROOT\' or \'DATADISK\'',
 				routing: {
 					send: {
 						type: 'query',
@@ -2061,6 +2104,7 @@ export const generatedProperties: INodeProperties[] = [
 				name: 'vmId',
 				type: 'string',
 				default: '',
+				description: 'Only volumes attached to this instance, by its ID',
 				routing: {
 					send: {
 						type: 'query',
@@ -2073,6 +2117,7 @@ export const generatedProperties: INodeProperties[] = [
 				name: 'zoneId',
 				type: 'string',
 				default: '',
+				description: 'Only resources in this zone, by its ID',
 				routing: {
 					send: {
 						type: 'query',
@@ -2088,6 +2133,7 @@ export const generatedProperties: INodeProperties[] = [
 		type: 'string',
 		default: '',
 		required: true,
+		description: 'ID of the volume to snapshot',
 		routing: {
 			send: {
 				type: 'body',
@@ -2149,6 +2195,7 @@ export const generatedProperties: INodeProperties[] = [
 				name: 'name',
 				type: 'string',
 				default: '',
+				description: 'Name of the snapshot',
 				routing: {
 					send: {
 						type: 'body',
@@ -2161,6 +2208,7 @@ export const generatedProperties: INodeProperties[] = [
 				name: 'policyId',
 				type: 'string',
 				default: '',
+				description: 'ID of an existing snapshot policy to link the snapshot to',
 				routing: {
 					send: {
 						type: 'body',
@@ -2176,6 +2224,7 @@ export const generatedProperties: INodeProperties[] = [
 		type: 'string',
 		required: true,
 		default: '',
+		description: 'ID of the snapshot',
 		displayOptions: {
 			show: {
 				resource: [
@@ -2267,6 +2316,7 @@ export const generatedProperties: INodeProperties[] = [
 				name: 'search',
 				type: 'string',
 				default: '',
+				description: 'Text to search for in names',
 				routing: {
 					send: {
 						type: 'query',
@@ -2279,6 +2329,7 @@ export const generatedProperties: INodeProperties[] = [
 				name: 'snapshotType',
 				type: 'string',
 				default: '',
+				description: 'Either \'MANUAL\' or \'RECURRING\'',
 				routing: {
 					send: {
 						type: 'query',
@@ -2291,6 +2342,7 @@ export const generatedProperties: INodeProperties[] = [
 				name: 'state',
 				type: 'string',
 				default: '',
+				description: 'Only snapshots in this state',
 				routing: {
 					send: {
 						type: 'query',
@@ -2303,6 +2355,7 @@ export const generatedProperties: INodeProperties[] = [
 				name: 'volumeId',
 				type: 'string',
 				default: '',
+				description: 'Only snapshots of this volume, by its ID',
 				routing: {
 					send: {
 						type: 'query',
@@ -2315,6 +2368,7 @@ export const generatedProperties: INodeProperties[] = [
 				name: 'zoneId',
 				type: 'string',
 				default: '',
+				description: 'Only resources in this zone, by its ID',
 				routing: {
 					send: {
 						type: 'query',
@@ -2330,6 +2384,7 @@ export const generatedProperties: INodeProperties[] = [
 		type: 'string',
 		default: '',
 		required: true,
+		description: 'Text shown for the network',
 		routing: {
 			send: {
 				type: 'body',
@@ -2353,6 +2408,7 @@ export const generatedProperties: INodeProperties[] = [
 		type: 'string',
 		default: '',
 		required: true,
+		description: 'Name of the network',
 		routing: {
 			send: {
 				type: 'body',
@@ -2376,6 +2432,7 @@ export const generatedProperties: INodeProperties[] = [
 		type: 'string',
 		default: '',
 		required: true,
+		description: 'ID of the network offering, which sets the type and features of the network',
 		routing: {
 			send: {
 				type: 'body',
@@ -2399,6 +2456,7 @@ export const generatedProperties: INodeProperties[] = [
 		type: 'string',
 		default: '',
 		required: true,
+		description: 'ID of the zone to create the network in',
 		routing: {
 			send: {
 				type: 'body',
@@ -2438,6 +2496,7 @@ export const generatedProperties: INodeProperties[] = [
 				name: 'aclId',
 				type: 'string',
 				default: '',
+				description: 'ID of the access control list, for a network that is a tier of a VPC',
 				routing: {
 					send: {
 						type: 'body',
@@ -2450,6 +2509,7 @@ export const generatedProperties: INodeProperties[] = [
 				name: 'endIp',
 				type: 'string',
 				default: '',
+				description: 'Last IP address of the range, for a shared network',
 				routing: {
 					send: {
 						type: 'body',
@@ -2462,6 +2522,7 @@ export const generatedProperties: INodeProperties[] = [
 				name: 'gateway',
 				type: 'string',
 				default: '',
+				description: 'Gateway IP address',
 				routing: {
 					send: {
 						type: 'body',
@@ -2474,6 +2535,7 @@ export const generatedProperties: INodeProperties[] = [
 				name: 'netmask',
 				type: 'string',
 				default: '',
+				description: 'Network mask, such as 255.255.255.0',
 				routing: {
 					send: {
 						type: 'body',
@@ -2486,6 +2548,7 @@ export const generatedProperties: INodeProperties[] = [
 				name: 'networkDomain',
 				type: 'string',
 				default: '',
+				description: 'DNS suffix for the network',
 				routing: {
 					send: {
 						type: 'body',
@@ -2498,6 +2561,7 @@ export const generatedProperties: INodeProperties[] = [
 				name: 'startIp',
 				type: 'string',
 				default: '',
+				description: 'First IP address of the range, for a shared network',
 				routing: {
 					send: {
 						type: 'body',
@@ -2510,6 +2574,7 @@ export const generatedProperties: INodeProperties[] = [
 				name: 'vpcId',
 				type: 'string',
 				default: '',
+				description: 'ID of the VPC, for a network that is a tier of a VPC',
 				routing: {
 					send: {
 						type: 'body',
@@ -2525,6 +2590,7 @@ export const generatedProperties: INodeProperties[] = [
 		type: 'string',
 		required: true,
 		default: '',
+		description: 'ID of the network',
 		displayOptions: {
 			show: {
 				resource: [
@@ -2542,6 +2608,7 @@ export const generatedProperties: INodeProperties[] = [
 		type: 'string',
 		required: true,
 		default: '',
+		description: 'ID of the network',
 		displayOptions: {
 			show: {
 				resource: [
@@ -2633,6 +2700,7 @@ export const generatedProperties: INodeProperties[] = [
 				name: 'search',
 				type: 'string',
 				default: '',
+				description: 'Text to search for in names',
 				routing: {
 					send: {
 						type: 'query',
@@ -2645,6 +2713,7 @@ export const generatedProperties: INodeProperties[] = [
 				name: 'type',
 				type: 'string',
 				default: '',
+				description: 'One of \'Isolated\', \'Shared\' or \'L2\'',
 				routing: {
 					send: {
 						type: 'query',
@@ -2657,6 +2726,7 @@ export const generatedProperties: INodeProperties[] = [
 				name: 'vpcId',
 				type: 'string',
 				default: '',
+				description: 'Only the networks of this VPC, by its ID',
 				routing: {
 					send: {
 						type: 'query',
@@ -2669,6 +2739,7 @@ export const generatedProperties: INodeProperties[] = [
 				name: 'zoneId',
 				type: 'string',
 				default: '',
+				description: 'Only resources in this zone, by its ID',
 				routing: {
 					send: {
 						type: 'query',
@@ -2684,6 +2755,7 @@ export const generatedProperties: INodeProperties[] = [
 		type: 'string',
 		default: '',
 		required: true,
+		description: 'Name of the cluster',
 		routing: {
 			send: {
 				type: 'body',
@@ -2707,6 +2779,7 @@ export const generatedProperties: INodeProperties[] = [
 		type: 'string',
 		default: '',
 		required: true,
+		description: 'ID of the zone to create the cluster in',
 		routing: {
 			send: {
 				type: 'body',
@@ -2773,6 +2846,7 @@ export const generatedProperties: INodeProperties[] = [
 					minValue: 1,
 					maxValue: 3,
 				},
+				description: 'Number of control plane nodes: 1, or 3 for high availability',
 				routing: {
 					send: {
 						type: 'body',
@@ -2785,6 +2859,7 @@ export const generatedProperties: INodeProperties[] = [
 				name: 'description',
 				type: 'string',
 				default: '',
+				description: 'Description of the cluster',
 				routing: {
 					send: {
 						type: 'body',
@@ -2800,6 +2875,7 @@ export const generatedProperties: INodeProperties[] = [
 				typeOptions: {
 					password: true,
 				},
+				description: 'Password for the private registry',
 				routing: {
 					send: {
 						type: 'body',
@@ -2812,6 +2888,7 @@ export const generatedProperties: INodeProperties[] = [
 				name: 'dockerRegistryUrl',
 				type: 'string',
 				default: '',
+				description: 'Address of a private registry the nodes pull images from',
 				routing: {
 					send: {
 						type: 'body',
@@ -2824,6 +2901,7 @@ export const generatedProperties: INodeProperties[] = [
 				name: 'dockerRegistryUsername',
 				type: 'string',
 				default: '',
+				description: 'User name for the private registry',
 				routing: {
 					send: {
 						type: 'body',
@@ -2854,6 +2932,7 @@ export const generatedProperties: INodeProperties[] = [
 					minValue: 0,
 					maxValue: 5,
 				},
+				description: 'Number of separate etcd nodes, from 0 to 5; 0 keeps etcd on the control plane nodes',
 				routing: {
 					send: {
 						type: 'body',
@@ -2879,6 +2958,7 @@ export const generatedProperties: INodeProperties[] = [
 				name: 'kubernetesVersionId',
 				type: 'string',
 				default: '',
+				description: 'ID of the Kubernetes version; your provider\'s default when left empty',
 				routing: {
 					send: {
 						type: 'body',
@@ -2891,6 +2971,7 @@ export const generatedProperties: INodeProperties[] = [
 				name: 'networkId',
 				type: 'string',
 				default: '',
+				description: 'ID of the network for the cluster',
 				routing: {
 					send: {
 						type: 'body',
@@ -2935,6 +3016,7 @@ export const generatedProperties: INodeProperties[] = [
 					numberPrecision: 0,
 					minValue: 1,
 				},
+				description: 'Root disk size of each node in GB',
 				routing: {
 					send: {
 						type: 'body',
@@ -2961,6 +3043,7 @@ export const generatedProperties: INodeProperties[] = [
 				name: 'projectId',
 				type: 'string',
 				default: '',
+				description: 'ID of the project to create the cluster in',
 				routing: {
 					send: {
 						type: 'body',
@@ -2973,6 +3056,7 @@ export const generatedProperties: INodeProperties[] = [
 				name: 'serviceOfferingId',
 				type: 'string',
 				default: '',
+				description: 'ID of the service offering (CPU and memory) of the control plane nodes',
 				routing: {
 					send: {
 						type: 'body',
@@ -2989,6 +3073,7 @@ export const generatedProperties: INodeProperties[] = [
 					numberPrecision: 0,
 					minValue: 1,
 				},
+				description: 'Number of worker nodes, at least 1',
 				routing: {
 					send: {
 						type: 'body',
@@ -3001,6 +3086,7 @@ export const generatedProperties: INodeProperties[] = [
 				name: 'sshKeypair',
 				type: 'string',
 				default: '',
+				description: 'Name of the SSH key pair that gives access to the nodes',
 				routing: {
 					send: {
 						type: 'body',
@@ -3030,6 +3116,7 @@ export const generatedProperties: INodeProperties[] = [
 		type: 'string',
 		required: true,
 		default: '',
+		description: 'ID of the Kubernetes cluster',
 		displayOptions: {
 			show: {
 				resource: [
@@ -3047,6 +3134,7 @@ export const generatedProperties: INodeProperties[] = [
 		type: 'string',
 		required: true,
 		default: '',
+		description: 'ID of the Kubernetes cluster',
 		displayOptions: {
 			show: {
 				resource: [
@@ -3138,6 +3226,7 @@ export const generatedProperties: INodeProperties[] = [
 				name: 'name',
 				type: 'string',
 				default: '',
+				description: 'Only clusters with this name',
 				routing: {
 					send: {
 						type: 'query',
@@ -3150,6 +3239,7 @@ export const generatedProperties: INodeProperties[] = [
 				name: 'state',
 				type: 'string',
 				default: '',
+				description: 'Only clusters in this state, such as Running',
 				routing: {
 					send: {
 						type: 'query',
@@ -3162,6 +3252,7 @@ export const generatedProperties: INodeProperties[] = [
 				name: 'zoneId',
 				type: 'string',
 				default: '',
+				description: 'Only resources in this zone, by its ID',
 				routing: {
 					send: {
 						type: 'query',
@@ -3177,6 +3268,7 @@ export const generatedProperties: INodeProperties[] = [
 		type: 'string',
 		default: '',
 		required: true,
+		description: 'Image to run, such as nginx:latest, up to 512 characters',
 		routing: {
 			send: {
 				type: 'body',
@@ -3200,6 +3292,7 @@ export const generatedProperties: INodeProperties[] = [
 		type: 'string',
 		default: '',
 		required: true,
+		description: 'Name of the container, up to 128 characters',
 		routing: {
 			send: {
 				type: 'body',
@@ -3239,6 +3332,7 @@ export const generatedProperties: INodeProperties[] = [
 				name: 'containerSize',
 				type: 'string',
 				default: '',
+				description: 'One of \'small\' (default), \'medium\', \'large\' or \'custom\'. With \'custom\', also set Custom CPU Millicores and Custom Memory MB.',
 				routing: {
 					send: {
 						type: 'body',
@@ -3256,6 +3350,7 @@ export const generatedProperties: INodeProperties[] = [
 					minValue: 100,
 					maxValue: 32000,
 				},
+				description: 'CPU limit in millicores, from 100 to 32000, used only when Container Size is \'custom\'',
 				routing: {
 					send: {
 						type: 'body',
@@ -3273,6 +3368,7 @@ export const generatedProperties: INodeProperties[] = [
 					minValue: 64,
 					maxValue: 65536,
 				},
+				description: 'Memory limit in MB, from 64 to 65536, used only when Container Size is \'custom\'',
 				routing: {
 					send: {
 						type: 'body',
@@ -3285,6 +3381,7 @@ export const generatedProperties: INodeProperties[] = [
 				name: 'l3CustomerId',
 				type: 'string',
 				default: '',
+				description: 'ID of the customer who will own the container. A provider key must set it.',
 				routing: {
 					send: {
 						type: 'body',
@@ -3311,6 +3408,7 @@ export const generatedProperties: INodeProperties[] = [
 				name: 'healthCheckPath',
 				type: 'string',
 				default: '',
+				description: 'HTTP path LetzCloud calls to check that the container is healthy; /health when left empty',
 				routing: {
 					send: {
 						type: 'body',
@@ -3328,6 +3426,7 @@ export const generatedProperties: INodeProperties[] = [
 					minValue: 1,
 					maxValue: 65535,
 				},
+				description: 'Port of the health check; the container\'s port when left empty',
 				routing: {
 					send: {
 						type: 'body',
@@ -3345,6 +3444,7 @@ export const generatedProperties: INodeProperties[] = [
 					minValue: 1,
 					maxValue: 100,
 				},
+				description: 'Largest number of copies of the container that run, from 1 to 100',
 				routing: {
 					send: {
 						type: 'body',
@@ -3362,6 +3462,7 @@ export const generatedProperties: INodeProperties[] = [
 					minValue: 0,
 					maxValue: 100,
 				},
+				description: 'Smallest number of copies of the container that run, from 0 to 100',
 				routing: {
 					send: {
 						type: 'body',
@@ -3379,6 +3480,7 @@ export const generatedProperties: INodeProperties[] = [
 					minValue: 1,
 					maxValue: 65535,
 				},
+				description: 'Port the container listens on, from 1 to 65535; 8080 when left empty',
 				routing: {
 					send: {
 						type: 'body',
@@ -3391,6 +3493,7 @@ export const generatedProperties: INodeProperties[] = [
 				name: 'protocol',
 				type: 'string',
 				default: '',
+				description: 'Protocol of the port: \'http\' (default), \'tcp\' or \'grpc\'',
 				routing: {
 					send: {
 						type: 'body',
@@ -3403,6 +3506,7 @@ export const generatedProperties: INodeProperties[] = [
 				name: 'registryCredentialId',
 				type: 'string',
 				default: '',
+				description: 'ID of the registry credential that lets LetzCloud pull a private image',
 				routing: {
 					send: {
 						type: 'body',
@@ -3415,6 +3519,7 @@ export const generatedProperties: INodeProperties[] = [
 				name: 'registryUrl',
 				type: 'string',
 				default: '',
+				description: 'Address of the container registry, for an image on your own registry',
 				routing: {
 					send: {
 						type: 'body',
@@ -3444,6 +3549,7 @@ export const generatedProperties: INodeProperties[] = [
 		type: 'string',
 		required: true,
 		default: '',
+		description: 'ID of the container',
 		displayOptions: {
 			show: {
 				resource: [
@@ -3461,6 +3567,7 @@ export const generatedProperties: INodeProperties[] = [
 		type: 'string',
 		required: true,
 		default: '',
+		description: 'ID of the container',
 		displayOptions: {
 			show: {
 				resource: [
@@ -3552,6 +3659,7 @@ export const generatedProperties: INodeProperties[] = [
 				name: 'search',
 				type: 'string',
 				default: '',
+				description: 'Text to search for in names',
 				routing: {
 					send: {
 						type: 'query',
@@ -3564,6 +3672,7 @@ export const generatedProperties: INodeProperties[] = [
 				name: 'status',
 				type: 'string',
 				default: '',
+				description: 'One of \'deploying\', \'running\', \'stopped\', \'failed\', \'scaling\', \'updating\' or \'deleting\'',
 				routing: {
 					send: {
 						type: 'query',
@@ -3579,6 +3688,7 @@ export const generatedProperties: INodeProperties[] = [
 		type: 'string',
 		default: '',
 		required: true,
+		description: 'One of \'postgresql\', \'mysql\', \'valkey\', \'mongodb\', \'kafka\' or \'opensearch\'',
 		routing: {
 			send: {
 				type: 'body',
@@ -3602,6 +3712,7 @@ export const generatedProperties: INodeProperties[] = [
 		type: 'string',
 		default: '',
 		required: true,
+		description: 'Version of the engine, such as 17 for PostgreSQL or 8.4 for MySQL',
 		routing: {
 			send: {
 				type: 'body',
@@ -3625,6 +3736,7 @@ export const generatedProperties: INodeProperties[] = [
 		type: 'string',
 		default: '',
 		required: true,
+		description: 'Name of the cluster, up to 128 characters',
 		routing: {
 			send: {
 				type: 'body',
@@ -3669,6 +3781,7 @@ export const generatedProperties: INodeProperties[] = [
 					minValue: 1,
 					maxValue: 64,
 				},
+				description: 'CPU cores per node, from 1 to 64; replaces the tier\'s default',
 				routing: {
 					send: {
 						type: 'body',
@@ -3681,6 +3794,7 @@ export const generatedProperties: INodeProperties[] = [
 				name: 'l3CustomerId',
 				type: 'string',
 				default: '',
+				description: 'ID of the customer who will own the database. A provider key must set it.',
 				routing: {
 					send: {
 						type: 'body',
@@ -3706,6 +3820,7 @@ export const generatedProperties: INodeProperties[] = [
 				name: 'kmsKeyId',
 				type: 'string',
 				default: '',
+				description: 'ID of one of your encryption keys, to encrypt the database\'s administrator password with instead of the default key',
 				routing: {
 					send: {
 						type: 'body',
@@ -3723,6 +3838,7 @@ export const generatedProperties: INodeProperties[] = [
 					minValue: 1,
 					maxValue: 512,
 				},
+				description: 'Memory per node in GB, from 1 to 512; replaces the tier\'s default',
 				routing: {
 					send: {
 						type: 'body',
@@ -3740,6 +3856,7 @@ export const generatedProperties: INodeProperties[] = [
 					minValue: 1,
 					maxValue: 20,
 				},
+				description: 'Number of nodes, from 1 to 20; replaces the tier\'s default',
 				routing: {
 					send: {
 						type: 'body',
@@ -3752,6 +3869,7 @@ export const generatedProperties: INodeProperties[] = [
 				name: 'placementMode',
 				type: 'string',
 				default: '',
+				description: 'Leave empty: \'kubernetes\' is the default and the only placement offered',
 				routing: {
 					send: {
 						type: 'body',
@@ -3769,6 +3887,7 @@ export const generatedProperties: INodeProperties[] = [
 					minValue: 0,
 					maxValue: 10,
 				},
+				description: 'Number of read replicas, from 0 to 10',
 				routing: {
 					send: {
 						type: 'body',
@@ -3781,6 +3900,7 @@ export const generatedProperties: INodeProperties[] = [
 				name: 'region',
 				type: 'string',
 				default: '',
+				description: 'Region to deploy in; \'default\' when left empty',
 				routing: {
 					send: {
 						type: 'body',
@@ -3798,6 +3918,7 @@ export const generatedProperties: INodeProperties[] = [
 					minValue: 10,
 					maxValue: 10000,
 				},
+				description: 'Storage per node in GB, from 10 to 10000; replaces the tier\'s default',
 				routing: {
 					send: {
 						type: 'body',
@@ -3810,6 +3931,7 @@ export const generatedProperties: INodeProperties[] = [
 				name: 'storageType',
 				type: 'string',
 				default: '',
+				description: 'Either \'ssd\' or \'nvme\'',
 				routing: {
 					send: {
 						type: 'body',
@@ -3822,6 +3944,7 @@ export const generatedProperties: INodeProperties[] = [
 				name: 'tier',
 				type: 'string',
 				default: '',
+				description: 'One of \'dev\' (default), \'standard\', \'production\' or \'enterprise\'. The tier sets the default size of the cluster.',
 				routing: {
 					send: {
 						type: 'body',
@@ -3834,6 +3957,7 @@ export const generatedProperties: INodeProperties[] = [
 				name: 'zoneId',
 				type: 'string',
 				default: '',
+				description: 'ID of the zone to deploy in',
 				routing: {
 					send: {
 						type: 'body',
@@ -3849,6 +3973,7 @@ export const generatedProperties: INodeProperties[] = [
 		type: 'string',
 		required: true,
 		default: '',
+		description: 'ID of the database cluster',
 		displayOptions: {
 			show: {
 				resource: [
@@ -3866,6 +3991,7 @@ export const generatedProperties: INodeProperties[] = [
 		type: 'string',
 		required: true,
 		default: '',
+		description: 'ID of the database cluster',
 		displayOptions: {
 			show: {
 				resource: [
@@ -3957,6 +4083,7 @@ export const generatedProperties: INodeProperties[] = [
 				name: 'engine',
 				type: 'string',
 				default: '',
+				description: 'Only clusters of this engine, such as postgresql',
 				routing: {
 					send: {
 						type: 'query',
@@ -3969,6 +4096,7 @@ export const generatedProperties: INodeProperties[] = [
 				name: 'search',
 				type: 'string',
 				default: '',
+				description: 'Text to search for in names',
 				routing: {
 					send: {
 						type: 'query',
@@ -3981,6 +4109,7 @@ export const generatedProperties: INodeProperties[] = [
 				name: 'status',
 				type: 'string',
 				default: '',
+				description: 'One of \'provisioning\', \'running\', \'degraded\', \'maintenance\', \'stopped\', \'failed\', \'deleting\' or \'resizing\'',
 				routing: {
 					send: {
 						type: 'query',
@@ -4070,6 +4199,7 @@ export const generatedProperties: INodeProperties[] = [
 				name: 'plane',
 				type: 'string',
 				default: '',
+				description: 'Either \'public\' or \'private\'',
 				routing: {
 					send: {
 						type: 'query',
@@ -4082,6 +4212,7 @@ export const generatedProperties: INodeProperties[] = [
 				name: 'search',
 				type: 'string',
 				default: '',
+				description: 'Text to search for in names',
 				routing: {
 					send: {
 						type: 'query',
@@ -4094,6 +4225,7 @@ export const generatedProperties: INodeProperties[] = [
 				name: 'status',
 				type: 'string',
 				default: '',
+				description: 'One of \'active\', \'pending\', \'error\' or \'deleting\'',
 				routing: {
 					send: {
 						type: 'query',
@@ -4109,6 +4241,7 @@ export const generatedProperties: INodeProperties[] = [
 		type: 'string',
 		required: true,
 		default: '',
+		description: 'ID of the DNS zone, as Get many DNS zones lists it',
 		displayOptions: {
 			show: {
 				resource: [
@@ -4126,6 +4259,7 @@ export const generatedProperties: INodeProperties[] = [
 		type: 'string',
 		default: '',
 		required: true,
+		description: 'Value of the record, such as an IP address for A, a host name for CNAME, or the text for TXT',
 		routing: {
 			send: {
 				type: 'body',
@@ -4149,6 +4283,7 @@ export const generatedProperties: INodeProperties[] = [
 		type: 'string',
 		default: '',
 		required: true,
+		description: 'Name of the record: a subdomain such as www, @ for the zone itself, or a full domain name',
 		routing: {
 			send: {
 				type: 'body',
@@ -4172,6 +4307,7 @@ export const generatedProperties: INodeProperties[] = [
 		type: 'string',
 		default: '',
 		required: true,
+		description: 'One of A, AAAA, CNAME, MX, TXT, NS, SRV, CAA or PTR',
 		routing: {
 			send: {
 				type: 'body',
@@ -4229,6 +4365,7 @@ export const generatedProperties: INodeProperties[] = [
 					minValue: 0,
 					maxValue: 255,
 				},
+				description: 'Flags of a CAA record: 0 for non-critical, 128 for critical',
 				routing: {
 					send: {
 						type: 'body',
@@ -4246,6 +4383,7 @@ export const generatedProperties: INodeProperties[] = [
 					minValue: 0,
 					maxValue: 65535,
 				},
+				description: 'Port of an SRV record, from 0 to 65535',
 				routing: {
 					send: {
 						type: 'body',
@@ -4263,6 +4401,7 @@ export const generatedProperties: INodeProperties[] = [
 					minValue: 0,
 					maxValue: 65535,
 				},
+				description: 'Priority from 0 to 65535, needed for MX and SRV records',
 				routing: {
 					send: {
 						type: 'body',
@@ -4275,6 +4414,7 @@ export const generatedProperties: INodeProperties[] = [
 				name: 'tag',
 				type: 'string',
 				default: '',
+				description: 'Tag of a CAA record: \'issue\', \'issuewild\' or \'iodef\'',
 				routing: {
 					send: {
 						type: 'body',
@@ -4292,6 +4432,7 @@ export const generatedProperties: INodeProperties[] = [
 					minValue: 60,
 					maxValue: 604800,
 				},
+				description: 'Time to live in seconds, from 60 to 604800; 3600 when left empty',
 				routing: {
 					send: {
 						type: 'body',
@@ -4309,6 +4450,7 @@ export const generatedProperties: INodeProperties[] = [
 					minValue: 0,
 					maxValue: 65535,
 				},
+				description: 'Weight of an SRV record, from 0 to 65535',
 				routing: {
 					send: {
 						type: 'body',
@@ -4324,6 +4466,7 @@ export const generatedProperties: INodeProperties[] = [
 		type: 'string',
 		required: true,
 		default: '',
+		description: 'ID of the DNS zone, as Get many DNS zones lists it',
 		displayOptions: {
 			show: {
 				resource: [
@@ -4341,6 +4484,7 @@ export const generatedProperties: INodeProperties[] = [
 		type: 'string',
 		required: true,
 		default: '',
+		description: 'ID of the DNS record',
 		displayOptions: {
 			show: {
 				resource: [
@@ -4358,6 +4502,7 @@ export const generatedProperties: INodeProperties[] = [
 		type: 'string',
 		required: true,
 		default: '',
+		description: 'ID of the DNS zone, as Get many DNS zones lists it',
 		displayOptions: {
 			show: {
 				resource: [
@@ -4449,6 +4594,7 @@ export const generatedProperties: INodeProperties[] = [
 				name: 'recordType',
 				type: 'string',
 				default: '',
+				description: 'Only records of this type, such as A or CNAME',
 				routing: {
 					send: {
 						type: 'query',
@@ -4461,6 +4607,7 @@ export const generatedProperties: INodeProperties[] = [
 				name: 'search',
 				type: 'string',
 				default: '',
+				description: 'Text to search for in names',
 				routing: {
 					send: {
 						type: 'query',
@@ -4476,6 +4623,7 @@ export const generatedProperties: INodeProperties[] = [
 		type: 'string',
 		required: true,
 		default: '',
+		description: 'ID of the DNS zone, as Get many DNS zones lists it',
 		displayOptions: {
 			show: {
 				resource: [
@@ -4493,6 +4641,7 @@ export const generatedProperties: INodeProperties[] = [
 		type: 'string',
 		required: true,
 		default: '',
+		description: 'ID of the DNS record',
 		displayOptions: {
 			show: {
 				resource: [
@@ -4526,6 +4675,7 @@ export const generatedProperties: INodeProperties[] = [
 				name: 'content',
 				type: 'string',
 				default: '',
+				description: 'Value of the record, such as an IP address for A, a host name for CNAME, or the text for TXT',
 				routing: {
 					send: {
 						type: 'body',
@@ -4556,6 +4706,7 @@ export const generatedProperties: INodeProperties[] = [
 					minValue: 0,
 					maxValue: 255,
 				},
+				description: 'Flags of a CAA record: 0 for non-critical, 128 for critical',
 				routing: {
 					send: {
 						type: 'body',
@@ -4568,6 +4719,7 @@ export const generatedProperties: INodeProperties[] = [
 				name: 'name',
 				type: 'string',
 				default: '',
+				description: 'Name of the record: a subdomain such as www, @ for the zone itself, or a full domain name',
 				routing: {
 					send: {
 						type: 'body',
@@ -4585,6 +4737,7 @@ export const generatedProperties: INodeProperties[] = [
 					minValue: 0,
 					maxValue: 65535,
 				},
+				description: 'Port of an SRV record, from 0 to 65535',
 				routing: {
 					send: {
 						type: 'body',
@@ -4602,6 +4755,7 @@ export const generatedProperties: INodeProperties[] = [
 					minValue: 0,
 					maxValue: 65535,
 				},
+				description: 'Priority from 0 to 65535, for MX and SRV records',
 				routing: {
 					send: {
 						type: 'body',
@@ -4614,6 +4768,7 @@ export const generatedProperties: INodeProperties[] = [
 				name: 'tag',
 				type: 'string',
 				default: '',
+				description: 'Tag of a CAA record: \'issue\', \'issuewild\' or \'iodef\'',
 				routing: {
 					send: {
 						type: 'body',
@@ -4631,6 +4786,7 @@ export const generatedProperties: INodeProperties[] = [
 					minValue: 60,
 					maxValue: 604800,
 				},
+				description: 'Time to live in seconds, from 60 to 604800',
 				routing: {
 					send: {
 						type: 'body',
@@ -4648,6 +4804,7 @@ export const generatedProperties: INodeProperties[] = [
 					minValue: 0,
 					maxValue: 65535,
 				},
+				description: 'Weight of an SRV record, from 0 to 65535',
 				routing: {
 					send: {
 						type: 'body',
@@ -4737,6 +4894,7 @@ export const generatedProperties: INodeProperties[] = [
 				name: 'q',
 				type: 'string',
 				default: '',
+				description: 'Text to search for in invoice numbers',
 				routing: {
 					send: {
 						type: 'query',
@@ -4749,6 +4907,7 @@ export const generatedProperties: INodeProperties[] = [
 				name: 'status',
 				type: 'string',
 				default: '',
+				description: 'One of \'draft\', \'finalized\', \'paid\' or \'voided\'',
 				routing: {
 					send: {
 						type: 'query',
@@ -4761,6 +4920,7 @@ export const generatedProperties: INodeProperties[] = [
 				name: 'subscriptionId',
 				type: 'string',
 				default: '',
+				description: 'Only invoices of this subscription, by its ID',
 				routing: {
 					send: {
 						type: 'query',
@@ -4792,6 +4952,7 @@ export const generatedProperties: INodeProperties[] = [
 				name: 'period',
 				type: 'string',
 				default: '',
+				description: 'Either \'current_month\' (default) or \'last_month\'',
 				routing: {
 					send: {
 						type: 'query',
@@ -5281,7 +5442,9 @@ export const operationSpecs: GeneratedOperationSpec[] = [
 		root: '',
 		maxPerPage: 0,
 		itemSchema: 'DatabaseClusterRead',
-		outputOmit: [],
+		outputOmit: [
+			'nodes[].cloudstack_vm_id',
+		],
 		minorUnitInputs: [],
 		inheritCurrency: [],
 		uuidParameters: [],
@@ -5317,7 +5480,9 @@ export const operationSpecs: GeneratedOperationSpec[] = [
 		root: '',
 		maxPerPage: 0,
 		itemSchema: 'DatabaseClusterRead',
-		outputOmit: [],
+		outputOmit: [
+			'nodes[].cloudstack_vm_id',
+		],
 		minorUnitInputs: [],
 		inheritCurrency: [],
 		uuidParameters: [
@@ -5336,7 +5501,9 @@ export const operationSpecs: GeneratedOperationSpec[] = [
 		root: 'items',
 		maxPerPage: 500,
 		itemSchema: 'DatabaseClusterRead',
-		outputOmit: [],
+		outputOmit: [
+			'nodes[].cloudstack_vm_id',
+		],
 		minorUnitInputs: [],
 		inheritCurrency: [],
 		uuidParameters: [],
@@ -5353,7 +5520,9 @@ export const operationSpecs: GeneratedOperationSpec[] = [
 		root: 'items',
 		maxPerPage: 500,
 		itemSchema: 'DnsZoneRead',
-		outputOmit: [],
+		outputOmit: [
+			'l3_customer_id',
+		],
 		minorUnitInputs: [],
 		inheritCurrency: [],
 		uuidParameters: [],
@@ -5370,7 +5539,9 @@ export const operationSpecs: GeneratedOperationSpec[] = [
 		root: '',
 		maxPerPage: 0,
 		itemSchema: 'DnsRecordRead',
-		outputOmit: [],
+		outputOmit: [
+			'cloudstack_nic_id',
+		],
 		minorUnitInputs: [],
 		inheritCurrency: [],
 		uuidParameters: [
@@ -5409,7 +5580,9 @@ export const operationSpecs: GeneratedOperationSpec[] = [
 		root: 'items',
 		maxPerPage: 500,
 		itemSchema: 'DnsRecordRead',
-		outputOmit: [],
+		outputOmit: [
+			'cloudstack_nic_id',
+		],
 		minorUnitInputs: [],
 		inheritCurrency: [],
 		uuidParameters: [
@@ -5428,7 +5601,9 @@ export const operationSpecs: GeneratedOperationSpec[] = [
 		root: '',
 		maxPerPage: 0,
 		itemSchema: 'DnsRecordRead',
-		outputOmit: [],
+		outputOmit: [
+			'cloudstack_nic_id',
+		],
 		minorUnitInputs: [],
 		inheritCurrency: [],
 		uuidParameters: [
