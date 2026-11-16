@@ -117,17 +117,23 @@ test('the node offers exactly the operation rows of the scope map, each once', (
 	assert.deepEqual([...generated].sort(), [...SCOPE_MAP_OPERATIONS].sort());
 });
 
-test('the wait operations and the trigger read only scope-map routes', () => {
+// Routes outside the operation rows that hand-written code reads, each with the reason. The
+// discovery route needs no key. The provider's endpoint list needs the same permission and tier as
+// registering a provider endpoint; the trigger reads it to find its own endpoint at its URL.
+const OUTSIDE_SCOPE_MAP = {
+	'GET /.well-known/letzcloud-appliance': 'served without a key',
+	'GET /api/v1/webhooks/endpoints': 'same permission and tier as POST /api/v1/webhooks/endpoints',
+};
+
+test('the wait operations and the trigger read only scope-map routes, and the listed others', () => {
 	const allowed = new Set([...SCOPE_MAP_OPERATIONS, ...SCOPE_MAP_TRIGGER]);
 	for (const o of manifest.operations.filter((x) => x.custom)) {
 		for (const used of o.uses) assert.ok(allowed.has(`${used.method} ${used.path}`), `${o.value}: ${used.path}`);
 	}
 	const handWritten = manifest.handWritten.map((r) => `${r.method} ${r.path}`);
 	for (const route of SCOPE_MAP_TRIGGER) assert.ok(handWritten.includes(route), route);
-	// The discovery route is the one route outside the map: it needs no key.
-	for (const route of handWritten) {
-		assert.ok(allowed.has(route) || route === 'GET /.well-known/letzcloud-appliance', route);
-	}
+	for (const route of handWritten) assert.ok(allowed.has(route) || route in OUTSIDE_SCOPE_MAP, route);
+	for (const route of Object.keys(OUTSIDE_SCOPE_MAP)) assert.ok(handWritten.includes(route), route);
 });
 
 for (const mutation of mustFail) {
