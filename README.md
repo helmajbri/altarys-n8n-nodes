@@ -5,7 +5,7 @@ n8n community nodes for LetzBill and LetzCloud. One npm package per service:
 | Package | Folder | Contents |
 |---|---|---|
 | `@altarys/n8n-nodes-letzbill` | [`packages/letzbill`](packages/letzbill) | LetzBill action node, LetzBill Trigger, LetzBill API credential |
-| `@altarys/n8n-nodes-letzcloud` | `packages/letzcloud` (planned) | LetzCloud nodes |
+| `@altarys/n8n-nodes-letzcloud` | [`packages/letzcloud`](packages/letzcloud) | LetzCloud action node, LetzCloud Trigger, LetzCloud API credential |
 
 Each folder is a complete n8n node package in the layout `npm create @n8n/node` produces: its own
 `package.json`, `tsconfig.json`, default `eslint.config.mjs` and `n8n-node` scripts. Run every
@@ -16,8 +16,9 @@ command inside the package folder.
 - `tools/generate-operations.mjs` writes a package's declarative operations from its OpenAPI
   document and `openapi/scope.manifest.json`. It checks every path, parameter and field the
   manifest names against the document, and refuses money fields that are not integer minor units
-  with a currency. `npm run generate` writes, `npm run generate:check` fails when the committed
-  file differs.
+  with a currency. It also checks the routes and fields that hand-written code (credential tests,
+  triggers, wait operations) uses, listed under `handWritten` and as `custom` operations.
+  `npm run generate` writes, `npm run generate:check` fails when the committed file differs.
 - `tools/check-package.mjs` checks the hard limits of a verified community node before install:
   no runtime dependencies, `peerDependencies` exactly `"n8n-workflow": "*"`, allowed imports
   only, no restricted globals, no environment or file access, no `eval` or `child_process`,
@@ -28,7 +29,7 @@ command inside the package folder.
 - `.github/workflows/ci.yml`: per package, the guard, the generator check, `n8n-node lint`
   (strict), build and tests; plus the tests of the tools.
 - `.github/workflows/publish.yml`: on a tag `<package>-v<version>` (for example
-  `letzbill-v0.1.0`), publishes that package to npm with a provenance statement from a
+  `letzbill-v0.1.0` or `letzcloud-v0.1.0`), publishes that package to npm with a provenance statement from a
   GitHub-hosted runner, then runs `@n8n/scan-community-package` on the published version and
   fails unless its output reports that the package passed. The publish job runs in the
   `npm-publish` environment, whose required reviewers approve each release, and refuses a tag
