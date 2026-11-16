@@ -161,11 +161,14 @@ test('destructive operations are their own operations and say what they destroy'
 
 test('instance state changes offer start, stop and reboot only', () => {
 	const action = generatedProperties.find(
-		(p) => p.name === 'action' && p.displayOptions?.show?.operation?.includes('changeState'),
+		(p) => p.name === 'stateAction' && p.displayOptions?.show?.operation?.includes('changeState'),
 	);
+	assert.equal(action.displayName, 'Action');
+	assert.deepEqual(action.routing.send, { type: 'body', property: 'action' });
 	assert.equal(action.type, 'options');
 	assert.deepEqual(action.options.map((o) => o.value).sort(), ['reboot', 'start', 'stop']);
 	assert.equal(action.required, true);
+	assert.equal(action.default, 'start');
 });
 
 test('a plan gate reads as a plan gate, with what to upgrade', async () => {

@@ -51,7 +51,10 @@
 		"start_vm": "Whether to start the instance once it is created"
 	},
 	"fieldOptions": {
-		"VmStateUpdate.action": ["reboot", "start", "stop"]
+		"VmStateUpdate.action": ["start", "stop", "reboot"]
+	},
+	"parameterNames": {
+		"VmStateUpdate.action": "stateAction"
 	},
 	"money": {
 		"currencyField": "^(currency|.+_currency|.+_currencies)$",

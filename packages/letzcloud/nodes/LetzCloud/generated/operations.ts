@@ -1168,7 +1168,7 @@ export const generatedProperties: INodeProperties[] = [
 	},
 	{
 		displayName: 'Action',
-		name: 'action',
+		name: 'stateAction',
 		type: 'options',
 		options: [
 			{
@@ -1184,7 +1184,7 @@ export const generatedProperties: INodeProperties[] = [
 				value: 'stop',
 			},
 		],
-		default: 'reboot',
+		default: 'start',
 		required: true,
 		routing: {
 			send: {

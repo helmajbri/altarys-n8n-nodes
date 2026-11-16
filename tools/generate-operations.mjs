@@ -202,6 +202,9 @@ export function generate({ manifest, openapi, openapiName = manifest.openapi }) 
 	// Objects that carry amounts but leave the currency to an enclosing object: the node copies it in.
 	const inheritCurrency = money.inheritCurrency ?? {};
 	const fieldOptions = manifest.fieldOptions ?? {};
+	// n8n parameter names for body fields whose own name n8n's lint reserves (an options parameter
+	// named 'action' is read as an operation list). The request still sends the field's own name.
+	const parameterNames = manifest.parameterNames ?? {};
 
 	// Every schema the money rules name must still carry the field they name.
 	for (const [kind, table] of [
@@ -237,6 +240,11 @@ export function generate({ manifest, openapi, openapiName = manifest.openapi }) 
 		else if (components[title].properties?.[field]) {
 			problems.push(`money.inheritCurrency: ${title} has its own '${field}'; remove the entry`);
 		}
+	}
+	for (const [key, name] of Object.entries(parameterNames)) {
+		const [title, f] = key.split('.');
+		if (!components[title]?.properties?.[f]) problems.push(`parameterNames: ${title} has no field '${f}'`);
+		if (typeof name !== 'string' || !IDENT.test(name)) problems.push(`parameterNames: ${key} is not a parameter name`);
 	}
 	for (const [key, values] of Object.entries(fieldOptions)) {
 		const [title, f] = key.split('.');
@@ -349,7 +357,8 @@ export function generate({ manifest, openapi, openapiName = manifest.openapi }) 
 	// One n8n parameter for one OpenAPI field.
 	const fieldParameter = (field, raw, ctx) => {
 		const s = solid(raw);
-		const p = { displayName: display(field), name: camelName(field) };
+		const renamed = ctx.owner ? parameterNames[`${ctx.owner}.${field}`] : undefined;
+		const p = { displayName: display(field), name: typeof renamed === 'string' ? renamed : camelName(field) };
 		let jsonValue = false;
 		let description;
 		const listed = ctx.owner ? fieldOptions[`${ctx.owner}.${field}`] : undefined;
@@ -360,7 +369,9 @@ export function generate({ manifest, openapi, openapiName = manifest.openapi }) 
 				.sort((a, b) => compareNames(a.name, b.name));
 			p.type = 'options';
 			p.options = options;
-			p.default = values.includes(s.default) ? s.default : options[0].value;
+			// A listed field defaults to the first value the manifest lists; an enum to its own default.
+			const first = values === listed ? listed[0] : options[0].value;
+			p.default = values.includes(s.default) ? s.default : first;
 		} else if (isDecimal(s)) {
 			p.type = 'string';
 			p.default = '';
