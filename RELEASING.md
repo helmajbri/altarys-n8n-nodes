@@ -70,7 +70,7 @@ npm lets you add a trusted publisher only to a package that already exists, so t
 
 ### 5. Switch to trusted publishing
 
-After the first version of a package is on npm, let the workflow publish with a short-lived token from GitHub instead of a stored secret. Do this for each package.
+After the first version of a package is on npm, let the workflow publish with a short-lived token from GitHub instead of a stored secret. Do this for each package. You need two-factor authentication on your npm account: npm refuses this change from an access token that bypasses two-factor authentication, including the token from step 4.
 
 1. On npmjs.com, open the package, then its settings.
 2. Add a trusted publisher of type **GitHub Actions** with these values:
@@ -91,6 +91,12 @@ After the first version of a package is on npm, let the workflow publish with a 
    ```
 
 5. Optionally, in the package's publishing access settings, select **Require two-factor authentication and disallow tokens**. The trusted publisher keeps working, because it doesn't use a stored token.
+
+You can also add the trusted publisher from the command line with npm 11.10.0 or later, after `npm login`. The command has no option for allowed actions, so check that field on npmjs.com afterwards:
+
+```bash
+npm trust github @altarys/n8n-nodes-letzbill --file publish.yml --repo <owner>/<repo> --env npm-publish
+```
 
 npm doesn't check the trusted publisher's fields when you save them. If a publish fails with `ENEEDAUTH`, compare every field with the table, including the `.yml` extension. To change a trusted publisher, delete it and add a new one.
 
