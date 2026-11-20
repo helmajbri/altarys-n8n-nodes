@@ -1,0 +1,54 @@
+# Contract suite: both packages inside a real n8n, against fake LetzBill and LetzCloud servers.
+# See contract/README.md. The image references are repository variables (pinned by digest), not
+# literals here; the job fails when they are not set.
+name: Contract
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'contract/**'
+      - 'packages/*/nodes/**'
+      - 'packages/*/credentials/**'
+      - 'packages/*/package.json'
+      - 'packages/*/package-lock.json'
+      - '.github/workflows/contract.yml'
+
+concurrency:
+  group: contract-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  contract:
+    name: Contract suite (real n8n)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      N8N_IMAGE: ${{ vars.CONTRACT_N8N_IMAGE }}
+      NODE_IMAGE: ${{ vars.CONTRACT_NODE_IMAGE }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          persist-credentials: false
+
+      - name: Image references are configured
+        run: |
+          for name in N8N_IMAGE NODE_IMAGE; do
+            value="${!name}"
+            if [ -z "$value" ]; then echo "::error::repository variable CONTRACT_${name} is not set"; exit 1; fi
+            case "$value" in *@sha256:*) ;; *) echo "::error::CONTRACT_${name} must be pinned by digest"; exit 1 ;; esac
+          done
+
+      - name: Run the contract suite
+        run: CONTRACT_PREFIX="aut-t11-${{ github.run_id }}-" LOG_DIR="$RUNNER_TEMP/contract-logs" bash contract/run-docker.sh
+
+      - name: Keep the logs
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: contract-logs
+          path: ${{ runner.temp }}/contract-logs/
+          if-no-files-found: ignore
