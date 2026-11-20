@@ -270,14 +270,20 @@ function flipLastHex(hex) {
 	return hex.slice(0, -1) + (last === '0' ? '1' : '0');
 }
 
+/** How far a stale-timestamp delivery is signed in the past: above the trigger's 900 s cap. */
+const STALE_SECONDS = 3600;
+const KINDS = ['valid', 'tamper-signature', 'tamper-body', 'v1-only', 'stale-timestamp'];
+
 /**
  * Sends one delivery to the single live endpoint of `realm` whose URL contains `urlContains`.
  * kind: valid (signed now) | replay (the last valid delivery's bytes and headers, unchanged) |
- * tamper-signature (one hex digit of v2 changed) | tamper-body (body changed after signing).
+ * tamper-signature (one hex digit of v2 changed) | tamper-body (body changed after signing) |
+ * v1-only (v2 headers removed, v1 still valid) | stale-timestamp (v2 valid, signed an hour ago).
  */
 async function deliver({ realm: realmName, urlContains, kind, eventId, eventType }) {
 	const realm = realms[realmName];
 	if (!realm) return { status: 400, error: `unknown realm ${realmName}` };
+	if (kind !== 'replay' && !KINDS.includes(kind)) return { status: 400, error: `unknown kind ${kind}` };
 	const matches = [...realm.endpoints.values()].filter((e) => e.url.includes(urlContains));
 	if (matches.length !== 1) return { status: 409, error: `${matches.length} live endpoints match`, matches: matches.length };
 	const endpoint = matches[0];
@@ -295,7 +301,8 @@ async function deliver({ realm: realmName, urlContains, kind, eventId, eventType
 		metadata: { event_id: eventId, timestamp: nowIso(), api_version: 'contract-test' },
 	};
 	let body = Buffer.from(JSON.stringify(envelope), 'utf8');
-	const timestamp = String(Math.floor(Date.now() / 1000));
+	const now = Math.floor(Date.now() / 1000);
+	const timestamp = String(kind === 'stale-timestamp' ? now - STALE_SECONDS : now);
 	let v2 = signV2(endpoint.secret, timestamp, body);
 	const v1 = signV1(endpoint.secret, body);
 	if (kind === 'tamper-signature') v2 = flipLastHex(v2);
@@ -303,13 +310,11 @@ async function deliver({ realm: realmName, urlContains, kind, eventId, eventType
 		envelope[objectType].id = randomUUID();
 		body = Buffer.from(JSON.stringify(envelope), 'utf8');
 	}
-	if (!['valid', 'tamper-signature', 'tamper-body'].includes(kind)) return { status: 400, error: `unknown kind ${kind}` };
-	const headers = {
-		'content-type': 'application/json',
-		'x-webhook-timestamp': timestamp,
-		'x-webhook-signature-v2': v2,
-		'x-webhook-signature': v1,
-	};
+	const headers = { 'content-type': 'application/json', 'x-webhook-signature': v1 };
+	if (kind !== 'v1-only') {
+		headers['x-webhook-timestamp'] = timestamp;
+		headers['x-webhook-signature-v2'] = v2;
+	}
 	if (realmName === 'letzbill') {
 		headers['x-webhook-event-type'] = eventType;
 		headers['x-webhook-delivery-id'] = randomUUID();

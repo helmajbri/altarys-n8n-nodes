@@ -1,6 +1,6 @@
-// Phase 1 of 2, n8n with its default settings: activating twice leaves one subscription; a valid
-// delivery makes one workflow item, a replayed or tampered one none; deactivating removes the
-// subscription; activating again restores exactly one. Phase 2 restarts n8n.
+// Phase 1 of 2, n8n with its default settings: a valid delivery makes one workflow item, a
+// replayed, tampered, v1-only or stale one none; deactivating removes the subscription. Phase 1
+// does NOT exercise the trigger's duplicate check (see the publish-again test); phase 2 does.
 import assert from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
 import { test } from 'node:test';
@@ -54,7 +54,10 @@ for (const target of buildTargets(config)) {
 		ctx.active = true;
 	});
 
-	test(`${target.name}: activating again leaves exactly one subscription`, async () => {
+	// NOT evidence for the trigger's duplicate check: at n8n's defaults re-publishing an unchanged
+	// workflow calls no trigger method (n8n@2.47.7 workflow-publication-applier.ts:204-224). It
+	// only pins n8n's behaviour; phase 2 (start activation) is the evidence for AC-AUT-001.11a/b.
+	test(`${target.name}: publishing again leaves exactly one subscription (n8n calls no trigger method; see phase 2)`, async () => {
 		ready('active');
 		await n8n.publish(ctx.workflowId);
 		await sleep(config.settleMs);
@@ -103,6 +106,24 @@ for (const target of buildTargets(config)) {
 	test(`${target.name}: a delivery with a tampered body makes no workflow item`, async () => {
 		ready('validOk');
 		const sent = await deliver('tamper-body', randomUUID());
+		assert.equal(sent.status, 401, `n8n answered ${sent.status}: ${sent.text ?? sent.error}`);
+		await sleep(config.settleMs);
+		assert.equal((await executions()).length, 1);
+	});
+
+	// Signature guide step 1: a delivery without v2 headers is refused even with a valid v1.
+	test(`${target.name}: a delivery with only a valid v1 signature makes no workflow item`, async () => {
+		ready('validOk');
+		const sent = await deliver('v1-only', randomUUID());
+		assert.equal(sent.status, 401, `n8n answered ${sent.status}: ${sent.text ?? sent.error}`);
+		await sleep(config.settleMs);
+		assert.equal((await executions()).length, 1);
+	});
+
+	// Signature guide step 3: a correctly signed delivery outside the tolerance is refused.
+	test(`${target.name}: a delivery with a stale timestamp makes no workflow item`, async () => {
+		ready('validOk');
+		const sent = await deliver('stale-timestamp', randomUUID());
 		assert.equal(sent.status, 401, `n8n answered ${sent.status}: ${sent.text ?? sent.error}`);
 		await sleep(config.settleMs);
 		assert.equal((await executions()).length, 1);
