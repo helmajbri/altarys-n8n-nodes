@@ -1,0 +1,56 @@
+# Contract suite: both packages inside a real n8n, against fake LetzBill and LetzCloud servers.
+# See contract/README.md. The images are pinned by digest below: n8n 2.47.7, the version the
+# platform pins (Docker Hub index digest, the same on GHCR), and the Node.js image the lab build
+# containers use. Repository variables CONTRACT_N8N_IMAGE, CONTRACT_NODE_IMAGE and
+# CONTRACT_N8N_VERSION override them; an override must still be pinned by digest.
+name: Contract
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'contract/**'
+      - 'packages/*/nodes/**'
+      - 'packages/*/credentials/**'
+      - 'packages/*/package.json'
+      - 'packages/*/package-lock.json'
+      - '.github/workflows/contract.yml'
+
+concurrency:
+  group: contract-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  contract:
+    name: Contract suite (real n8n)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      N8N_IMAGE: ${{ vars.CONTRACT_N8N_IMAGE || 'docker.io/n8nio/n8n:2.47.7@sha256:b4b90747b81fcda7e76550c0d3aa7f0f64917a1e9573cff40d6834eaf2e0f8ea' }}
+      NODE_IMAGE: ${{ vars.CONTRACT_NODE_IMAGE || 'docker.io/library/node:24.22.3@sha256:9d266751ca3d7fdbe651c878ffd5ad0a42fed49a18c283509267c97f025b7496' }}
+      # run-docker.sh runs `n8n --version` in the image and fails unless it prints this.
+      EXPECT_N8N_VERSION: ${{ vars.CONTRACT_N8N_VERSION || '2.47.7' }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          persist-credentials: false
+
+      - name: Image references are pinned by digest
+        run: |
+          for name in N8N_IMAGE NODE_IMAGE; do
+            case "${!name}" in *@sha256:*) ;; *) echo "::error::${name} must be pinned by digest"; exit 1 ;; esac
+          done
+
+      - name: Run the contract suite
+        run: LOG_DIR="$RUNNER_TEMP/contract-logs" bash contract/run-docker.sh
+
+      - name: Keep the logs
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: contract-logs
+          path: ${{ runner.temp }}/contract-logs/
+          if-no-files-found: ignore

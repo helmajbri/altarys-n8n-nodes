@@ -45,6 +45,8 @@ node ../../tools/check-docs.mjs .              # documentation checks
 - `.github/workflows/ci.yml`: per package, the guard, the generator check, `n8n-node lint` in strict mode, build, tests, and the documentation checks. It also runs the tests of the tools, and prose lint of the documentation with Vale and the Microsoft style package, as n8n's own documentation uses. The configuration is in `.vale.ini`.
 - `.github/workflows/publish.yml`: on a tag `<package>-v<version>`, such as `letzbill-v0.1.0`, publishes that package to npm with a provenance statement from a GitHub-hosted runner. It then runs `@n8n/scan-community-package` on the published version, and fails unless its output reports that the package passed. The publish job runs in the `npm-publish` environment, whose required reviewers approve each release, and refuses a tag whose commit isn't on `main`. Actions are pinned by commit SHA.
 
+- `.github/workflows/contract.yml`: the contract suite. It runs both triggers inside a real n8n, against stand-in LetzBill and LetzCloud servers, and checks that activating twice leaves one webhook endpoint, that deactivating removes it, and that only a valid signed delivery starts the workflow. See [the contract suite](contract/README.md).
+
 To set up publishing, release a version, or submit a package to n8n for verification, see [RELEASING.md](RELEASING.md).
 
 ## License
